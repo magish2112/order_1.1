@@ -1,0 +1,441 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ПОЛЬЗОВАТЕЛИ ====================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  role          UserRole  @default(MANAGER)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Связи
+  createdProjects   Project[]    @relation("CreatedBy")
+  createdArticles   Article[]    @relation("ArticleAuthor")
+  handledRequests   Request[]    @relation("HandledBy")
+  
+  @@map("users")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  EDITOR
+}
+
+// ==================== КАТЕГОРИИ УСЛУГ ====================
+
+model ServiceCategory {
+  id              String            @id @default(cuid())
+  slug            String            @unique
+  name            String
+  description     String?           @db.Text
+  shortDescription String?
+  image           String?
+  icon            String?
+  parentId        String?
+  order           Int               @default(0)
+  isActive        Boolean           @default(true)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?           @db.Text
+  metaKeywords    String?
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  // Связи
+  parent          ServiceCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children        ServiceCategory[] @relation("CategoryHierarchy")
+  services        Service[]
+  projects        Project[]
+  
+  @@map("service_categories")
+}
+
+// ==================== УСЛУГИ ====================
+
+model Service {
+  id              String          @id @default(cuid())
+  slug            String          @unique
+  name            String
+  description     String?         @db.Text
+  content         String?         @db.Text
+  shortDescription String?
+  
+  // Цены
+  priceFrom       Decimal?        @db.Decimal(10, 2)
+  priceTo         Decimal?        @db.Decimal(10, 2)
+  priceUnit       String?         // "за м²", "за проект" и т.д.
+  
+  // Медиа
+  image           String?
+  gallery         String[]        // массив URL изображений
+  
+  // Параметры
+  duration        String?         // "от 30 дней"
+  features        Json?           // дополнительные характеристики
+  
+  categoryId      String
+  order           Int             @default(0)
+  isActive        Boolean         @default(true)
+  isFeatured      Boolean         @default(false)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?         @db.Text
+  metaKeywords    String?
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Связи
+  category        ServiceCategory @relation(fields: [categoryId], references: [id])
+  projects        Project[]
+  pricingItems    PricingItem[]
+  
+  @@map("services")
+}
+
+// ==================== ПРАЙС-ЛИСТ ====================
+
+model PricingItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  unit        String   // "м²", "шт", "п.м" и т.д.
+  serviceId   String?
+  category    String?  // категория работ
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  service     Service? @relation(fields: [serviceId], references: [id])
+  
+  @@map("pricing_items")
+}
+
+// ==================== ПРОЕКТЫ (ПОРТФОЛИО) ====================
+
+model Project {
+  id              String          @id @default(cuid())
+  slug            String          @unique
+  title           String
+  description     String?         @db.Text
+  content         String?         @db.Text
+  
+  // Характеристики проекта
+  area            Decimal?        @db.Decimal(10, 2) // площадь в м²
+  rooms           Int?            // количество комнат
+  duration        Int?            // срок выполнения в днях
+  price           Decimal?        @db.Decimal(12, 2) // стоимость проекта
+  location        String?         // ЖК, адрес
+  completedAt     DateTime?       // дата завершения
+  
+  // Стиль и тип
+  style           String?         // "современный", "лофт", "классика"
+  propertyType    String?         // "квартира", "дом", "офис"
+  repairType      String?         // "дизайнерский", "капитальный", "косметический"
+  
+  // Медиа
+  coverImage      String?
+  beforeImages    String[]        // фото до ремонта
+  afterImages     String[]        // фото после ремонта
+  designImages    String[]        // 3D визуализации дизайн-проекта
+  videoUrl        String?
+  
+  // Отзыв клиента
+  clientName      String?
+  clientReview    String?         @db.Text
+  clientPhoto     String?
+  
+  categoryId      String?
+  serviceIds      String[]
+  
+  order           Int             @default(0)
+  isActive        Boolean         @default(true)
+  isFeatured      Boolean         @default(false)
+  viewsCount      Int             @default(0)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?         @db.Text
+  
+  createdById     String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Связи
+  category        ServiceCategory? @relation(fields: [categoryId], references: [id])
+  createdBy       User?            @relation("CreatedBy", fields: [createdById], references: [id])
+  services        Service[]
+  tags            ProjectTag[]
+  
+  @@map("projects")
+}
+
+model ProjectTag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  projects  Project[]
+  
+  @@map("project_tags")
+}
+
+// ==================== СТАТЬИ (БЛОГ) ====================
+
+model Article {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  title           String
+  excerpt         String?       @db.Text
+  content         String        @db.Text
+  coverImage      String?
+  
+  readingTime     Int?          // время чтения в минутах
+  
+  authorId        String?
+  categoryId      String?
+  
+  isPublished     Boolean       @default(false)
+  publishedAt     DateTime?
+  viewsCount      Int           @default(0)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?       @db.Text
+  metaKeywords    String?
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Связи
+  author          User?         @relation("ArticleAuthor", fields: [authorId], references: [id])
+  category        ArticleCategory? @relation(fields: [categoryId], references: [id])
+  tags            ArticleTag[]
+  
+  @@map("articles")
+}
+
+model ArticleCategory {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?
+  order       Int       @default(0)
+  
+  articles    Article[]
+  
+  @@map("article_categories")
+}
+
+model ArticleTag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  articles  Article[]
+  
+  @@map("article_tags")
+}
+
+// ==================== СОТРУДНИКИ ====================
+
+model Employee {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  position    String
+  department  String?  // "Дизайнеры", "Прорабы"
+  photo       String?
+  bio         String?  @db.Text
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("employees")
+}
+
+// ==================== ОТЗЫВЫ ====================
+
+model Review {
+  id          String      @id @default(cuid())
+  authorName  String
+  authorPhoto String?
+  content     String      @db.Text
+  rating      Int         @default(5) // от 1 до 5
+  projectId   String?
+  source      String?     // "yandex", "google", "internal"
+  sourceUrl   String?
+  isApproved  Boolean     @default(false)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@map("reviews")
+}
+
+// ==================== ЗАЯВКИ ====================
+
+model Request {
+  id            String        @id @default(cuid())
+  
+  // Контактные данные
+  name          String
+  phone         String
+  email         String?
+  
+  // Предпочтения связи
+  contactMethod String?       // "phone", "telegram", "whatsapp"
+  callbackDate  DateTime?     // желаемая дата звонка
+  
+  // Информация о проекте
+  message       String?       @db.Text
+  serviceType   String?
+  area          Decimal?      @db.Decimal(10, 2)
+  budget        String?
+  
+  // Источник
+  source        String?       // "calculator", "callback", "consultation"
+  pageUrl       String?       // страница, с которой отправлена заявка
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+  
+  // Обработка
+  status        RequestStatus @default(NEW)
+  handledById   String?
+  handledAt     DateTime?
+  notes         String?       @db.Text
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // Связи
+  handledBy     User?         @relation("HandledBy", fields: [handledById], references: [id])
+  
+  @@map("requests")
+}
+
+enum RequestStatus {
+  NEW
+  IN_PROGRESS
+  CONTACTED
+  CONVERTED
+  REJECTED
+  SPAM
+}
+
+// ==================== КАЛЬКУЛЯТОР ====================
+
+model CalculatorConfig {
+  id                String   @id @default(cuid())
+  name              String
+  
+  // Базовые цены за м²
+  basePriceCosmetic Decimal  @db.Decimal(10, 2) // косметический
+  basePriceCapital  Decimal  @db.Decimal(10, 2) // капитальный
+  basePriceDesign   Decimal  @db.Decimal(10, 2) // дизайнерский
+  basePriceElite    Decimal  @db.Decimal(10, 2) // элитный
+  
+  // Коэффициенты
+  coefficients      Json     // {"newBuilding": 0.9, "secondary": 1.0, ...}
+  
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("calculator_configs")
+}
+
+// ==================== ВАКАНСИИ ====================
+
+model Vacancy {
+  id              String   @id @default(cuid())
+  title           String
+  department      String?
+  description     String   @db.Text
+  requirements    String[] // массив требований
+  responsibilities String[] // массив обязанностей
+  conditions      String[] // условия работы
+  salaryFrom      Decimal? @db.Decimal(10, 2)
+  salaryTo        Decimal? @db.Decimal(10, 2)
+  experience      String?  // "1-3 года", "без опыта"
+  employment      String?  // "полная занятость", "частичная"
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("vacancies")
+}
+
+// ==================== FAQ ====================
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  category  String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("faqs")
+}
+
+// ==================== НАСТРОЙКИ САЙТА ====================
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  type      String   @default("string") // "string", "number", "json", "boolean"
+  group     String?  // "contacts", "social", "seo"
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("settings")
+}
+
+// ==================== МЕДИАФАЙЛЫ ====================
+
+model Media {
+  id          String   @id @default(cuid())
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  url         String
+  thumbnailUrl String?
+  alt         String?
+  folder      String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@map("media")
+}
+

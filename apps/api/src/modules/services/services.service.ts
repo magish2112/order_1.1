@@ -1,0 +1,402 @@
+import { Prisma } from '@prisma/client';
+import prisma from '../../config/database';
+import redis from '../../config/redis';
+import { createUniqueSlug } from '../../utils/slug';
+import {
+  CreateCategoryInput,
+  UpdateCategoryInput,
+  CreateServiceInput,
+  UpdateServiceInput,
+  GetServicesQuery,
+} from './services.schema';
+
+export class ServicesService {
+  // ==================== КАТЕГОРИИ ====================
+
+  /**
+   * Получить дерево категорий
+   */
+  async getCategoriesTree(isActive?: boolean) {
+    const cacheKey = `categories:tree:${isActive ?? 'all'}`;
+
+    // Проверка кеша
+    if (redis) {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
+
+    const where: Prisma.ServiceCategoryWhereInput = {};
+    if (isActive !== undefined) {
+      where.isActive = isActive;
+    }
+
+    const categories = await prisma.serviceCategory.findMany({
+      where,
+      orderBy: { order: 'asc' },
+      include: {
+        parent: true,
+        _count: {
+          select: {
+            services: isActive !== undefined ? { where: { isActive } } : true,
+            children: true,
+          },
+        },
+      },
+    });
+
+    // Построение дерева
+    const tree = this.buildCategoryTree(categories);
+
+    // Сохранение в кеш на 5 минут
+    if (redis) {
+      await redis.setex(cacheKey, 300, JSON.stringify(tree));
+    }
+
+    return tree;
+  }
+
+  /**
+   * Построение дерева категорий
+   */
+  private buildCategoryTree(categories: any[]) {
+    const map = new Map();
+    const roots: any[] = [];
+
+    // Создаем карту всех категорий
+    categories.forEach((category) => {
+      map.set(category.id, { ...category, children: [] });
+    });
+
+    // Строим дерево
+    categories.forEach((category) => {
+      const node = map.get(category.id);
+      if (category.parentId) {
+        const parent = map.get(category.parentId);
+        if (parent) {
+          parent.children.push(node);
+        }
+      } else {
+        roots.push(node);
+      }
+    });
+
+    return roots;
+  }
+
+  /**
+   * Получить категорию по slug
+   */
+  async getCategoryBySlug(slug: string) {
+    const cacheKey = `category:${slug}`;
+
+    if (redis) {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
+
+    const category = await prisma.serviceCategory.findUnique({
+      where: { slug },
+      include: {
+        parent: true,
+        children: {
+          where: { isActive: true },
+          orderBy: { order: 'asc' },
+        },
+        services: {
+          where: { isActive: true },
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+
+    if (category && redis) {
+      await redis.setex(cacheKey, 300, JSON.stringify(category));
+    }
+
+    return category;
+  }
+
+  /**
+   * Создать категорию
+   */
+  async createCategory(input: CreateCategoryInput) {
+    const slug = input.slug || (await createUniqueSlug(
+      input.name,
+      async (s) => {
+        const exists = await prisma.serviceCategory.findUnique({ where: { slug: s } });
+        return !!exists;
+      }
+    ));
+
+    const category = await prisma.serviceCategory.create({
+      data: {
+        ...input,
+        slug,
+      },
+      include: {
+        parent: true,
+        children: true,
+      },
+    });
+
+    // Инвалидация кеша
+    await this.invalidateCategoriesCache();
+
+    return category;
+  }
+
+  /**
+   * Обновить категорию
+   */
+  async updateCategory(input: UpdateCategoryInput) {
+    const { id, ...data } = input;
+
+    if (data.name && !data.slug) {
+      data.slug = await createUniqueSlug(
+        data.name,
+        async (s) => {
+          const exists = await prisma.serviceCategory.findFirst({
+            where: { slug: s, NOT: { id } },
+          });
+          return !!exists;
+        }
+      );
+    }
+
+    const category = await prisma.serviceCategory.update({
+      where: { id },
+      data,
+      include: {
+        parent: true,
+        children: true,
+      },
+    });
+
+    await this.invalidateCategoriesCache();
+
+    return category;
+  }
+
+  /**
+   * Удалить категорию
+   */
+  async deleteCategory(id: string) {
+    // Проверка наличия дочерних категорий и услуг
+    const category = await prisma.serviceCategory.findUnique({
+      where: { id },
+      include: {
+        children: true,
+        services: true,
+      },
+    });
+
+    if (!category) {
+      throw new Error('Категория не найдена');
+    }
+
+    if (category.children.length > 0) {
+      throw new Error('Нельзя удалить категорию с дочерними категориями');
+    }
+
+    if (category.services.length > 0) {
+      throw new Error('Нельзя удалить категорию с услугами');
+    }
+
+    await prisma.serviceCategory.delete({ where: { id } });
+    await this.invalidateCategoriesCache();
+
+    return { success: true };
+  }
+
+  // ==================== УСЛУГИ ====================
+
+  /**
+   * Получить список услуг
+   */
+  async getServices(query: GetServicesQuery) {
+    const { page, limit, categoryId, isActive, isFeatured, search } = query;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.ServiceWhereInput = {};
+
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
+    if (isActive !== undefined) {
+      where.isActive = isActive;
+    }
+
+    if (isFeatured !== undefined) {
+      where.isFeatured = isFeatured;
+    }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      prisma.service.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      }),
+      prisma.service.count({ where }),
+    ]);
+
+    return {
+      items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * Получить услугу по slug
+   */
+  async getServiceBySlug(slug: string) {
+    const cacheKey = `service:${slug}`;
+
+    if (redis) {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
+
+    const service = await prisma.service.findUnique({
+      where: { slug },
+      include: {
+        category: true,
+        pricingItems: {
+          where: { isActive: true },
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+
+    if (service && redis) {
+      await redis.setex(cacheKey, 300, JSON.stringify(service));
+    }
+
+    return service;
+  }
+
+  /**
+   * Создать услугу
+   */
+  async createService(input: CreateServiceInput) {
+    const slug = input.slug || (await createUniqueSlug(
+      input.name,
+      async (s) => {
+        const exists = await prisma.service.findUnique({ where: { slug: s } });
+        return !!exists;
+      }
+    ));
+
+    const service = await prisma.service.create({
+      data: {
+        ...input,
+        slug,
+      },
+      include: {
+        category: true,
+      },
+    });
+
+    await this.invalidateServicesCache();
+
+    return service;
+  }
+
+  /**
+   * Обновить услугу
+   */
+  async updateService(input: UpdateServiceInput) {
+    const { id, ...data } = input;
+
+    if (data.name && !data.slug) {
+      data.slug = await createUniqueSlug(
+        data.name,
+        async (s) => {
+          const exists = await prisma.service.findFirst({
+            where: { slug: s, NOT: { id } },
+          });
+          return !!exists;
+        }
+      );
+    }
+
+    const service = await prisma.service.update({
+      where: { id },
+      data,
+      include: {
+        category: true,
+      },
+    });
+
+    await this.invalidateServicesCache();
+
+    return service;
+  }
+
+  /**
+   * Удалить услугу
+   */
+  async deleteService(id: string) {
+    await prisma.service.delete({ where: { id } });
+    await this.invalidateServicesCache();
+
+    return { success: true };
+  }
+
+  // ==================== КЕШИРОВАНИЕ ====================
+
+  /**
+   * Инвалидация кеша категорий
+   */
+  private async invalidateCategoriesCache() {
+    if (!redis) return;
+
+    const keys = await redis.keys('categories:*');
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
+  }
+
+  /**
+   * Инвалидация кеша услуг
+   */
+  private async invalidateServicesCache() {
+    if (!redis) return;
+
+    const keys = await redis.keys('service:*');
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
+  }
+}
+
+export default new ServicesService();
+
