@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Layout } from 'antd';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { SidebarProvider, useSidebar } from '../../contexts/SidebarContext';
 
 const { Content } = Layout;
 
@@ -9,11 +10,18 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
-export function AdminLayout({ children }: AdminLayoutProps) {
+function AdminLayoutContent({ children }: AdminLayoutProps) {
+  const { sidebarWidth } = useSidebar();
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sidebar />
-      <Layout>
+      <Layout 
+        style={{ 
+          marginLeft: sidebarWidth,
+          transition: 'margin-left 0.2s'
+        }}
+      >
         <Header />
         <Content
           style={{
@@ -28,6 +36,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </Content>
       </Layout>
     </Layout>
+  );
+}
+
+export function AdminLayout({ children }: AdminLayoutProps) {
+  return (
+    <SidebarProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </SidebarProvider>
   );
 }
 

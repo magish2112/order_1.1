@@ -4,6 +4,7 @@ export interface ServiceCategory {
   name: string
   description?: string
   shortDescription?: string
+  content?: string
   image?: string
   icon?: string
   parentId?: string

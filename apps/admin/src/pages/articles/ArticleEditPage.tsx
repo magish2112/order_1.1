@@ -12,7 +12,7 @@ import {
   Select,
   DatePicker,
 } from 'antd';
-import { SaveOutlined, ArrowLeftOutlined } from 'lucide-react';
+import { Save, ArrowLeft } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
 import { Article, ArticleCategory } from '../../lib/types';
 import { TiptapEditor } from '../../components/editor/TiptapEditor';
@@ -39,8 +39,8 @@ export function ArticleEditPage() {
   const { data: categories } = useQuery({
     queryKey: ['articleCategories'],
     queryFn: async () => {
-      const response = await apiMethods.articles.list({});
       // TODO: Добавить отдельный endpoint для категорий статей
+      await apiMethods.articles.list({});
       return [] as ArticleCategory[];
     },
   });
@@ -83,7 +83,7 @@ export function ArticleEditPage() {
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/articles')}>
+        <Button icon={<ArrowLeft />} onClick={() => navigate('/articles')}>
           Назад
         </Button>
         <h1>{isNew ? 'Создать статью' : 'Редактировать статью'}</h1>
@@ -159,7 +159,7 @@ export function ArticleEditPage() {
           </Card>
 
           <Form.Item style={{ marginTop: 24 }}>
-            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={mutation.isPending}>
+            <Button type="primary" htmlType="submit" icon={<Save />} loading={mutation.isPending}>
               Сохранить
             </Button>
           </Form.Item>

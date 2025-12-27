@@ -37,6 +37,9 @@ export function useAuth() {
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       navigate('/dashboard');
     },
+    onError: (error: any) => {
+      // Ошибка уже обрабатывается через loginError в компоненте
+    },
   });
 
   const logoutMutation = useMutation({

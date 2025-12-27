@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import { useAuth } from '../../hooks/useAuth';
 import { Lock, Mail } from 'lucide-react';
@@ -7,13 +6,8 @@ export function LoginPage() {
   const { login, isLoggingIn, loginError } = useAuth();
   const [form] = Form.useForm();
 
-  const onFinish = async (values: { email: string; password: string }) => {
-    try {
-      await login(values);
-      message.success('Успешный вход!');
-    } catch (error: any) {
-      message.error(error?.response?.data?.message || 'Ошибка входа');
-    }
+  const onFinish = (values: { email: string; password: string }) => {
+    login(values);
   };
 
   return (

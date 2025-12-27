@@ -8,6 +8,7 @@ import { api } from '@/lib/api'
 import { Project } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Square, Search } from 'lucide-react'
 
@@ -193,9 +194,11 @@ export function PortfolioPage() {
                 <div className="mt-12 flex items-center justify-center space-x-2">
                   <Button
                     variant="outline"
+                    className="bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50 group"
                     disabled={page === 1}
                     onClick={() => setPage(page - 1)}
                   >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
                     Назад
                   </Button>
                   <span className="text-sm text-gray-600">
@@ -203,10 +206,12 @@ export function PortfolioPage() {
                   </span>
                   <Button
                     variant="outline"
+                    className="bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50 group"
                     disabled={page >= totalPages}
                     onClick={() => setPage(page + 1)}
                   >
                     Вперед
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               )}

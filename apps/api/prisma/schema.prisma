@@ -43,7 +43,7 @@ model ServiceCategory {
   id              String            @id @default(cuid())
   slug            String            @unique
   name            String
-  description     String?           @db.Text
+  description     String?
   shortDescription String?
   image           String?
   icon            String?
@@ -53,7 +53,7 @@ model ServiceCategory {
   
   // SEO
   metaTitle       String?
-  metaDescription String?           @db.Text
+  metaDescription String?
   metaKeywords    String?
   
   createdAt       DateTime          @default(now())
@@ -75,12 +75,12 @@ model Service {
   slug            String          @unique
   name            String
   description     String?         @db.Text
-  content         String?         @db.Text
+  content         String?
   shortDescription String?
   
   // Цены
-  priceFrom       Decimal?        @db.Decimal(10, 2)
-  priceTo         Decimal?        @db.Decimal(10, 2)
+  priceFrom       Float?
+  priceTo         Float?
   priceUnit       String?         // "за м²", "за проект" и т.д.
   
   // Медиа
@@ -118,7 +118,7 @@ model PricingItem {
   id          String   @id @default(cuid())
   name        String
   description String?
-  price       Decimal  @db.Decimal(10, 2)
+  price       Float
   unit        String   // "м²", "шт", "п.м" и т.д.
   serviceId   String?
   category    String?  // категория работ
@@ -140,13 +140,13 @@ model Project {
   slug            String          @unique
   title           String
   description     String?         @db.Text
-  content         String?         @db.Text
+  content         String?
   
   // Характеристики проекта
-  area            Decimal?        @db.Decimal(10, 2) // площадь в м²
+  area            Float?          // площадь в м²
   rooms           Int?            // количество комнат
   duration        Int?            // срок выполнения в днях
-  price           Decimal?        @db.Decimal(12, 2) // стоимость проекта
+  price           Float?          // стоимость проекта
   location        String?         // ЖК, адрес
   completedAt     DateTime?       // дата завершения
   
@@ -207,8 +207,8 @@ model Article {
   id              String        @id @default(cuid())
   slug            String        @unique
   title           String
-  excerpt         String?       @db.Text
-  content         String        @db.Text
+  excerpt         String?
+  content         String
   coverImage      String?
   
   readingTime     Int?          // время чтения в минутах
@@ -266,7 +266,7 @@ model Employee {
   position    String
   department  String?  // "Дизайнеры", "Прорабы"
   photo       String?
-  bio         String?  @db.Text
+  bio         String?
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   
@@ -282,7 +282,7 @@ model Review {
   id          String      @id @default(cuid())
   authorName  String
   authorPhoto String?
-  content     String      @db.Text
+  content     String
   rating      Int         @default(5) // от 1 до 5
   projectId   String?
   source      String?     // "yandex", "google", "internal"
@@ -310,9 +310,9 @@ model Request {
   callbackDate  DateTime?     // желаемая дата звонка
   
   // Информация о проекте
-  message       String?       @db.Text
+  message       String?
   serviceType   String?
-  area          Decimal?      @db.Decimal(10, 2)
+  area          Float?
   budget        String?
   
   // Источник
@@ -326,7 +326,7 @@ model Request {
   status        RequestStatus @default(NEW)
   handledById   String?
   handledAt     DateTime?
-  notes         String?       @db.Text
+  notes         String?
   
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -353,10 +353,10 @@ model CalculatorConfig {
   name              String
   
   // Базовые цены за м²
-  basePriceCosmetic Decimal  @db.Decimal(10, 2) // косметический
-  basePriceCapital  Decimal  @db.Decimal(10, 2) // капитальный
-  basePriceDesign   Decimal  @db.Decimal(10, 2) // дизайнерский
-  basePriceElite    Decimal  @db.Decimal(10, 2) // элитный
+  basePriceCosmetic Float    // косметический
+  basePriceCapital  Float    // капитальный
+  basePriceDesign   Float    // дизайнерский
+  basePriceElite    Float    // элитный
   
   // Коэффициенты
   coefficients      Json     // {"newBuilding": 0.9, "secondary": 1.0, ...}
@@ -374,12 +374,12 @@ model Vacancy {
   id              String   @id @default(cuid())
   title           String
   department      String?
-  description     String   @db.Text
+  description     String
   requirements    String[] // массив требований
   responsibilities String[] // массив обязанностей
   conditions      String[] // условия работы
-  salaryFrom      Decimal? @db.Decimal(10, 2)
-  salaryTo        Decimal? @db.Decimal(10, 2)
+  salaryFrom      Float?
+  salaryTo        Float?
   experience      String?  // "1-3 года", "без опыта"
   employment      String?  // "полная занятость", "частичная"
   isActive        Boolean  @default(true)
@@ -395,7 +395,7 @@ model Vacancy {
 model Faq {
   id        String   @id @default(cuid())
   question  String
-  answer    String   @db.Text
+  answer    String
   category  String?
   order     Int      @default(0)
   isActive  Boolean  @default(true)
@@ -411,7 +411,7 @@ model Faq {
 model Setting {
   id        String   @id @default(cuid())
   key       String   @unique
-  value     String   @db.Text
+  value     String
   type      String   @default("string") // "string", "number", "json", "boolean"
   group     String?  // "contacts", "social", "seo"
   

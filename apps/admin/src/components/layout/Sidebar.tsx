@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Layout, Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -14,6 +13,7 @@ import {
   Image,
   Settings,
 } from 'lucide-react';
+import { useSidebar } from '../../contexts/SidebarContext';
 
 const { Sider } = Layout;
 
@@ -80,7 +80,7 @@ const menuItems = [
 ];
 
 export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, setCollapsed } = useSidebar();
   const navigate = useNavigate();
   const location = useLocation();
 

@@ -189,10 +189,10 @@ export function ServiceCategoryPage({ categorySlug, slug }: ServiceCategoryPageP
               Свяжитесь с нами для бесплатной консультации
             </p>
             <div className="mt-8 flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <Button size="lg" className="bg-white text-primary-600 hover:bg-gray-100" asChild>
+              <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" asChild>
                 <Link href="/kontakty">Связаться с нами</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
+              <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white group" asChild>
                 <Link href="/kalkulyator">Рассчитать стоимость</Link>
               </Button>
             </div>

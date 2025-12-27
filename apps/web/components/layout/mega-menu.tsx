@@ -64,7 +64,7 @@ export function MegaMenu({ category, isOpen, onClose }: MegaMenuProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
-          className="absolute left-0 top-full z-50 mt-1 w-full max-w-6xl rounded-lg border border-gray-200 bg-white shadow-xl"
+          className="absolute left-1/2 top-full z-50 mt-1 w-screen max-w-4xl -translate-x-1/2 rounded-lg border border-gray-200 bg-white shadow-xl"
           onMouseLeave={handleMouseLeave}
           onMouseEnter={handleMouseEnter}
         >

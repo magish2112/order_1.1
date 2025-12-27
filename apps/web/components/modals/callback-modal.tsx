@@ -70,10 +70,10 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
     <Modal isOpen={isOpen} onClose={onClose} title="Заказать звонок">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-3 block text-sm font-medium text-zinc-300">
             Способ связи
           </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             <button
               type="button"
               onClick={() => setValue('contactMethod', 'phone')}
@@ -81,8 +81,8 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                 flex items-center justify-center space-x-2 rounded-lg border-2 p-3 transition-all
                 ${
                   contactMethod === 'phone'
-                    ? 'border-primary-600 bg-primary-50 text-primary-600'
-                    : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                    ? 'border-amber-600 bg-amber-600/10 text-amber-500'
+                    : 'border-zinc-600 text-zinc-400 hover:border-amber-600/50 hover:bg-zinc-800/50'
                 }
               `}
             >
@@ -96,8 +96,8 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                 flex items-center justify-center space-x-2 rounded-lg border-2 p-3 transition-all
                 ${
                   contactMethod === 'telegram'
-                    ? 'border-primary-600 bg-primary-50 text-primary-600'
-                    : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                    ? 'border-amber-600 bg-amber-600/10 text-amber-500'
+                    : 'border-zinc-600 text-zinc-400 hover:border-amber-600/50 hover:bg-zinc-800/50'
                 }
               `}
             >
@@ -111,8 +111,8 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                 flex items-center justify-center space-x-2 rounded-lg border-2 p-3 transition-all
                 ${
                   contactMethod === 'whatsapp'
-                    ? 'border-primary-600 bg-primary-50 text-primary-600'
-                    : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                    ? 'border-amber-600 bg-amber-600/10 text-amber-500'
+                    : 'border-zinc-600 text-zinc-400 hover:border-amber-600/50 hover:bg-zinc-800/50'
                 }
               `}
             >
@@ -124,17 +124,17 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-2 block text-sm font-medium text-zinc-300">
             Ваше имя *
           </label>
           <Input {...register('name')} disabled={isSubmitting} />
           {errors.name && (
-            <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+            <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>
           )}
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className="mb-2 block text-sm font-medium text-zinc-300">
             Телефон *
           </label>
           <Controller
@@ -160,16 +160,16 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
             )}
           />
           {errors.phone && (
-            <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+            <p className="mt-1 text-sm text-red-400">{errors.phone.message}</p>
           )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white group" disabled={isSubmitting}>
           {isSubmitting ? 'Отправка...' : 'Заказать звонок'}
         </Button>
 
         {isSuccess && (
-          <p className="text-center text-sm text-green-600">
+          <p className="text-center text-sm text-amber-400">
             Спасибо! Мы свяжемся с вами в ближайшее время.
           </p>
         )}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Table, Button, Space, Tag, Popconfirm, message, Input, Select } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from 'lucide-react';
+import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiMethods } from '../../lib/api';
 import { Service } from '../../lib/types';
@@ -91,7 +91,7 @@ export function ServicesPage() {
         <Space>
           <Button
             type="link"
-            icon={<EditOutlined />}
+            icon={<Edit />}
             onClick={() => navigate(`/services/${record.id}`)}
           >
             Редактировать
@@ -103,7 +103,7 @@ export function ServicesPage() {
             okText="Да"
             cancelText="Нет"
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
+            <Button type="link" danger icon={<Trash2 />}>
               Удалить
             </Button>
           </Popconfirm>
@@ -123,18 +123,18 @@ export function ServicesPage() {
             style={{ width: 200 }}
             value={categoryFilter}
             onChange={setCategoryFilter}
-            options={categories?.map((c) => ({ value: c.id, label: c.name }))}
+            options={categories?.map((c: { id: string; name: string }) => ({ value: c.id, label: c.name }))}
           />
           <Input
             placeholder="Поиск..."
-            prefix={<SearchOutlined />}
+            prefix={<Search />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 250 }}
           />
           <Button
             type="primary"
-            icon={<PlusOutlined />}
+            icon={<Plus />}
             onClick={() => navigate('/services/new')}
           >
             Добавить услугу

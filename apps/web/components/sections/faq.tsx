@@ -23,10 +23,10 @@ export function FaqSection() {
 
   if (isLoading) {
     return (
-      <section className="bg-white py-16">
+      <section className="bg-zinc-950 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-gray-600">Загрузка...</p>
+            <p className="text-zinc-400">Загрузка...</p>
           </div>
         </div>
       </section>
@@ -44,21 +44,42 @@ export function FaqSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.5 }}
-        className="bg-white py-16 lg:py-24"
+        className="relative bg-zinc-950 py-16 lg:py-24 overflow-hidden"
       >
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, rgb(251, 191, 36) 1px, transparent 1px),
+                linear-gradient(to bottom, rgb(251, 191, 36) 1px, transparent 1px)
+              `,
+              backgroundSize: '60px 60px',
+            }}
+          />
+        </div>
+
+        {/* Gradient Overlays */}
+        <div className="absolute top-0 left-0 w-1/4 h-1/4 bg-gradient-to-br from-amber-600/10 to-transparent blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-1/4 h-1/4 bg-gradient-to-tl from-orange-600/10 to-transparent blur-3xl" />
         <FAQSchema
           faqs={faqs.map((faq) => ({
             question: faq.question,
             answer: faq.answer,
           }))}
         />
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-600/10 border border-amber-600/20 backdrop-blur-sm mb-4">
+              <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+              <span className="text-sm text-amber-500 font-medium">FAQ</span>
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Часто задаваемые вопросы
             </h2>
-            <p className="mt-4 text-lg text-gray-600">
-              Ответы на самые популярные вопросы о наших услугах
+            <p className="mt-4 text-lg text-zinc-400">
+              Ответы на самые популярные вопросы о наших услугах и процессе работы.
             </p>
           </div>
 
@@ -70,20 +91,23 @@ export function FaqSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="overflow-hidden rounded-lg border border-gray-200 transition-all hover:shadow-md"
+                className="group overflow-hidden rounded-xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm transition-all duration-300 hover:border-amber-600/50 hover:bg-zinc-900/80 hover:shadow-2xl hover:shadow-amber-600/10"
               >
+                {/* Glow effect on hover */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-600/0 to-orange-600/0 group-hover:from-amber-600/5 group-hover:to-orange-600/5 transition-all duration-300" />
+
                 <button
                   type="button"
-                  className="flex w-full items-center justify-between p-6 text-left"
+                  className="relative flex w-full items-center justify-between p-6 text-left z-10"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
                 >
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-white group-hover:text-amber-100 transition-colors">
                     {faq.question}
                   </span>
                   <ChevronDown
                     className={cn(
-                      'h-5 w-5 text-gray-500 transition-transform duration-300',
-                      openIndex === index && 'rotate-180'
+                      'h-5 w-5 text-zinc-400 transition-all duration-300 group-hover:text-amber-500',
+                      openIndex === index && 'rotate-180 text-amber-500'
                     )}
                   />
                 </button>
@@ -96,18 +120,25 @@ export function FaqSection() {
                       transition={{ duration: 0.3 }}
                       className="overflow-hidden"
                     >
-                      <div className="border-t border-gray-200 px-6 py-4">
-                        <p className="text-gray-700">{faq.answer}</p>
+                      <div className="border-t border-zinc-700 px-6 py-4">
+                        <p className="text-zinc-300 leading-relaxed">{faq.answer}</p>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                {/* Bottom accent line */}
+                <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-500 to-orange-600 group-hover:w-full transition-all duration-500" />
               </motion.div>
             ))}
           </div>
 
           <div className="mt-12 text-center">
-            <Button size="lg" onClick={() => setCallbackModalOpen(true)}>
+            <Button
+              size="lg"
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+              onClick={() => setCallbackModalOpen(true)}
+            >
               <MessageCircle className="mr-2 h-5 w-5" />
               Задать вопрос
             </Button>

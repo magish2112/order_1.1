@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Form, Input, Switch, Button, Card, Space, message, Select, InputNumber } from 'antd';
-import { SaveOutlined, ArrowLeftOutlined } from 'lucide-react';
+import { Save, ArrowLeft } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
 import { ServiceCategory } from '../../lib/types';
 
@@ -63,7 +63,7 @@ export function CategoryEditPage() {
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/services/categories')}>
+        <Button icon={<ArrowLeft />} onClick={() => navigate('/services/categories')}>
           Назад
         </Button>
         <h1>{isNew ? 'Создать категорию' : 'Редактировать категорию'}</h1>
@@ -140,7 +140,7 @@ export function CategoryEditPage() {
           </Card>
 
           <Form.Item style={{ marginTop: 24 }}>
-            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={mutation.isPending}>
+            <Button type="primary" htmlType="submit" icon={<Save />} loading={mutation.isPending}>
               Сохранить
             </Button>
           </Form.Item>

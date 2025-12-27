@@ -72,7 +72,7 @@ export function ProjectDetailPage({ slug }: ProjectDetailPageProps) {
       <section className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
-            <Button variant="outline" asChild>
+            <Button className="bg-amber-600 hover:bg-amber-700 text-white group" asChild>
               <Link href="/portfolio">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Назад к портфолио

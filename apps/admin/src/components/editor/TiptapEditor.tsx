@@ -23,7 +23,7 @@ interface TiptapEditorProps {
   placeholder?: string;
 }
 
-export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps) {
+export function TiptapEditor({ value, onChange, placeholder: _placeholder }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -79,9 +79,10 @@ export function TiptapEditor({ value, onChange, placeholder }: TiptapEditorProps
             onClick={() => editor.chain().focus().toggleItalic().run()}
           />
           <Button
-            type={editor.isActive('underline') ? 'primary' : 'text'}
+            type="text"
             icon={<Underline size={16} />}
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            disabled
+            title="Underline не поддерживается"
           />
           <Button
             type={editor.isActive('strike') ? 'primary' : 'text'}

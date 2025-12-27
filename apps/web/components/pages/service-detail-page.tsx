@@ -84,7 +84,7 @@ export function ServiceDetailPage({ serviceSlug, categorySlug = 'remont' }: Serv
       <section className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
-            <Button variant="outline" asChild>
+            <Button className="bg-amber-600 hover:bg-amber-700 text-white group" asChild>
               <Link href={service.category ? `/${categorySlug}/${service.category.slug}` : `/${categorySlug}`}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Назад
@@ -165,7 +165,7 @@ export function ServiceDetailPage({ serviceSlug, categorySlug = 'remont' }: Serv
                   <Button className="mt-6 w-full" size="lg" asChild>
                     <Link href="/kontakty">Заказать услугу</Link>
                   </Button>
-                  <Button className="mt-3 w-full" variant="outline" asChild>
+                  <Button className="mt-3 w-full bg-amber-600 hover:bg-amber-700 text-white group" asChild>
                     <Link href="/kalkulyator">Рассчитать стоимость</Link>
                   </Button>
                 </CardContent>

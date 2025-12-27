@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Table, Button, Space, Tag, Popconfirm, message, Input, Select } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, EyeOutlined, CheckCircleOutlined } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Eye, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiMethods } from '../../lib/api';
 import { Article } from '../../lib/types';
@@ -113,7 +113,7 @@ export function ArticlesPage() {
           {!record.isPublished && (
             <Button
               type="link"
-              icon={<CheckCircleOutlined />}
+              icon={<CheckCircle2 />}
               onClick={() => publishMutation.mutate(record.id)}
             >
               Опубликовать
@@ -121,14 +121,14 @@ export function ArticlesPage() {
           )}
           <Button
             type="link"
-            icon={<EyeOutlined />}
+            icon={<Eye />}
             onClick={() => window.open(`/stati/${record.slug}`, '_blank')}
           >
             Просмотр
           </Button>
           <Button
             type="link"
-            icon={<EditOutlined />}
+            icon={<Edit />}
             onClick={() => navigate(`/articles/${record.id}`)}
           >
             Редактировать
@@ -140,7 +140,7 @@ export function ArticlesPage() {
             okText="Да"
             cancelText="Нет"
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
+            <Button type="link" danger icon={<Trash2 />}>
               Удалить
             </Button>
           </Popconfirm>
@@ -167,14 +167,14 @@ export function ArticlesPage() {
           />
           <Input
             placeholder="Поиск..."
-            prefix={<SearchOutlined />}
+            prefix={<Search />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 250 }}
           />
           <Button
             type="primary"
-            icon={<PlusOutlined />}
+            icon={<Plus />}
             onClick={() => navigate('/articles/new')}
           >
             Добавить статью

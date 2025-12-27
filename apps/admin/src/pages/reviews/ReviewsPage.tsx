@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Table, Button, Space, Tag, Popconfirm, message, Input, Switch } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, CheckCircleOutlined } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiMethods } from '../../lib/api';
 import { Review } from '../../lib/types';
@@ -126,7 +126,7 @@ export function ReviewsPage() {
           {!record.isApproved && (
             <Button
               type="link"
-              icon={<CheckCircleOutlined />}
+              icon={<CheckCircle2 />}
               onClick={() => approveMutation.mutate(record.id)}
             >
               Одобрить
@@ -134,7 +134,7 @@ export function ReviewsPage() {
           )}
           <Button
             type="link"
-            icon={<EditOutlined />}
+            icon={<Edit />}
             onClick={() => navigate(`/reviews/${record.id}`)}
           >
             Редактировать
@@ -146,7 +146,7 @@ export function ReviewsPage() {
             okText="Да"
             cancelText="Нет"
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
+            <Button type="link" danger icon={<Trash2 />}>
               Удалить
             </Button>
           </Popconfirm>
@@ -168,14 +168,14 @@ export function ReviewsPage() {
           />
           <Input
             placeholder="Поиск..."
-            prefix={<SearchOutlined />}
+            prefix={<Search />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 250 }}
           />
           <Button
             type="primary"
-            icon={<PlusOutlined />}
+            icon={<Plus />}
             onClick={() => navigate('/reviews/new')}
           >
             Добавить отзыв

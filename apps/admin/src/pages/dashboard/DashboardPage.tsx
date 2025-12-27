@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { Card, Row, Col, Statistic, Table, Tag, Spin } from 'antd';
 import { apiMethods } from '../../lib/api';
-import { DashboardStats, Request } from '../../lib/types';
+import { DashboardStats } from '../../lib/types';
 import {
   MessageSquare,
-  CheckCircle,
-  ClockCircle,
-  Project,
+  Clock,
+  FolderKanban,
   FileText,
   Users,
 } from 'lucide-react';
@@ -93,7 +92,7 @@ export function DashboardPage() {
             <Statistic
               title="Заявок сегодня"
               value={stats?.overview.requestsToday || 0}
-              prefix={<ClockCircle />}
+              prefix={<Clock />}
               valueStyle={{ color: '#faad14' }}
             />
           </Card>
@@ -103,7 +102,7 @@ export function DashboardPage() {
             <Statistic
               title="Активных проектов"
               value={stats?.overview.activeProjects || 0}
-              prefix={<Project />}
+              prefix={<FolderKanban />}
               valueStyle={{ color: '#52c41a' }}
             />
           </Card>

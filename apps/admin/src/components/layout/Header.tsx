@@ -34,7 +34,6 @@ export function Header() {
         justifyContent: 'space-between',
         alignItems: 'center',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        marginLeft: 250, // Отступ для Sidebar (будет динамическим)
       }}
     >
       <div style={{ fontSize: 18, fontWeight: 500 }}>Панель управления</div>

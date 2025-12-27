@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Копируем package.json
 COPY package.json ./
-RUN npm ci
+RUN npm install
 
 # Сборка приложения
 FROM base AS builder

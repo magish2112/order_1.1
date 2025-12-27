@@ -10,16 +10,14 @@ import {
   Modal,
   Form,
   message,
-  DatePicker,
 } from 'antd';
-import { EditOutlined, SearchOutlined } from 'lucide-react';
+import { Edit, Search } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
 import { Request } from '../../lib/types';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;
-const { RangePicker } = DatePicker;
 
 export function RequestsPage() {
   const queryClient = useQueryClient();
@@ -106,6 +104,20 @@ export function RequestsPage() {
       key: 'email',
     },
     {
+      title: 'Детали',
+      key: 'details',
+      render: (_, record) => {
+        if (record.source === 'calculator') {
+          const details = [];
+          if (record.propertyType) details.push(`Тип: ${record.propertyType}`);
+          if (record.area) details.push(`Площадь: ${record.area}м²`);
+          if (record.repairType) details.push(`Ремонт: ${record.repairType}`);
+          return details.length > 0 ? details.join(', ') : '-';
+        }
+        return record.message || '-';
+      },
+    },
+    {
       title: 'Статус',
       dataIndex: 'status',
       key: 'status',
@@ -122,6 +134,17 @@ export function RequestsPage() {
       title: 'Источник',
       dataIndex: 'source',
       key: 'source',
+      render: (source: string) => {
+        const sourceLabels: Record<string, string> = {
+          'calculator': 'Калькулятор',
+          'callback': 'Обратный звонок',
+          'consultation': 'Консультация',
+          'website': 'Сайт',
+          'phone': 'Телефон',
+          'email': 'Email',
+        };
+        return sourceLabels[source] || source;
+      },
     },
     {
       title: 'Дата',
@@ -136,7 +159,7 @@ export function RequestsPage() {
       render: (_, record) => (
         <Button
           type="link"
-          icon={<EditOutlined />}
+          icon={<Edit />}
           onClick={() => handleStatusChange(record)}
         >
           Изменить статус
@@ -163,7 +186,7 @@ export function RequestsPage() {
           />
           <Input
             placeholder="Поиск..."
-            prefix={<SearchOutlined />}
+            prefix={<Search />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 250 }}

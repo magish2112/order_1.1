@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Home, ArrowLeft } from 'lucide-react'
@@ -18,7 +20,7 @@ export default function NotFound() {
               На главную
             </Link>
           </Button>
-          <Button variant="outline" onClick={() => window.history.back()}>
+          <Button className="bg-amber-600 hover:bg-amber-700 text-white group" onClick={() => window.history.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Назад
           </Button>

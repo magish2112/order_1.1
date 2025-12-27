@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Копируем package.json и package-lock.json
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Сборка приложения
 FROM base AS builder
@@ -35,9 +35,10 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Копируем необходимые файлы из standalone сборки
-COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Копируем public директорию
+COPY --from=builder /app/public ./public
 
 USER nextjs
 

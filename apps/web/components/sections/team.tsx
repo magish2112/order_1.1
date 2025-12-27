@@ -25,10 +25,10 @@ export function Team() {
 
   if (isLoading) {
     return (
-      <section className="bg-white py-16">
+      <section className="bg-zinc-950 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-gray-600">Загрузка...</p>
+            <p className="text-zinc-400">Загрузка...</p>
           </div>
         </div>
       </section>
@@ -45,15 +45,38 @@ export function Team() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.5 }}
-      className="bg-white py-16 lg:py-24"
+      className="relative bg-zinc-950 py-16 lg:py-24 overflow-hidden"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgb(251, 191, 36) 1px, transparent 1px),
+              linear-gradient(to bottom, rgb(251, 191, 36) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px',
+          }}
+        />
+      </div>
+
+      {/* Gradient Overlays */}
+      <div className="absolute top-0 left-0 w-1/4 h-1/4 bg-gradient-to-br from-amber-600/10 to-transparent blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-1/4 h-1/4 bg-gradient-to-tl from-orange-600/10 to-transparent blur-3xl" />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Наша команда
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-600/10 border border-amber-600/20 backdrop-blur-sm mb-4">
+            <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+            <span className="text-sm text-amber-500 font-medium">Наша команда</span>
+          </div>
+          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Профессиональная команда
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Профессионалы с многолетним опытом работы
+          <p className="mt-4 text-lg text-zinc-400 max-w-2xl mx-auto">
+            Наши специалисты - это команда профессионалов с многолетним опытом.
+            Каждый проект выполняется с максимальным качеством и вниманием к деталям.
           </p>
         </div>
 
@@ -86,11 +109,14 @@ export function Team() {
               >
                 {designers.map((employee) => (
                   <SwiperSlide key={employee.id}>
-                    <Card className="group text-center transition-all hover:shadow-lg">
-                      <CardContent className="p-4">
-                        <div className="mb-3 flex justify-center">
+                    <div className="group relative overflow-hidden rounded-xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm transition-all duration-300 hover:border-amber-600/50 hover:bg-zinc-900/80 hover:shadow-2xl hover:shadow-amber-600/10 text-center">
+                      {/* Glow effect on hover */}
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-600/0 to-orange-600/0 group-hover:from-amber-600/5 group-hover:to-orange-600/5 transition-all duration-300" />
+
+                      <div className="relative p-6">
+                        <div className="mb-4 flex justify-center">
                           {employee.photo ? (
-                            <div className="relative h-24 w-24 overflow-hidden rounded-full transition-transform group-hover:scale-105">
+                            <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-amber-600/30 transition-transform group-hover:scale-105 group-hover:border-amber-500">
                               <Image
                                 src={employee.photo}
                                 alt={`${employee.firstName} ${employee.lastName}`}
@@ -99,33 +125,36 @@ export function Team() {
                               />
                             </div>
                           ) : (
-                            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-200">
-                              <User className="h-12 w-12 text-gray-400" />
+                            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700">
+                              <User className="h-12 w-12 text-zinc-400" />
                             </div>
                           )}
                         </div>
-                        <h4 className="text-sm font-semibold text-gray-900">
+                        <h4 className="text-sm font-semibold text-white mb-1">
                           {employee.firstName} {employee.lastName}
                         </h4>
-                        <p className="mt-1 text-xs text-primary-600">
+                        <p className="text-xs text-amber-500 font-medium">
                           {employee.position}
                         </p>
-                      </CardContent>
-                    </Card>
+                      </div>
+
+                      {/* Bottom accent line */}
+                      <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-500 to-orange-600 group-hover:w-full transition-all duration-500" />
+                    </div>
                   </SwiperSlide>
                 ))}
               </Swiper>
               <button
-                className="designers-prev absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-gray-50 lg:-left-4"
+                className="designers-prev absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-zinc-900/80 border border-zinc-700 p-2 backdrop-blur-sm transition-all hover:bg-amber-600 hover:border-amber-600 lg:-left-4"
                 aria-label="Previous"
               >
-                <ChevronLeft className="h-5 w-5 text-gray-700" />
+                <ChevronLeft className="h-5 w-5 text-zinc-300 hover:text-white" />
               </button>
               <button
-                className="designers-next absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-gray-50 lg:-right-4"
+                className="designers-next absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-zinc-900/80 border border-zinc-700 p-2 backdrop-blur-sm transition-all hover:bg-amber-600 hover:border-amber-600 lg:-right-4"
                 aria-label="Next"
               >
-                <ChevronRight className="h-5 w-5 text-gray-700" />
+                <ChevronRight className="h-5 w-5 text-zinc-300 hover:text-white" />
               </button>
             </div>
           </div>
@@ -160,11 +189,14 @@ export function Team() {
               >
                 {foremen.map((employee) => (
                   <SwiperSlide key={employee.id}>
-                    <Card className="group text-center transition-all hover:shadow-lg">
-                      <CardContent className="p-4">
-                        <div className="mb-3 flex justify-center">
+                    <div className="group relative overflow-hidden rounded-xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm transition-all duration-300 hover:border-amber-600/50 hover:bg-zinc-900/80 hover:shadow-2xl hover:shadow-amber-600/10 text-center">
+                      {/* Glow effect on hover */}
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-600/0 to-orange-600/0 group-hover:from-amber-600/5 group-hover:to-orange-600/5 transition-all duration-300" />
+
+                      <div className="relative p-6">
+                        <div className="mb-4 flex justify-center">
                           {employee.photo ? (
-                            <div className="relative h-24 w-24 overflow-hidden rounded-full transition-transform group-hover:scale-105">
+                            <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-amber-600/30 transition-transform group-hover:scale-105 group-hover:border-amber-500">
                               <Image
                                 src={employee.photo}
                                 alt={`${employee.firstName} ${employee.lastName}`}
@@ -173,40 +205,48 @@ export function Team() {
                               />
                             </div>
                           ) : (
-                            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-200">
-                              <User className="h-12 w-12 text-gray-400" />
+                            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700">
+                              <User className="h-12 w-12 text-zinc-400" />
                             </div>
                           )}
                         </div>
-                        <h4 className="text-sm font-semibold text-gray-900">
+                        <h4 className="text-sm font-semibold text-white mb-1">
                           {employee.firstName} {employee.lastName}
                         </h4>
-                        <p className="mt-1 text-xs text-primary-600">
+                        <p className="text-xs text-amber-500 font-medium">
                           {employee.position}
                         </p>
-                      </CardContent>
-                    </Card>
+                      </div>
+
+                      {/* Bottom accent line */}
+                      <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-500 to-orange-600 group-hover:w-full transition-all duration-500" />
+                    </div>
                   </SwiperSlide>
                 ))}
               </Swiper>
               <button
-                className="foremen-prev absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-gray-50 lg:-left-4"
+                className="foremen-prev absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-zinc-900/80 border border-zinc-700 p-2 backdrop-blur-sm transition-all hover:bg-amber-600 hover:border-amber-600 lg:-left-4"
                 aria-label="Previous"
               >
-                <ChevronLeft className="h-5 w-5 text-gray-700" />
+                <ChevronLeft className="h-5 w-5 text-zinc-300 hover:text-white" />
               </button>
               <button
-                className="foremen-next absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-gray-50 lg:-right-4"
+                className="foremen-next absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-zinc-900/80 border border-zinc-700 p-2 backdrop-blur-sm transition-all hover:bg-amber-600 hover:border-amber-600 lg:-right-4"
                 aria-label="Next"
               >
-                <ChevronRight className="h-5 w-5 text-gray-700" />
+                <ChevronRight className="h-5 w-5 text-zinc-300 hover:text-white" />
               </button>
             </div>
           </div>
         )}
 
         <div className="mt-12 text-center">
-          <Button variant="outline" size="lg" asChild>
+          <Button
+            variant="outline"
+            size="lg"
+            className="border-zinc-700 text-zinc-300 hover:bg-amber-600 hover:text-white hover:border-amber-600"
+            asChild
+          >
             <Link href="/o-kompanii">
               Узнать больше о нас
               <ArrowRight className="ml-2 h-5 w-5" />

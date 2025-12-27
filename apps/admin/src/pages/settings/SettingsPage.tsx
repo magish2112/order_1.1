@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Form, Input, Button, Card, Space, message, Tabs, Switch, InputNumber } from 'antd';
-import { SaveOutlined } from 'lucide-react';
+import { Form, Input, Button, Card, Space, message, Tabs, InputNumber } from 'antd';
+import { Save } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
 import { Setting } from '../../lib/types';
 
@@ -169,7 +169,7 @@ export function SettingsPage() {
           <Tabs items={tabItems} />
           
           <Form.Item style={{ marginTop: 24 }}>
-            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={mutation.isPending} size="large">
+            <Button type="primary" htmlType="submit" icon={<Save />} loading={mutation.isPending} size="large">
               Сохранить настройки
             </Button>
           </Form.Item>

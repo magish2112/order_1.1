@@ -26,7 +26,7 @@ export default function Error({
         </p>
         <div className="mt-6 flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
           <Button onClick={reset}>Попробовать снова</Button>
-          <Button variant="outline" asChild>
+          <Button className="bg-amber-600 hover:bg-amber-700 text-white group" asChild>
             <Link href="/">
               <Home className="mr-2 h-4 w-4" />
               На главную

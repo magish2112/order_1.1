@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Table, Button, Space, Tag, Popconfirm, message, Input, Select } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, EyeOutlined } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiMethods } from '../../lib/api';
 import { Project } from '../../lib/types';
@@ -37,8 +37,8 @@ export function ProjectsPage() {
     },
   });
 
-  const filteredData = projects?.filter((project) =>
-    project.title.toLowerCase().includes(searchText.toLowerCase())
+  const filteredData = projects?.filter((Project) =>
+    Project.title.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const columns: ColumnsType<Project> = [
@@ -112,14 +112,14 @@ export function ProjectsPage() {
         <Space>
           <Button
             type="link"
-            icon={<EyeOutlined />}
+            icon={<Eye />}
             onClick={() => window.open(`/portfolio/${record.slug}`, '_blank')}
           >
             Просмотр
           </Button>
           <Button
             type="link"
-            icon={<EditOutlined />}
+            icon={<Edit />}
             onClick={() => navigate(`/projects/${record.id}`)}
           >
             Редактировать
@@ -131,7 +131,7 @@ export function ProjectsPage() {
             okText="Да"
             cancelText="Нет"
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
+            <Button type="link" danger icon={<Trash2 />}>
               Удалить
             </Button>
           </Popconfirm>
@@ -158,14 +158,14 @@ export function ProjectsPage() {
           />
           <Input
             placeholder="Поиск..."
-            prefix={<SearchOutlined />}
+            prefix={<Search />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 250 }}
           />
           <Button
             type="primary"
-            icon={<PlusOutlined />}
+            icon={<Plus />}
             onClick={() => navigate('/projects/new')}
           >
             Добавить проект

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Form, Input, Switch, Button, Card, Space, message, Select, InputNumber, Upload } from 'antd';
-import { SaveOutlined, ArrowLeftOutlined, UploadOutlined } from 'lucide-react';
+import { Save, ArrowLeft, Upload as UploadIcon } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
 import { Employee } from '../../lib/types';
 
@@ -66,7 +66,7 @@ export function EmployeeEditPage() {
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/employees')}>
+        <Button icon={<ArrowLeft />} onClick={() => navigate('/employees')}>
           Назад
         </Button>
         <h1>{isNew ? 'Создать сотрудника' : 'Редактировать сотрудника'}</h1>
@@ -98,7 +98,7 @@ export function EmployeeEditPage() {
                 }}
                 showUploadList={false}
               >
-                <Button icon={<UploadOutlined />}>Загрузить фото</Button>
+                <Button icon={<UploadIcon />}>Загрузить фото</Button>
               </Upload>
             </Form.Item>
 
@@ -147,7 +147,7 @@ export function EmployeeEditPage() {
             </Form.Item>
 
             <Form.Item style={{ marginTop: 24 }}>
-              <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={mutation.isPending}>
+              <Button type="primary" htmlType="submit" icon={<Save />} loading={mutation.isPending}>
                 Сохранить
               </Button>
             </Form.Item>

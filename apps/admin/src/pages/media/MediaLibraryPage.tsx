@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Upload, Button, Space, message, Input, Image, Modal, Popconfirm } from 'antd';
-import { UploadOutlined, SearchOutlined, DeleteOutlined, FolderOutlined } from 'lucide-react';
+import { Upload as UploadIcon, Search, Trash2, Folder } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
 import { Media } from '../../lib/types';
-import type { UploadFile } from 'antd';
 
 export function MediaLibraryPage() {
   const queryClient = useQueryClient();
   const [searchText, setSearchText] = useState('');
-  const [selectedFolder, setSelectedFolder] = useState<string | undefined>();
+  const [selectedFolder] = useState<string | undefined>();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const { data: media, isLoading } = useQuery({
@@ -65,7 +64,7 @@ export function MediaLibraryPage() {
         <Space>
           <Input
             placeholder="Поиск..."
-            prefix={<SearchOutlined />}
+            prefix={<Search />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 250 }}
@@ -78,7 +77,7 @@ export function MediaLibraryPage() {
             showUploadList={false}
             accept="image/*"
           >
-            <Button type="primary" icon={<UploadOutlined />}>
+            <Button type="primary" icon={<UploadIcon />}>
               Загрузить файл
             </Button>
           </Upload>
@@ -139,7 +138,7 @@ export function MediaLibraryPage() {
                     type="text"
                     danger
                     size="small"
-                    icon={<DeleteOutlined />}
+                    icon={<Trash2 />}
                     style={{ width: '100%' }}
                   >
                     Удалить
@@ -168,7 +167,7 @@ export function MediaLibraryPage() {
                 }}
               >
                 <Space>
-                  <FolderOutlined />
+                  <Folder />
                   <div>
                     <div>{item.originalName}</div>
                     <div style={{ fontSize: 12, color: '#999' }}>
@@ -182,7 +181,7 @@ export function MediaLibraryPage() {
                   okText="Да"
                   cancelText="Нет"
                 >
-                  <Button type="text" danger icon={<DeleteOutlined />}>
+                  <Button type="text" danger icon={<Trash2 />}>
                     Удалить
                   </Button>
                 </Popconfirm>

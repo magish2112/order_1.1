@@ -15,11 +15,10 @@ import {
   Row,
   Col,
 } from 'antd';
-import { SaveOutlined, ArrowLeftOutlined, UploadOutlined } from 'lucide-react';
+import { Save, ArrowLeft, Upload as UploadIcon } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
 import { Project, ServiceCategory, Service } from '../../lib/types';
 import { TiptapEditor } from '../../components/editor/TiptapEditor';
-import type { UploadFile } from 'antd';
 
 const { TextArea } = Input;
 
@@ -119,7 +118,7 @@ export function ProjectEditPage() {
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/projects')}>
+        <Button icon={<ArrowLeft />} onClick={() => navigate('/projects')}>
           Назад
         </Button>
         <h1>{isNew ? 'Создать проект' : 'Редактировать проект'}</h1>
@@ -256,7 +255,7 @@ export function ProjectEditPage() {
                 }}
                 showUploadList={false}
               >
-                <Button icon={<UploadOutlined />}>Добавить фото</Button>
+                <Button icon={<UploadIcon />}>Добавить фото</Button>
               </Upload>
             </Space>
           </Card>
@@ -288,7 +287,7 @@ export function ProjectEditPage() {
                 }}
                 showUploadList={false}
               >
-                <Button icon={<UploadOutlined />}>Добавить фото</Button>
+                <Button icon={<UploadIcon />}>Добавить фото</Button>
               </Upload>
             </Space>
           </Card>
@@ -320,7 +319,7 @@ export function ProjectEditPage() {
                 }}
                 showUploadList={false}
               >
-                <Button icon={<UploadOutlined />}>Добавить визуализацию</Button>
+                <Button icon={<UploadIcon />}>Добавить визуализацию</Button>
               </Upload>
             </Space>
           </Card>
@@ -353,7 +352,7 @@ export function ProjectEditPage() {
           </Card>
 
           <Form.Item style={{ marginTop: 24 }}>
-            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={mutation.isPending}>
+            <Button type="primary" htmlType="submit" icon={<Save />} loading={mutation.isPending}>
               Сохранить
             </Button>
           </Form.Item>

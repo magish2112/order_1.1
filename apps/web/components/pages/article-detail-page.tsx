@@ -57,7 +57,7 @@ export function ArticleDetailPage({ slug }: ArticleDetailPageProps) {
       {/* Header */}
       <header className="py-12">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <Button variant="outline" className="mb-6" asChild>
+          <Button className="mb-6 bg-amber-600 hover:bg-amber-700 text-white group" asChild>
             <Link href="/stati">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Назад к статьям

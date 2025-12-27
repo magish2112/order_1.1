@@ -12,6 +12,9 @@ npx prisma migrate deploy || true
 echo "🔧 Генерация Prisma Client..."
 npx prisma generate
 
+echo "🌱 Заполнение базы данных тестовыми данными (если нужно)..."
+npx prisma db seed || echo "⚠️ Seed не выполнен (возможно, данные уже есть)"
+
 echo "🚀 Запуск API сервера..."
 exec node dist/server.js
 

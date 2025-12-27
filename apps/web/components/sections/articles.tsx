@@ -23,10 +23,10 @@ export function Articles() {
 
   if (isLoading) {
     return (
-      <section className="bg-white py-16">
+      <section className="bg-zinc-950 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-gray-600">Загрузка...</p>
+            <p className="text-zinc-400">Загрузка...</p>
           </div>
         </div>
       </section>
@@ -43,19 +43,44 @@ export function Articles() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.5 }}
-      className="bg-white py-16 lg:py-24"
+      className="relative bg-zinc-950 py-16 lg:py-24 overflow-hidden"
     >
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgb(251, 191, 36) 1px, transparent 1px),
+              linear-gradient(to bottom, rgb(251, 191, 36) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px',
+          }}
+        />
+      </div>
+
+      {/* Gradient Overlays */}
+      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-bl from-amber-600/10 to-transparent blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-orange-600/10 to-transparent blur-3xl" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-600/10 border border-amber-600/20 backdrop-blur-sm mb-4">
+              <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+              <span className="text-sm text-amber-500 font-medium">Блог</span>
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Полезные статьи
             </h2>
-            <p className="mt-4 text-lg text-gray-600">
-              Советы и рекомендации по ремонту и дизайну
+            <p className="mt-4 text-lg text-zinc-400">
+              Советы и рекомендации по ремонту и дизайну интерьеров
             </p>
           </div>
-          <Button variant="outline" className="hidden lg:flex" asChild>
+          <Button
+            variant="outline"
+            className="hidden lg:flex border-zinc-700 text-zinc-300 hover:bg-amber-600 hover:text-white hover:border-amber-600"
+            asChild
+          >
             <Link href="/stati">
               Все статьи
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -134,21 +159,21 @@ export function Articles() {
           </Swiper>
 
           <button
-            className="articles-prev absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg transition-all hover:bg-gray-50 lg:-left-4"
+            className="articles-prev absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-zinc-900/80 border border-zinc-700 p-3 backdrop-blur-sm transition-all hover:bg-amber-600 hover:border-amber-600 lg:-left-4"
             aria-label="Previous"
           >
-            <ChevronLeft className="h-6 w-6 text-gray-700" />
+            <ChevronLeft className="h-6 w-6 text-zinc-300 hover:text-white" />
           </button>
           <button
-            className="articles-next absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg transition-all hover:bg-gray-50 lg:-right-4"
+            className="articles-next absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-zinc-900/80 border border-zinc-700 p-3 backdrop-blur-sm transition-all hover:bg-amber-600 hover:border-amber-600 lg:-right-4"
             aria-label="Next"
           >
-            <ChevronRight className="h-6 w-6 text-gray-700" />
+            <ChevronRight className="h-6 w-6 text-zinc-300 hover:text-white" />
           </button>
         </div>
 
         <div className="mt-8 text-center lg:hidden">
-          <Button variant="outline" asChild>
+          <Button className="bg-amber-600 hover:bg-amber-700 text-white group" asChild>
             <Link href="/stati">
               Все статьи
               <ArrowRight className="ml-2 h-4 w-4" />
