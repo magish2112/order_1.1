@@ -4,57 +4,62 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 199 89% 48%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 45 93% 47%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 199 89% 48%;
+    --background: 45 30% 96%;          /* Тёплый кремовый фон (#F8F4E3) - трендовый */
+    --foreground: 139 26% 12%;         /* Тёмно-зелёный текст (#17271C) */
+    --card: 45 25% 98%;                /* Очень светлый крем для карточек */
+    --card-foreground: 139 26% 12%;   /* Тёмно-зелёный текст на карточках */
+    --popover: 45 25% 98%;
+    --popover-foreground: 139 26% 12%;
+    --primary: 139 26% 12%;            /* Тёмно-зелёный (#17271C) */
+    --primary-foreground: 45 30% 98%;  /* Светлый кремовый текст на primary */
+    --secondary: 38 50% 95%;           /* Очень светлый золотистый фон - трендовый */
+    --secondary-foreground: 139 26% 12%; /* Тёмно-зелёный текст */
+    --muted: 45 20% 94%;               /* Мягкий нейтральный оттенок - трендовый */
+    --muted-foreground: 139 26% 35%;   /* Приглушённый зелёный для вторичного текста */
+    --accent: 38 67% 65%;              /* Золотой (#e1b869) */
+    --accent-foreground: 139 26% 12%;  /* Тёмно-зелёный на золотом */
+    --destructive: 0 84.2% 60.2%;      /* Красный (оставить как есть) */
+    --destructive-foreground: 0 0% 100%;
+    --border: 45 15% 88%;              /* Тёплые светлые границы - трендовый */
+    --input: 45 15% 88%;               /* Границы инпутов */
+    --ring: 38 67% 65%;                /* Золотой для фокуса (#e1b869) */
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 139 26% 8%;          /* Тёмный зелёный фон */
+    --foreground: 45 30% 96%;          /* Тёплый кремовый текст - трендовый */
+    --card: 139 26% 10%;
+    --card-foreground: 45 30% 96%;
+    --popover: 139 26% 10%;
+    --popover-foreground: 45 30% 96%;
+    --primary: 38 67% 65%;             /* Золотой в тёмной теме */
+    --primary-foreground: 139 26% 12%;
+    --secondary: 139 26% 15%;
+    --secondary-foreground: 45 30% 96%;
+    --muted: 139 26% 15%;
+    --muted-foreground: 45 20% 70%;    /* Приглушённый кремовый - трендовый */
+    --accent: 38 67% 65%;              /* Золотой акцент */
+    --accent-foreground: 139 26% 12%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 139 26% 20%;
+    --input: 139 26% 20%;
+    --ring: 38 67% 65%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: hsl(var(--border));
+  }
+  html {
+    scroll-behavior: smooth;
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
@@ -68,78 +73,4 @@
 .swiper-button-disabled {
   opacity: 0.35;
   cursor: not-allowed;
-}
-
-/* Custom Range Slider Styles */
-.slider-thumb::-webkit-slider-thumb {
-  appearance: none;
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  background: rgb(245, 158, 11);
-  cursor: pointer;
-  border: 2px solid rgb(63, 63, 70);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-}
-
-.slider-thumb::-webkit-slider-thumb:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
-}
-
-.slider-thumb::-moz-range-thumb {
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  background: rgb(245, 158, 11);
-  cursor: pointer;
-  border: 2px solid rgb(63, 63, 70);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-}
-
-.slider-thumb::-moz-range-thumb:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
-}
-
-/* Custom Checkbox Styles */
-.custom-checkbox {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgb(63, 63, 70);
-  border-radius: 4px;
-  background-color: rgb(39, 39, 42);
-  cursor: pointer;
-  position: relative;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.custom-checkbox:checked {
-  background-color: rgb(245, 158, 11);
-  border-color: rgb(245, 158, 11);
-}
-
-.custom-checkbox:checked::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: rgb(24, 24, 27);
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.custom-checkbox:hover {
-  border-color: rgb(245, 158, 11);
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
-}
-
-.custom-checkbox:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.5);
 }

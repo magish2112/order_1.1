@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Calendar, Clock, Search } from 'lucide-react'
-import { formatDate } from '@/lib/utils'
+import { formatDate, getImageUrl } from '@/lib/utils'
 
 export function ArticlesPage() {
   const [search, setSearch] = useState('')
@@ -33,7 +33,7 @@ export function ArticlesPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 py-16 text-white">
+      <section className="bg-gradient-to-br from-gray-900 to-gray-800 py-16 text-foreground">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
             Статьи и полезные материалы
@@ -79,10 +79,10 @@ export function ArticlesPage() {
                 {articles.map((article) => (
                   <Link key={article.id} href={`/stati/${article.slug}`}>
                     <Card className="group h-full overflow-hidden transition-all hover:shadow-lg">
-                      {article.coverImage && (
+                      {article.coverImage && getImageUrl(article.coverImage) && (
                         <div className="relative aspect-video w-full overflow-hidden">
                           <Image
-                            src={article.coverImage}
+                            src={getImageUrl(article.coverImage)!}
                             alt={article.title}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-110"
@@ -123,7 +123,7 @@ export function ArticlesPage() {
                 <div className="mt-12 flex items-center justify-center space-x-2">
                   <Button
                     variant="outline"
-                    className="bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50 group"
+                    className="bg-accent600 hover:bg-accent700 text-foreground disabled:opacity-50 group"
                     disabled={page === 1}
                     onClick={() => setPage(page - 1)}
                   >
@@ -135,7 +135,7 @@ export function ArticlesPage() {
                   </span>
                   <Button
                     variant="outline"
-                    className="bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50 group"
+                    className="bg-accent600 hover:bg-accent700 text-foreground disabled:opacity-50 group"
                     disabled={page >= totalPages}
                     onClick={() => setPage(page + 1)}
                   >

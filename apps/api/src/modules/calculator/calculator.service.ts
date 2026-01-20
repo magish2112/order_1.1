@@ -1,5 +1,6 @@
 import prisma from '../../config/database';
 import redis from '../../config/redis';
+import { transformCalculatorConfig, stringifyJsonObject } from '../../utils/json-fields';
 import { CalculateInput, UpdateCalculatorConfigInput } from './calculator.schema';
 
 export class CalculatorService {
@@ -35,12 +36,15 @@ export class CalculatorService {
       };
     }
 
+    // Преобразуем JSON поля для SQLite
+    const transformedConfig = transformCalculatorConfig(config);
+
     const result = {
-      basePriceCosmetic: Number(config.basePriceCosmetic),
-      basePriceCapital: Number(config.basePriceCapital),
-      basePriceDesign: Number(config.basePriceDesign),
-      basePriceElite: Number(config.basePriceElite),
-      coefficients: config.coefficients as Record<string, number>,
+      basePriceCosmetic: Number(transformedConfig.basePriceCosmetic),
+      basePriceCapital: Number(transformedConfig.basePriceCapital),
+      basePriceDesign: Number(transformedConfig.basePriceDesign),
+      basePriceElite: Number(transformedConfig.basePriceElite),
+      coefficients: transformedConfig.coefficients as Record<string, number>,
     };
 
     if (redis) {
@@ -60,9 +64,15 @@ export class CalculatorService {
 
     let config;
     if (existingConfig) {
+      // Преобразуем coefficients в JSON строку для SQLite
+      const data: any = { ...input };
+      if (data.coefficients !== undefined) {
+        data.coefficients = stringifyJsonObject(data.coefficients);
+      }
+
       config = await prisma.calculatorConfig.update({
         where: { id: existingConfig.id },
-        data: input,
+        data,
       });
     } else {
       config = await prisma.calculatorConfig.create({
@@ -72,11 +82,11 @@ export class CalculatorService {
           basePriceCapital: input.basePriceCapital || 8000,
           basePriceDesign: input.basePriceDesign || 12000,
           basePriceElite: input.basePriceElite || 18000,
-          coefficients: input.coefficients || {
+          coefficients: stringifyJsonObject(input.coefficients || {
             newBuilding: 0.9,
             secondary: 1.0,
             house: 1.2,
-          },
+          }),
           isActive: input.isActive !== undefined ? input.isActive : true,
         },
       });
@@ -87,7 +97,7 @@ export class CalculatorService {
       await redis.del('calculator:config');
     }
 
-    return config;
+    return transformCalculatorConfig(config);
   }
 
   /**

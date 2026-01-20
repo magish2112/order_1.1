@@ -54,12 +54,18 @@ export function EmployeeEditPage() {
 
   const handlePhotoUpload = async (file: File) => {
     try {
-      const response = await apiMethods.media.upload(file);
-      const url = response.data.data.url;
-      form.setFieldValue('photo', url);
+      const response = await apiMethods.media.upload(file, 'employees');
+      const imageUrl = response.data.data.url;
+      
+      // Формируем полный URL для изображения
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${apiUrl}${imageUrl}`;
+      
+      form.setFieldValue('photo', fullUrl);
       message.success('Фото загружено');
     } catch (error) {
       message.error('Ошибка загрузки фото');
+      console.error('Upload error:', error);
     }
   };
 

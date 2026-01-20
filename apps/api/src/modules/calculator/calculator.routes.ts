@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import calculatorController from './calculator.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function calculatorRoutes(fastify: FastifyInstance) {
   // Публичные роуты
@@ -50,4 +50,5 @@ export default async function calculatorRoutes(fastify: FastifyInstance) {
     },
   }, calculatorController.updateConfig.bind(calculatorController));
 }
+
 

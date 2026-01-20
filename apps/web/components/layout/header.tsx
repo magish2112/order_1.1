@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
 import { Menu, Phone, ChevronDown, Calculator, HardHat, Building2, Wrench, Ruler, Hammer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { cn, getImageUrl } from '@/lib/utils'
 import { MobileMenu } from './mobile-menu'
 import { CallbackModal } from '@/components/modals/callback-modal'
+import { api } from '@/lib/api'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -127,6 +130,16 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const pathname = usePathname()
 
+  // Получаем настройки для логотипа
+  const { data: settingsResponse } = useQuery({
+    queryKey: ['settings', 'public'],
+    queryFn: () => api.get<{ success: boolean; data: Record<string, unknown> }>('/settings/public'),
+    staleTime: 5 * 60 * 1000, // Кеш на 5 минут
+  })
+
+  const settings = settingsResponse?.data || {}
+  const logoUrl = getImageUrl((settings.logo as string) || '/logo.svg') || '/logo.svg'
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0)
@@ -160,33 +173,16 @@ export function Header() {
     }
   }
 
-  const getAllItemsText = (name: string) => {
-    switch (name) {
-      case 'Ремонт':
-        return 'Смотреть все ремонты'
-      case 'Дизайн':
-        return 'Смотреть все дизайн-проекты'
-      case 'Прочие услуги':
-        return 'Смотреть все услуги'
-      case 'Портфолио':
-        return 'Смотреть все проекты'
-      case 'Статьи':
-        return 'Смотреть все статьи'
-      default:
-        return `Смотреть все ${name.toLowerCase()}`
-    }
-  }
-
   return (
     <>
       <header className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
         isScrolled
-          ? "bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/50 shadow-lg"
-          : "bg-zinc-950/90 backdrop-blur-sm border-b border-zinc-800/30"
+          ? "bg-background/95 backdrop-blur-md border-b border-border shadow-lg"
+          : "bg-background/90 backdrop-blur-sm border-b border-border/50"
       )}>
         {/* Subtle gradient line */}
-        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-amber-600/50 to-transparent" />
+        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
@@ -195,14 +191,19 @@ export function Header() {
               <Link href="/" className="flex items-center space-x-3 group">
                 <div className="relative">
                   <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-                      <HardHat className="h-4 w-4 text-white" />
+                    <div className="relative w-12 h-12 flex items-center justify-center">
+                      <Image
+                        src={logoUrl}
+                        alt="ETERNO STROY"
+                        width={48}
+                        height={48}
+                        className="object-contain transition-transform duration-300 group-hover:scale-105"
+                        priority
+                        unoptimized={logoUrl.startsWith('http')}
+                      />
                     </div>
-                    <span className="text-xl font-bold text-white tracking-tight">
-                      РемСтрой
-                    </span>
                   </div>
-                  <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-amber-500 to-orange-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                  <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-accent to-accent/80 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                 </div>
               </Link>
             </div>
@@ -233,15 +234,15 @@ export function Header() {
                       <NavigationMenuItem key={item.name}>
                         <NavigationMenuTrigger className={cn(
                           'group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
-                          'text-zinc-300 hover:text-white hover:bg-zinc-800/50',
-                          'data-[state=open]:text-amber-400 data-[state=open]:bg-zinc-800/50',
-                          isActive(item.href) && 'text-amber-400 bg-zinc-800/50'
+                          'text-foreground/80 hover:text-foreground hover:bg-muted',
+                          'data-[state=open]:text-accent data-[state=open]:bg-muted',
+                          isActive(item.href) && 'text-accent bg-muted'
                         )}>
                           {IconComponent && <IconComponent className="h-4 w-4" />}
                           {item.name}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
-                          <div className="w-[600px] p-4 bg-zinc-900/95 backdrop-blur-md border border-zinc-700/50 rounded-xl shadow-2xl">
+                          <div className="w-[600px] p-4 bg-card/95 backdrop-blur-md border border-border rounded-xl shadow-2xl">
                             <div className="grid grid-cols-2 gap-4">
                               {subcategories.slice(0, 8).map((subcategory) => (
                                 <NavigationMenuPrimitive.Link key={subcategory.href} asChild>
@@ -249,15 +250,15 @@ export function Header() {
                                     href={subcategory.href}
                                     className={cn(
                                       'group block select-none space-y-2 rounded-lg p-3 leading-none no-underline outline-none transition-all',
-                                      'hover:bg-zinc-800/50 hover:border-amber-600/20 border border-transparent',
-                                      isActive(subcategory.href) && 'bg-zinc-800/50 border-amber-600/20'
+                                      'hover:bg-muted hover:border-accent/20 border border-transparent',
+                                      isActive(subcategory.href) && 'bg-muted border-accent/20'
                                     )}
                                   >
-                                    <div className="text-sm font-medium text-white group-hover:text-amber-400">
+                                    <div className="text-sm font-medium text-foreground group-hover:text-accent">
                                       {subcategory.title}
                                     </div>
                                     {subcategory.description && (
-                                      <p className="text-xs text-zinc-400 group-hover:text-zinc-300">
+                                      <p className="text-xs text-muted-foreground group-hover:text-foreground/80">
                                         {subcategory.description}
                                       </p>
                                     )}
@@ -265,12 +266,12 @@ export function Header() {
                                 </NavigationMenuPrimitive.Link>
                               ))}
                             </div>
-                            <div className="mt-4 pt-4 border-t border-zinc-700/50">
+                            <div className="mt-4 pt-4 border-t border-border">
                               <Link
                                 href={item.href}
-                                className="inline-flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300 transition-colors"
+                                className="inline-flex items-center gap-2 text-sm text-accent hover:text-accent/80 transition-colors"
                               >
-                                <span>{getAllItemsText(item.name)}</span>
+                                <span>Смотреть все {item.name.toLowerCase()}</span>
                                 <ChevronDown className="h-3 w-3 rotate-[-90deg]" />
                               </Link>
                             </div>
@@ -287,8 +288,8 @@ export function Header() {
                           href={item.href}
                           className={cn(
                             'group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
-                            'text-zinc-300 hover:text-white hover:bg-zinc-800/50',
-                            isActive(item.href) && 'text-amber-400 bg-zinc-800/50'
+                            'text-foreground/80 hover:text-foreground hover:bg-muted',
+                            isActive(item.href) && 'text-accent bg-muted'
                           )}
                         >
                           {IconComponent && <IconComponent className="h-4 w-4" />}
@@ -305,9 +306,9 @@ export function Header() {
             <div className="hidden lg:flex lg:items-center lg:space-x-3">
               <a
                 href="tel:+79991234567"
-                className="flex items-center space-x-2 text-sm font-medium text-zinc-300 hover:text-amber-400 transition-colors whitespace-nowrap"
+                className="flex items-center space-x-2 text-sm font-medium text-foreground/80 hover:text-accent transition-colors whitespace-nowrap"
               >
-                <Phone className="h-4 w-4 flex-shrink-0 text-amber-500" />
+                <Phone className="h-4 w-4 flex-shrink-0 text-accent" />
                 <span className="hidden xl:inline">+7 (999) 123-45-67</span>
                 <span className="xl:hidden">Звонок</span>
               </a>
@@ -315,7 +316,7 @@ export function Header() {
               <Button
                 onClick={() => setCallbackModalOpen(true)}
                 size="sm"
-                className="bg-amber-600 hover:bg-amber-700 text-white border-amber-600 shadow-lg hover:shadow-amber-600/25 transition-all duration-200"
+                className="bg-accent hover:bg-accent/90 text-accent-foreground border-accent shadow-lg hover:shadow-accent/25 transition-all duration-200"
               >
                 Заказать звонок
               </Button>
@@ -325,13 +326,13 @@ export function Header() {
                 asChild
                 size="sm"
                 className={cn(
-                  "group border-zinc-700 text-zinc-300 hover:border-amber-600 hover:text-amber-400 transition-all duration-200",
-                  "bg-zinc-900/50 hover:bg-zinc-800/50 backdrop-blur-sm",
-                  "shadow-sm hover:shadow-amber-600/10"
+                  "group border-border text-foreground/80 hover:border-accent hover:text-accent transition-all duration-200",
+                  "bg-card/50 hover:bg-muted backdrop-blur-sm",
+                  "shadow-sm hover:shadow-accent/10"
                 )}
               >
                 <Link href="/kalkulyator">
-                  <Calculator className="mr-2 h-4 w-4 group-hover:text-amber-400" />
+                  <Calculator className="mr-2 h-4 w-4 group-hover:text-accent" />
                   <span className="hidden xl:inline">Калькулятор</span>
                   <span className="xl:hidden">Расчет</span>
                 </Link>
@@ -341,7 +342,7 @@ export function Header() {
             {/* Mobile menu button */}
             <button
               type="button"
-              className="lg:hidden p-2 rounded-lg text-zinc-300 hover:text-amber-400 hover:bg-zinc-800/50 transition-all duration-200"
+              className="lg:hidden p-2 rounded-lg text-foreground/80 hover:text-accent hover:bg-muted transition-all duration-200"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <Menu className="h-5 w-5" />

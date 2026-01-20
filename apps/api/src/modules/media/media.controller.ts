@@ -6,32 +6,41 @@ export class MediaController {
     request: FastifyRequest<{ Querystring: { folder?: string } }>,
     reply: FastifyReply
   ) {
-    const data = await request.file();
+    try {
+      const data = await request.file();
 
-    if (!data) {
-      return reply.status(400).send({
-        statusCode: 400,
-        error: 'Bad Request',
-        message: 'Файл не предоставлен',
+      if (!data) {
+        return reply.status(400).send({
+          statusCode: 400,
+          error: 'Bad Request',
+          message: 'Файл не предоставлен',
+        });
+      }
+
+      const buffer = await data.toBuffer();
+      
+      const file: UploadedFile = {
+        filename: data.filename || 'unknown',
+        originalName: data.filename || 'unknown',
+        mimeType: data.mimetype,
+        size: buffer.length,
+        buffer,
+      };
+
+      const media = await mediaService.uploadFile(file, request.query.folder);
+
+      return reply.status(201).send({
+        success: true,
+        data: media,
+      });
+    } catch (error: any) {
+      request.log.error(error, 'Error uploading file');
+      return reply.status(500).send({
+        statusCode: 500,
+        error: 'Internal Server Error',
+        message: error?.message || 'Ошибка загрузки файла',
       });
     }
-
-    const buffer = await data.toBuffer();
-    
-    const file: UploadedFile = {
-      filename: data.filename || 'unknown',
-      originalName: data.filename || 'unknown',
-      mimeType: data.mimetype,
-      size: buffer.length,
-      buffer,
-    };
-
-    const media = await mediaService.uploadFile(file, request.query.folder);
-
-    return reply.status(201).send({
-      success: true,
-      data: media,
-    });
   }
 
   async getMediaFiles(

@@ -40,7 +40,14 @@ export class AuthController {
   }
 
   async logout(request: FastifyRequest, reply: FastifyReply) {
-    // TODO: Добавить в blacklist refresh token
+    // ✅ Получить токен из заголовка
+    const token = request.headers.authorization?.split(' ')[1];
+
+    if (token) {
+      // ✅ Инвалидировать токен
+      await authService.logout(token);
+    }
+
     return reply.status(200).send({
       success: true,
       message: 'Выход выполнен успешно',

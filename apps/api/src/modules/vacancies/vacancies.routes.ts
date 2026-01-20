@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import vacanciesController from './vacancies.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function vacanciesRoutes(fastify: FastifyInstance) {
   // Публичные роуты
@@ -63,4 +63,5 @@ export default async function vacanciesRoutes(fastify: FastifyInstance) {
     },
   }, vacanciesController.deleteVacancy.bind(vacanciesController));
 }
+
 

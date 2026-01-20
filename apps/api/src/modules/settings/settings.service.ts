@@ -23,7 +23,7 @@ export class SettingsService {
 
     const settings = await prisma.setting.findMany({
       where: {
-        group: { in: ['contacts', 'social'] },
+        group: { in: ['contacts', 'social', 'design'] },
       },
     });
 

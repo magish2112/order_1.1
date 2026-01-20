@@ -20,7 +20,7 @@ export default function NotFound() {
               На главную
             </Link>
           </Button>
-          <Button className="bg-amber-600 hover:bg-amber-700 text-white group" onClick={() => window.history.back()}>
+          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground group" onClick={() => window.history.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Назад
           </Button>

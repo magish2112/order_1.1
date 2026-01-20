@@ -54,18 +54,18 @@ export function MobileMenu({ isOpen, onClose, navigation, isActive }: MobileMenu
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 z-50 h-full w-80 bg-zinc-950/95 backdrop-blur-md border-l border-zinc-800/50 shadow-2xl lg:hidden"
+            className="fixed right-0 top-0 z-50 h-full w-80 bg-background/95 backdrop-blur-md border-l border-border shadow-2xl lg:hidden"
           >
-            <div className="flex h-16 items-center justify-between border-b border-zinc-800/50 px-4">
+            <div className="flex h-16 items-center justify-between border-b border-border px-4">
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-amber-500 to-orange-600 rounded-md flex items-center justify-center">
-                  <Phone className="h-3 w-3 text-white" />
+                <div className="w-6 h-6 bg-gradient-to-br from-accent to-accent/80 rounded-md flex items-center justify-center">
+                  <Phone className="h-3 w-3 text-accent-foreground" />
                 </div>
-                <span className="text-lg font-semibold text-white">Меню</span>
+                <span className="text-lg font-semibold text-foreground">Меню</span>
               </div>
               <button
                 onClick={onClose}
-                className="rounded-lg p-2 text-zinc-400 hover:text-amber-400 hover:bg-zinc-800/50 transition-all duration-200"
+                className="rounded-lg p-2 text-muted-foreground hover:text-accent hover:bg-muted transition-all duration-200"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -73,15 +73,15 @@ export function MobileMenu({ isOpen, onClose, navigation, isActive }: MobileMenu
 
             <div className="overflow-y-auto pb-4">
               {/* Contact Info */}
-              <div className="border-b border-zinc-800/50 p-4">
+              <div className="border-b border-border p-4">
                 <a
                   href="tel:+79991234567"
-                  className="flex items-center space-x-3 rounded-lg bg-zinc-900/50 border border-zinc-700 p-3 text-zinc-300 hover:bg-zinc-800/50 hover:border-amber-600/30 transition-all duration-200"
+                  className="flex items-center space-x-3 rounded-lg bg-card/50 border border-border p-3 text-muted-foreground hover:bg-muted hover:border-accent/30 transition-all duration-200"
                 >
-                  <Phone className="h-5 w-5 text-amber-500" />
+                  <Phone className="h-5 w-5 text-accent" />
                   <div>
-                    <div className="font-medium text-white">+7 (999) 123-45-67</div>
-                    <div className="text-xs text-zinc-400">Нажмите для звонка</div>
+                    <div className="font-medium text-foreground">+7 (999) 123-45-67</div>
+                    <div className="text-xs text-muted-foreground">Нажмите для звонка</div>
                   </div>
                 </a>
               </div>
@@ -96,23 +96,23 @@ export function MobileMenu({ isOpen, onClose, navigation, isActive }: MobileMenu
                           className={cn(
                             'flex w-full items-center justify-between rounded-lg px-4 py-3 text-base font-medium transition-all duration-200',
                             isActive(item.href)
-                              ? 'bg-amber-600/10 border border-amber-600/20 text-amber-400'
-                              : 'text-zinc-300 hover:bg-zinc-800/50 hover:text-white'
+                              ? 'bg-accent/10 border border-accent/20 text-accent'
+                              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                           )}
                         >
                           <div className="flex items-center space-x-2">
                             {/* Add icon for each nav item */}
-                            {item.name === 'Ремонт' && <Phone className="h-4 w-4 text-amber-500" />}
-                            {item.name === 'Дизайн' && <ChevronDown className="h-4 w-4 text-amber-500" />}
-                            {item.name === 'Прочие услуги' && <Phone className="h-4 w-4 text-amber-500" />}
-                            {item.name === 'Портфолио' && <Phone className="h-4 w-4 text-amber-500" />}
-                            {item.name === 'Статьи' && <Phone className="h-4 w-4 text-amber-500" />}
+                            {item.name === 'Ремонт' && <Phone className="h-4 w-4 text-accent" />}
+                            {item.name === 'Дизайн' && <ChevronDown className="h-4 w-4 text-accent" />}
+                            {item.name === 'Прочие услуги' && <Phone className="h-4 w-4 text-accent" />}
+                            {item.name === 'Портфолио' && <Phone className="h-4 w-4 text-accent" />}
+                            {item.name === 'Статьи' && <Phone className="h-4 w-4 text-accent" />}
                             <span>{item.name}</span>
                           </div>
                           <ChevronDown
                             className={cn(
-                              'h-5 w-5 transition-transform duration-200 text-zinc-400',
-                              openItems.has(item.name) && 'rotate-180 text-amber-400'
+                              'h-5 w-5 transition-transform duration-200 text-muted-foreground',
+                              openItems.has(item.name) && 'rotate-180 text-accent'
                             )}
                           />
                         </button>
@@ -126,13 +126,13 @@ export function MobileMenu({ isOpen, onClose, navigation, isActive }: MobileMenu
                               transition={{ duration: 0.2 }}
                               className="overflow-hidden"
                             >
-                              <div className="ml-4 space-y-1 border-l-2 border-zinc-700 pl-4">
+                              <div className="ml-4 space-y-1 border-l-2 border-border pl-4">
                                 {item.children.slice(0, 4).map((child) => (
                                   <Link
                                     key={child.name}
                                     href={child.href}
                                     onClick={onClose}
-                                    className="block rounded-lg px-3 py-2 text-sm text-zinc-400 transition-all duration-200 hover:bg-zinc-800/50 hover:text-amber-400"
+                                    className="block rounded-lg px-3 py-2 text-sm text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-accent"
                                   >
                                     {child.name}
                                   </Link>
@@ -141,7 +141,7 @@ export function MobileMenu({ isOpen, onClose, navigation, isActive }: MobileMenu
                                   <Link
                                     href={item.href}
                                     onClick={onClose}
-                                    className="block rounded-lg px-3 py-2 text-sm text-amber-400 hover:text-amber-300 transition-colors"
+                                    className="block rounded-lg px-3 py-2 text-sm text-accent hover:text-accent/80 transition-colors"
                                   >
                                     Смотреть все...
                                   </Link>
@@ -158,14 +158,14 @@ export function MobileMenu({ isOpen, onClose, navigation, isActive }: MobileMenu
                         className={cn(
                           'flex items-center space-x-2 block rounded-lg px-4 py-3 text-base font-medium transition-all duration-200',
                           isActive(item.href)
-                            ? 'bg-amber-600/10 border border-amber-600/20 text-amber-400'
-                            : 'text-zinc-300 hover:bg-zinc-800/50 hover:text-white'
+                            ? 'bg-accent/10 border border-accent/20 text-accent'
+                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                         )}
                       >
                         {/* Add icon for each nav item */}
-                        {item.name === 'О компании' && <Phone className="h-4 w-4 text-amber-500" />}
-                        {item.name === 'Вакансии' && <Phone className="h-4 w-4 text-amber-500" />}
-                        {item.name === 'Контакты' && <Phone className="h-4 w-4 text-amber-500" />}
+                        {item.name === 'О компании' && <Phone className="h-4 w-4 text-accent" />}
+                        {item.name === 'Вакансии' && <Phone className="h-4 w-4 text-accent" />}
+                        {item.name === 'Контакты' && <Phone className="h-4 w-4 text-accent" />}
                         <span>{item.name}</span>
                       </Link>
                     )}

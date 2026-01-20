@@ -3,13 +3,13 @@
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import Image from 'next/image'
-import { api } from '@/lib/api'
+import { api, ApiResponse } from '@/lib/api'
 import { ServiceCategory, Service } from '@/lib/types'
 import { Breadcrumbs } from '@/components/ui/breadcrumbs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Square, CheckCircle2 } from 'lucide-react'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, getImageUrl } from '@/lib/utils'
 
 interface ServiceCategoryPageProps {
   categorySlug: string
@@ -21,19 +21,28 @@ export function ServiceCategoryPage({ categorySlug, slug }: ServiceCategoryPageP
 
   const { data: category, isLoading: categoryLoading } = useQuery({
     queryKey: ['category', categoryPath],
-    queryFn: () => api.get<ServiceCategory>(`/categories/${categoryPath}`),
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<ServiceCategory>>(`/categories/${categoryPath}`)
+      return response.data
+    },
     enabled: !!categoryPath,
   })
 
   const { data: services, isLoading: servicesLoading } = useQuery({
     queryKey: ['category-services', category?.id],
-    queryFn: () => api.get<Service[]>(`/services?categoryId=${category?.id}`),
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<Service[]>>(`/services?categoryId=${category?.id}`)
+      return response.data
+    },
     enabled: !!category?.id,
   })
 
   const { data: subcategories, isLoading: subcategoriesLoading } = useQuery({
     queryKey: ['subcategories', category?.id],
-    queryFn: () => api.get<ServiceCategory[]>(`/categories?parentId=${category?.id}`),
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<ServiceCategory[]>>(`/categories?parentId=${category?.id}`)
+      return response.data
+    },
     enabled: !!category?.id,
   })
 
@@ -65,10 +74,10 @@ export function ServiceCategoryPage({ categorySlug, slug }: ServiceCategoryPageP
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-600 to-primary-700 py-16 text-white">
-        {category.image && (
+      <section className="relative bg-gradient-to-br from-primary-600 to-primary-700 py-16 text-foreground">
+        {category.image && getImageUrl(category.image) && (
           <div className="absolute inset-0 opacity-20">
-            <Image src={category.image} alt={category.name} fill className="object-cover" />
+            <Image src={getImageUrl(category.image)!} alt={category.name} fill className="object-cover" />
           </div>
         )}
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -98,7 +107,7 @@ export function ServiceCategoryPage({ categorySlug, slug }: ServiceCategoryPageP
                       )}
                     </CardHeader>
                     <CardContent>
-                      <Button variant="outline" className="w-full group-hover:bg-primary-600 group-hover:text-white">
+                      <Button variant="outline" className="w-full group-hover:bg-primary-600 group-hover:text-foreground">
                         Подробнее
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
@@ -123,10 +132,10 @@ export function ServiceCategoryPage({ categorySlug, slug }: ServiceCategoryPageP
                 {services.map((service) => (
                   <Link key={service.id} href={`/${categorySlug}/${category.slug}/${service.slug}`}>
                     <Card className="group h-full overflow-hidden transition-all hover:shadow-lg">
-                      {service.image && (
+                      {service.image && getImageUrl(service.image) && (
                         <div className="relative aspect-video w-full overflow-hidden">
                           <Image
-                            src={service.image}
+                            src={getImageUrl(service.image)!}
                             alt={service.name}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-110"
@@ -154,7 +163,7 @@ export function ServiceCategoryPage({ categorySlug, slug }: ServiceCategoryPageP
                             )}
                           </div>
                         )}
-                        <Button variant="outline" className="w-full group-hover:bg-primary-600 group-hover:text-white">
+                        <Button variant="outline" className="w-full group-hover:bg-primary-600 group-hover:text-foreground">
                           Подробнее
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
@@ -181,7 +190,7 @@ export function ServiceCategoryPage({ categorySlug, slug }: ServiceCategoryPageP
       )}
 
       {/* CTA Section */}
-      <section className="bg-primary-600 py-12 text-white">
+      <section className="bg-primary-600 py-12 text-foreground">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold">Готовы начать проект?</h2>
@@ -189,10 +198,10 @@ export function ServiceCategoryPage({ categorySlug, slug }: ServiceCategoryPageP
               Свяжитесь с нами для бесплатной консультации
             </p>
             <div className="mt-8 flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" asChild>
+              <Button size="lg" className="bg-accent600 hover:bg-accent700 text-foreground" asChild>
                 <Link href="/kontakty">Связаться с нами</Link>
               </Button>
-              <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white group" asChild>
+              <Button size="lg" className="bg-accent600 hover:bg-accent700 text-foreground group" asChild>
                 <Link href="/kalkulyator">Рассчитать стоимость</Link>
               </Button>
             </div>

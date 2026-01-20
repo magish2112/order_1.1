@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import requestsService from './mock-requests.service';
+import requestsService from './requests.service';
 import {
   createRequestSchema,
   updateRequestStatusSchema,

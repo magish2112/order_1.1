@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { UserRole } from '@prisma/client';
+import redis from '../config/redis';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -16,6 +17,22 @@ export async function authenticate(
   reply: FastifyReply
 ) {
   try {
+    // ✅ Получить токен для проверки черного списка
+    const token = request.headers.authorization?.split(' ')[1];
+
+    // ✅ Проверить черный список
+    if (token && redis) {
+      const isBlacklisted = await redis.get(`blacklist:${token}`);
+      if (isBlacklisted) {
+        return reply.status(401).send({
+          statusCode: 401,
+          error: 'Unauthorized',
+          message: 'Токен был инвалидирован',
+        });
+      }
+    }
+
+    // Стандартная верификация
     await request.jwtVerify();
     // После успешной верификации токена, данные пользователя доступны через request.user
     // fastify-jwt автоматически добавляет decoded данные в request.user

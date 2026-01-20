@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useQuery } from '@tanstack/react-query'
 import InputMask from 'react-input-mask'
-import { api } from '@/lib/api'
+import { api, ApiResponse } from '@/lib/api'
 import { CalculatorConfig } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -77,7 +77,10 @@ export function Calculator() {
 
   const { data: config } = useQuery({
     queryKey: ['calculator-config'],
-    queryFn: () => api.get<CalculatorConfig>('/calculator/config'),
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<CalculatorConfig>>('/calculator/config')
+      return response.data
+    },
   })
 
   const {
@@ -150,6 +153,7 @@ export function Calculator() {
     try {
       await api.post('/requests', {
         ...data,
+        email: data.email?.trim() ? data.email.trim() : undefined,
         source: 'calculator',
         pageUrl: window.location.href,
       })
@@ -193,7 +197,7 @@ export function Calculator() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.5 }}
-      className="relative bg-zinc-950 py-16 lg:py-24 overflow-hidden"
+      className="relative bg-background py-16 lg:py-24 overflow-hidden"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
@@ -201,8 +205,8 @@ export function Calculator() {
           className="absolute inset-0"
           style={{
             backgroundImage: `
-              linear-gradient(to right, rgb(251, 191, 36) 1px, transparent 1px),
-              linear-gradient(to bottom, rgb(251, 191, 36) 1px, transparent 1px)
+              linear-gradient(to right, hsl(var(--accent)) 1px, transparent 1px),
+              linear-gradient(to bottom, hsl(var(--accent)) 1px, transparent 1px)
             `,
             backgroundSize: '60px 60px',
           }}
@@ -210,24 +214,24 @@ export function Calculator() {
       </div>
 
       {/* Gradient Overlays */}
-      <div className="absolute top-0 left-0 w-1/4 h-1/4 bg-gradient-to-br from-amber-600/10 to-transparent blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-1/4 h-1/4 bg-gradient-to-tl from-orange-600/10 to-transparent blur-3xl" />
+      <div className="absolute top-0 left-0 w-1/4 h-1/4 bg-gradient-to-br from-accent/10 to-transparent blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-1/4 h-1/4 bg-gradient-to-tl from-accent/10 to-transparent blur-3xl" />
 
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-600/10 border border-amber-600/20 backdrop-blur-sm mb-6">
-            <CalculatorIcon className="h-6 w-6 text-amber-500" />
-            <span className="text-sm text-amber-500 font-medium">Калькулятор стоимости</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 backdrop-blur-sm mb-6">
+            <CalculatorIcon className="h-6 w-6 text-accent" />
+            <span className="text-sm text-accent font-medium">Калькулятор стоимости</span>
           </div>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Калькулятор стоимости ремонта
           </h2>
-          <p className="mt-4 text-lg text-zinc-400 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
             Рассчитайте примерную стоимость ремонта за несколько минут
           </p>
         </div>
 
-        <div className="mt-12 relative overflow-hidden rounded-xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm">
+        <div className="mt-12 relative overflow-hidden rounded-xl bg-card/50 border border-border backdrop-blur-sm">
           <div className="relative p-6 lg:p-8">
             {/* Progress Bar */}
             <div className="mb-8">
@@ -238,10 +242,10 @@ export function Calculator() {
                       <div
                         className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all ${
                           currentStep > step.id
-                            ? 'border-amber-600 bg-amber-600 text-white'
+                            ? 'border-accent bg-accent text-foreground'
                             : currentStep === step.id
-                            ? 'border-amber-600 bg-amber-600 text-white'
-                            : 'border-zinc-600 bg-zinc-800 text-zinc-400'
+                            ? 'border-accent bg-accent text-foreground'
+                            : 'border-zinc-600 bg-muted text-muted-foreground'
                         }`}
                       >
                         {currentStep > step.id ? (
@@ -252,7 +256,7 @@ export function Calculator() {
                       </div>
                       <span
                         className={`mt-2 hidden text-xs font-medium lg:block ${
-                          currentStep >= step.id ? 'text-amber-400' : 'text-zinc-500'
+                          currentStep >= step.id ? 'text-accent' : 'text-muted-foreground'
                         }`}
                       >
                         {step.title}
@@ -261,7 +265,7 @@ export function Calculator() {
                     {index < steps.length - 1 && (
                       <div
                         className={`mx-2 h-1 flex-1 rounded transition-all ${
-                          currentStep > step.id ? 'bg-amber-600' : 'bg-zinc-700'
+                          currentStep > step.id ? 'bg-accent' : 'bg-muted'
                         }`}
                       />
                     )}
@@ -277,16 +281,16 @@ export function Calculator() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex min-h-[400px] flex-col items-center justify-center text-center"
               >
-                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-600/20 border border-amber-600/30">
-                  <Check className="h-10 w-10 text-amber-500" />
+                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-accent/20 border border-accent/30">
+                  <Check className="h-10 w-10 text-accent" />
                 </div>
-                <h3 className="mb-4 text-2xl font-bold text-white">
+                <h3 className="mb-4 text-2xl font-bold text-foreground">
                   Заявка успешно отправлена!
                 </h3>
-                <p className="mb-2 text-lg text-zinc-300">
+                <p className="mb-2 text-lg text-foreground/80">
                   Спасибо за обращение! Наш менеджер свяжется с вами в ближайшее время для уточнения деталей.
                 </p>
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-muted-foreground">
                   Обычно мы перезваниваем в течение 15 минут в рабочее время.
                 </p>
               </motion.div>
@@ -306,7 +310,7 @@ export function Calculator() {
                       transition={{ duration: 0.3 }}
                       className="space-y-6"
                     >
-                      <h3 className="text-2xl font-semibold text-white mb-6">
+                      <h3 className="text-2xl font-semibold text-foreground mb-6">
                         Выберите тип помещения
                       </h3>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -320,9 +324,9 @@ export function Calculator() {
                                 setValue('propertyType', type.value)
                                 setTimeout(nextStep, 300)
                               }}
-                              className={`group flex flex-col items-center justify-center rounded-lg border-2 p-6 transition-all hover:border-amber-600/50 ${
+                              className={`group flex flex-col items-center justify-center rounded-lg border-2 p-6 transition-all hover:border-accent/50 ${
                                 watchedPropertyType === type.value
-                                  ? 'border-amber-600 bg-amber-600/10 text-amber-500'
+                                  ? 'border-accent bg-accent/10 text-accent'
                                   : 'border-gray-200 text-gray-700 hover:border-primary-300 hover:bg-gray-50'
                               }`}
                             >
@@ -347,7 +351,7 @@ export function Calculator() {
                       transition={{ duration: 0.3 }}
                       className="space-y-6"
                     >
-                      <h3 className="text-2xl font-semibold text-white mb-6">
+                      <h3 className="text-2xl font-semibold text-foreground mb-6">
                         Тип жилья
                       </h3>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -357,10 +361,10 @@ export function Calculator() {
                             setValue('housingType', 'newBuilding')
                             setTimeout(nextStep, 300)
                           }}
-                          className={`group rounded-lg border-2 p-6 text-left transition-all hover:border-amber-600/50 ${
+                          className={`group rounded-lg border-2 p-6 text-left transition-all hover:border-accent/50 ${
                             watchedHousingType === 'newBuilding'
-                              ? 'border-amber-600 bg-amber-600/10 text-amber-500'
-                              : 'border-zinc-700 text-zinc-300 hover:bg-zinc-900/50'
+                              ? 'border-accent bg-accent/10 text-accent'
+                              : 'border-border text-foreground/80 hover:bg-card/50'
                           }`}
                         >
                           <h4 className="text-lg font-semibold">Новостройка</h4>
@@ -374,10 +378,10 @@ export function Calculator() {
                             setValue('housingType', 'secondary')
                             setTimeout(nextStep, 300)
                           }}
-                          className={`group rounded-lg border-2 p-6 text-left transition-all hover:border-amber-600/50 ${
+                          className={`group rounded-lg border-2 p-6 text-left transition-all hover:border-accent/50 ${
                             watchedHousingType === 'secondary'
-                              ? 'border-amber-600 bg-amber-600/10 text-amber-500'
-                              : 'border-zinc-700 text-zinc-300 hover:bg-zinc-900/50'
+                              ? 'border-accent bg-accent/10 text-accent'
+                              : 'border-border text-foreground/80 hover:bg-card/50'
                           }`}
                         >
                           <h4 className="text-lg font-semibold">Вторичка</h4>
@@ -401,7 +405,7 @@ export function Calculator() {
                       transition={{ duration: 0.3 }}
                       className="space-y-6"
                     >
-                      <h3 className="text-2xl font-semibold text-white mb-6">
+                      <h3 className="text-2xl font-semibold text-foreground mb-6">
                         Количество комнат
                       </h3>
                       <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
@@ -413,10 +417,10 @@ export function Calculator() {
                               setValue('rooms', num === '5+' ? 5 : Number(num))
                               setTimeout(nextStep, 300)
                             }}
-                            className={`rounded-lg border-2 p-4 text-center font-semibold transition-all hover:border-amber-600/50 ${
+                            className={`rounded-lg border-2 p-4 text-center font-semibold transition-all hover:border-accent/50 ${
                               watch('rooms') === (num === '5+' ? 5 : Number(num))
-                                ? 'border-amber-600 bg-amber-600/10 text-amber-500'
-                                : 'border-zinc-700 text-zinc-300 hover:bg-zinc-900/50'
+                                ? 'border-accent bg-accent/10 text-accent'
+                                : 'border-border text-foreground/80 hover:bg-card/50'
                             }`}
                           >
                             {num === '5+' ? '5+' : `${num} комн.`}
@@ -438,7 +442,7 @@ export function Calculator() {
                       transition={{ duration: 0.3 }}
                       className="space-y-6"
                     >
-                      <h3 className="text-2xl font-semibold text-white mb-6">
+                      <h3 className="text-2xl font-semibold text-foreground mb-6">
                         Площадь помещения
                       </h3>
                       <div>
@@ -464,14 +468,14 @@ export function Calculator() {
                             max="500"
                             value={watchedArea || 50}
                             onChange={(e) => setValue('area', Number(e.target.value))}
-                            className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer slider-thumb"
+                            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider-thumb"
                             style={{
-                              background: `linear-gradient(to right, rgb(245, 158, 11) 0%, rgb(245, 158, 11) ${((watchedArea || 50) - 10) / (500 - 10) * 100}%, rgb(63, 63, 70) ${((watchedArea || 50) - 10) / (500 - 10) * 100}%, rgb(63, 63, 70) 100%)`
+                              background: `linear-gradient(to right, hsl(var(--accent)) 0%, hsl(var(--accent)) ${((watchedArea || 50) - 10) / (500 - 10) * 100}%, hsl(var(--muted)) ${((watchedArea || 50) - 10) / (500 - 10) * 100}%, hsl(var(--muted)) 100%)`
                             }}
                           />
-                          <div className="mt-2 flex justify-between text-xs text-zinc-400">
+                          <div className="mt-2 flex justify-between text-xs text-muted-foreground">
                             <span>10 м²</span>
-                            <span className="font-semibold text-amber-400">
+                            <span className="font-semibold text-accent">
                               {watchedArea || 50} м²
                             </span>
                             <span>500 м²</span>
@@ -493,7 +497,7 @@ export function Calculator() {
                       transition={{ duration: 0.3 }}
                       className="space-y-6"
                     >
-                      <h3 className="text-2xl font-semibold text-white mb-6">
+                      <h3 className="text-2xl font-semibold text-foreground mb-6">
                         Тип ремонта
                       </h3>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -508,36 +512,36 @@ export function Calculator() {
                                 setTimeout(nextStep, 300)
                               }
                             }}
-                            className={`group rounded-lg border-2 p-6 text-left transition-all hover:border-amber-600/50 ${
+                            className={`group rounded-lg border-2 p-6 text-left transition-all hover:border-accent/50 ${
                               watchedRepairType === type.value
-                                ? 'border-amber-600 bg-amber-600/10 text-amber-500'
-                                : 'border-zinc-700 text-zinc-300 hover:bg-zinc-900/50'
+                                ? 'border-accent bg-accent/10 text-accent'
+                                : 'border-border text-foreground/80 hover:bg-card/50'
                             }`}
                           >
                             <div className="flex items-start gap-3">
                               <div className={`p-2 rounded-lg transition-colors ${
                                 watchedRepairType === type.value
-                                  ? 'bg-amber-600/20'
-                                  : 'bg-zinc-800 group-hover:bg-amber-600/10'
+                                  ? 'bg-accent/20'
+                                  : 'bg-muted group-hover:bg-accent/10'
                               }`}>
                                 <type.icon className={`h-5 w-5 ${
                                   watchedRepairType === type.value
-                                    ? 'text-amber-500'
-                                    : 'text-zinc-400 group-hover:text-amber-500'
+                                    ? 'text-accent'
+                                    : 'text-muted-foreground group-hover:text-accent'
                                 }`} />
                               </div>
                               <div>
                                 <h4 className={`text-lg font-semibold transition-colors ${
                                   watchedRepairType === type.value
-                                    ? 'text-amber-100'
-                                    : 'text-white group-hover:text-amber-100'
+                                    ? 'text-accent-foreground'
+                                    : 'text-foreground group-hover:text-accent-foreground'
                                 }`}>
                                   {type.label}
                                 </h4>
                                 <p className={`mt-2 text-sm transition-colors ${
                                   watchedRepairType === type.value
-                                    ? 'text-amber-300'
-                                    : 'text-zinc-400 group-hover:text-zinc-300'
+                                    ? 'text-accent/80'
+                                    : 'text-muted-foreground group-hover:text-foreground/80'
                                 }`}>
                                   {type.description}
                                 </p>
@@ -561,20 +565,20 @@ export function Calculator() {
                       transition={{ duration: 0.3 }}
                       className="space-y-6"
                     >
-                      <h3 className="text-2xl font-semibold text-white">
+                      <h3 className="text-2xl font-semibold text-foreground">
                         Дополнительные услуги
                       </h3>
-                      <p className="text-zinc-400">
+                      <p className="text-muted-foreground">
                         Выберите дополнительные услуги (необязательно)
                       </p>
                       <div className="space-y-3">
                         {additionalServices.map((service) => (
                           <label
                             key={service.id}
-                            className={`flex cursor-pointer items-center justify-between rounded-lg border-2 p-4 transition-all hover:border-amber-600/50 ${
+                            className={`flex cursor-pointer items-center justify-between rounded-lg border-2 p-4 transition-all hover:border-accent/50 ${
                               watchedAdditionalServices.includes(service.id)
-                                ? 'border-amber-600 bg-amber-600/10'
-                                : 'border-zinc-700 hover:bg-zinc-900/50'
+                                ? 'border-accent bg-accent/10'
+                                : 'border-border hover:bg-card/50'
                             }`}
                           >
                             <div className="flex items-center space-x-3">
@@ -596,16 +600,16 @@ export function Calculator() {
                               />
                               <span className={`font-medium transition-colors ${
                                 watchedAdditionalServices.includes(service.id)
-                                  ? 'text-amber-100'
-                                  : 'text-zinc-300'
+                                  ? 'text-accent-foreground'
+                                  : 'text-foreground/80'
                               }`}>
                                 {service.label}
                               </span>
                             </div>
                             <span className={`text-sm font-medium transition-colors ${
                               watchedAdditionalServices.includes(service.id)
-                                ? 'text-amber-400'
-                                : 'text-zinc-500'
+                                ? 'text-accent'
+                                : 'text-muted-foreground'
                             }`}>
                               +{service.percent}%
                             </span>
@@ -627,7 +631,7 @@ export function Calculator() {
                       transition={{ duration: 0.3 }}
                       className="space-y-6"
                     >
-                      <h3 className="text-2xl font-semibold text-white mb-6">
+                      <h3 className="text-2xl font-semibold text-foreground mb-6">
                         Контактные данные
                       </h3>
                       {priceRange && estimatedPrice && (
@@ -686,8 +690,8 @@ export function Calculator() {
                                 </li>
                               )}
                               {watchedAdditionalServices.length > 0 && (
-                                <li className="flex items-center text-white">
-                                  <Check className="mr-2 h-4 w-4 text-amber-500" />
+                                <li className="flex items-center text-foreground">
+                                  <Check className="mr-2 h-4 w-4 text-accent" />
                                   Дополнительные услуги ({watchedAdditionalServices.length})
                                 </li>
                               )}
@@ -752,13 +756,13 @@ export function Calculator() {
                   </div>
 
                   {/* Navigation Buttons */}
-                  <div className="mt-8 flex items-center justify-between border-t border-zinc-800 pt-6">
+                  <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={prevStep}
                       disabled={currentStep === 1}
-                      className="bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50 group"
+                      className="bg-accent hover:bg-accent/90 text-foreground disabled:opacity-50 group"
                     >
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Назад
@@ -767,7 +771,7 @@ export function Calculator() {
                       <Button
                         type="button"
                         onClick={nextStep}
-                        className="bg-amber-600 hover:bg-amber-700 text-white"
+                        className="bg-accent hover:bg-accent/90 text-foreground"
                       >
                         Далее
                         <ChevronRight className="ml-2 h-5 w-5" />
@@ -776,7 +780,7 @@ export function Calculator() {
                       <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50"
+                        className="bg-accent hover:bg-accent/90 text-foreground disabled:opacity-50"
                       >
                         {isSubmitting ? 'Отправка...' : 'Получить расчет'}
                       </Button>

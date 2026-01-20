@@ -119,14 +119,64 @@ export async function buildApp(): Promise<FastifyInstance> {
     });
   }
 
+  // Root route
+  app.get('/', async () => {
+    return {
+      message: 'API для сайта ремонтно-строительной компании',
+      version: '1.0.0',
+      docs: '/api/docs',
+      health: '/health',
+    };
+  });
+
   // Health check
   app.get('/health', async () => {
+    let databaseStatus = 'unknown';
+    let redisStatus = 'disabled';
+
+    // Проверка подключения к базе данных (SQLite или PostgreSQL)
+    try {
+      // Для SQLite и PostgreSQL используется простой запрос
+      await prisma.$queryRawUnsafe('SELECT 1');
+      databaseStatus = 'connected';
+    } catch (error) {
+      databaseStatus = 'disconnected';
+      app.log.warn({ error }, 'Database health check failed');
+    }
+
+    // Проверка подключения к Redis
+    if (redis) {
+      try {
+        const result = await redis.ping();
+        redisStatus = result === 'PONG' ? 'connected' : 'disconnected';
+      } catch (error) {
+        redisStatus = 'disconnected';
+        app.log.warn({ error }, 'Redis health check failed');
+      }
+    }
+
+    const overallStatus = databaseStatus === 'connected' ? 'ok' : 'degraded';
+
     return {
-      status: 'ok',
+      status: overallStatus,
       timestamp: new Date().toISOString(),
-      database: await prisma.$queryRaw`SELECT 1`.then(() => 'connected').catch(() => 'disconnected'),
-      redis: redis ? (redis.status === 'ready' ? 'connected' : 'disconnected') : 'disabled',
+      database: databaseStatus,
+      redis: redisStatus,
     };
+  });
+
+  // Статические файлы из uploads
+  const { resolve } = await import('path');
+  const uploadDir = env.UPLOAD_DIR || './uploads';
+  const uploadPath = uploadDir.startsWith('/') || uploadDir.match(/^[A-Z]:/) 
+    ? uploadDir 
+    : resolve(process.cwd(), uploadDir);
+  
+  const staticPlugin = await import('@fastify/static');
+  await app.register(staticPlugin.default, {
+    root: uploadPath,
+    prefix: env.PUBLIC_UPLOAD_URL || '/uploads',
+    decorateReply: false,
   });
 
   // Регистрация роутов

@@ -4,7 +4,7 @@ export const updateSettingSchema = z.object({
   key: z.string().min(1, 'Ключ обязателен'),
   value: z.string(),
   type: z.enum(['string', 'number', 'json', 'boolean']).default('string'),
-  group: z.string().optional(),
+  group: z.string().nullish(),
 });
 
 export const updateSettingsSchema = z.array(updateSettingSchema);

@@ -8,7 +8,7 @@ import { Article } from '@/lib/types'
 import { Breadcrumbs } from '@/components/ui/breadcrumbs'
 import { Button } from '@/components/ui/button'
 import { Calendar, Clock, ArrowLeft, User } from 'lucide-react'
-import { formatDate } from '@/lib/utils'
+import { formatDate, getImageUrl } from '@/lib/utils'
 
 interface ArticleDetailPageProps {
   slug: string
@@ -57,7 +57,7 @@ export function ArticleDetailPage({ slug }: ArticleDetailPageProps) {
       {/* Header */}
       <header className="py-12">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <Button className="mb-6 bg-amber-600 hover:bg-amber-700 text-white group" asChild>
+          <Button className="mb-6 bg-accent600 hover:bg-accent700 text-foreground group" asChild>
             <Link href="/stati">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Назад к статьям
@@ -91,10 +91,10 @@ export function ArticleDetailPage({ slug }: ArticleDetailPageProps) {
             )}
           </div>
 
-          {article.coverImage && (
+          {article.coverImage && getImageUrl(article.coverImage) && (
             <div className="relative mt-8 aspect-video w-full overflow-hidden rounded-lg">
               <Image
-                src={article.coverImage}
+                src={getImageUrl(article.coverImage)!}
                 alt={article.title}
                 fill
                 className="object-cover"

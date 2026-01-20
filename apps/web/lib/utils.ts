@@ -32,3 +32,28 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
+/**
+ * Нормализует URL изображения:
+ * - Если URL уже абсолютный (начинается с http/https), возвращает как есть
+ * - Если URL относительный (начинается с /), добавляет базовый URL API
+ * - Если URL пустой или null, возвращает null
+ */
+export function getImageUrl(imageUrl: string | null | undefined): string | null {
+  if (!imageUrl) {
+    return null
+  }
+
+  // Если URL уже абсолютный, возвращаем как есть
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl
+  }
+
+  // Если URL относительный, добавляем базовый URL API
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:4000'
+  
+  // Убираем начальный слеш если он есть, чтобы избежать двойных слешей
+  const cleanUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
+  
+  return `${apiUrl}${cleanUrl}`
+}
+

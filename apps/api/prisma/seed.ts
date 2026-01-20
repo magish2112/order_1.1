@@ -1,7 +1,25 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
+
+// Константы для ролей (вместо enum для SQLite)
+const UserRole = {
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  ADMIN: 'ADMIN',
+  MANAGER: 'MANAGER',
+  EDITOR: 'EDITOR',
+} as const;
+
+// Константы для статусов заявок
+const RequestStatus = {
+  NEW: 'NEW',
+  IN_PROGRESS: 'IN_PROGRESS',
+  CONTACTED: 'CONTACTED',
+  CONVERTED: 'CONVERTED',
+  REJECTED: 'REJECTED',
+  SPAM: 'SPAM',
+} as const;
 
 async function main() {
   console.log('🌱 Начало заполнения базы данных...');
@@ -155,11 +173,11 @@ async function main() {
       basePriceCapital: 8000,
       basePriceDesign: 12000,
       basePriceElite: 18000,
-      coefficients: {
+      coefficients: JSON.stringify({
         newBuilding: 0.9,
         secondary: 1.0,
         house: 1.2,
-      },
+      }),
       isActive: true,
     },
   });
@@ -168,9 +186,31 @@ async function main() {
 
   // Создание настроек сайта
   const settings = [
+    // Контакты
     { key: 'phone', value: '+7 (495) 123-45-67', type: 'string', group: 'contacts' },
     { key: 'email', value: 'info@example.com', type: 'string', group: 'contacts' },
     { key: 'address', value: 'г. Москва, ул. Примерная, д. 1', type: 'string', group: 'contacts' },
+    { key: 'workHours', value: 'Пн-Пт: 9:00 - 18:00, Сб-Вс: 10:00 - 16:00', type: 'string', group: 'contacts' },
+    
+    // Социальные сети
+    { key: 'telegram', value: 'https://t.me/yourcompany', type: 'string', group: 'social' },
+    { key: 'whatsapp', value: 'https://wa.me/74951234567', type: 'string', group: 'social' },
+    { key: 'vk', value: 'https://vk.com/yourcompany', type: 'string', group: 'social' },
+    { key: 'youtube', value: 'https://youtube.com/@yourcompany', type: 'string', group: 'social' },
+    
+    // Дизайн
+    { key: 'logo', value: '/logo.svg', type: 'string', group: 'design' },
+    
+    // SEO
+    { key: 'defaultMetaTitle', value: 'Ремонтно-строительная компания | Профессиональный ремонт и дизайн', type: 'string', group: 'seo' },
+    { key: 'defaultMetaDescription', value: 'Профессиональный ремонт квартир, домов и офисов. Дизайн интерьеров. Гарантия качества. Выполнено более 500+ проектов.', type: 'string', group: 'seo' },
+    { key: 'defaultMetaKeywords', value: 'ремонт квартир, дизайн интерьера, ремонт офисов, капитальный ремонт, евроремонт', type: 'string', group: 'seo' },
+    
+    // Калькулятор (дублирование для быстрого доступа через settings)
+    { key: 'basePriceCosmetic', value: '5000', type: 'number', group: 'calculator' },
+    { key: 'basePriceCapital', value: '8000', type: 'number', group: 'calculator' },
+    { key: 'basePriceDesign', value: '12000', type: 'number', group: 'calculator' },
+    { key: 'basePriceElite', value: '18000', type: 'number', group: 'calculator' },
   ];
 
   for (const setting of settings) {
@@ -181,7 +221,7 @@ async function main() {
     });
   }
 
-  console.log('✅ Созданы настройки сайта');
+  console.log('✅ Созданы настройки сайта (19 настроек)');
 
   console.log('🎉 Заполнение базы данных завершено!');
 }

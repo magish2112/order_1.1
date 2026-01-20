@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import { useAuth } from '../../hooks/useAuth';
 import { Lock, Mail } from 'lucide-react';
@@ -5,10 +6,22 @@ import { Lock, Mail } from 'lucide-react';
 export function LoginPage() {
   const { login, isLoggingIn, loginError } = useAuth();
   const [form] = Form.useForm();
+  const autoLoginTriggered = useRef(false);
 
   const onFinish = (values: { email: string; password: string }) => {
     login(values);
   };
+
+  useEffect(() => {
+    if (!import.meta.env.DEV || autoLoginTriggered.current) {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('devLogin') === '1') {
+      autoLoginTriggered.current = true;
+      login({ email: 'admin@example.com', password: 'admin123' });
+    }
+  }, [login]);
 
   return (
     <div

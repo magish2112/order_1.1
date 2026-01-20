@@ -30,38 +30,44 @@ export class AuthService {
    * Аутентификация пользователя
    */
   async login(input: LoginInput): Promise<{ user: AuthUser; tokens: AuthTokens }> {
-    console.log('🔐 Попытка входа:', { email: input.email, password: input.password });
+    console.log('🔐 Попытка входа:', { email: input.email });
     
-    // Временная аутентификация для разработки
-    if (input.email === 'admin@example.com' && input.password === 'admin123') {
-      console.log('✅ Успешная аутентификация администратора');
-      const mockUser = {
-        id: 'admin-id-1',
-        email: 'admin@example.com',
-        firstName: 'Администратор',
-        lastName: 'Системы',
-        role: 'SUPER_ADMIN' as UserRole,
-        passwordHash: '$2a$10$Wbe7LvIjd4S.k/7Qx.WQy.YSZ4q0ApZOII4SSUvJKbvBGDzhoRbfK',
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+    // Временная аутентификация для разработки (только если установлены переменные окружения)
+    const devEmail = env.DEV_ADMIN_EMAIL || (env.NODE_ENV === 'development' ? 'admin@example.com' : null);
+    const devPassword = env.DEV_ADMIN_PASSWORD || (env.NODE_ENV === 'development' ? 'admin123' : null);
+    
+    // Используем dev credentials только если они явно установлены или в development режиме
+    if (env.NODE_ENV === 'development' && devEmail && devPassword) {
+      if (input.email === devEmail && input.password === devPassword) {
+        console.log('✅ Успешная аутентификация администратора (dev mode)');
+        const mockUser = {
+          id: 'admin-id-1',
+          email: devEmail,
+          firstName: 'Администратор',
+          lastName: 'Системы',
+          role: 'SUPER_ADMIN' as UserRole,
+          passwordHash: '$2a$10$Wbe7LvIjd4S.k/7Qx.WQy.YSZ4q0ApZOII4SSUvJKbvBGDzhoRbfK',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
 
-      const tokens = await this.generateTokens(mockUser);
+        const tokens = await this.generateTokens(mockUser);
 
-      return {
-        user: {
-          id: mockUser.id,
-          email: mockUser.email,
-          firstName: mockUser.firstName,
-          lastName: mockUser.lastName,
-          role: mockUser.role,
-        },
-        tokens,
-      };
+        return {
+          user: {
+            id: mockUser.id,
+            email: mockUser.email,
+            firstName: mockUser.firstName,
+            lastName: mockUser.lastName,
+            role: mockUser.role,
+          },
+          tokens,
+        };
+      }
     }
 
-    console.log('❌ Неверные данные для входа:', { email: input.email });
+    console.log('🔍 Попытка аутентификации через базу данных:', { email: input.email });
     // Попытка аутентификации через базу данных (если она доступна)
     try {
       const user = await prisma.user.findUnique({
@@ -174,6 +180,41 @@ export class AuthService {
    */
   async validatePassword(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
+  }
+
+  /**
+   * Logout пользователя - инвалидирует токен
+   */
+  async logout(accessToken: string): Promise<void> {
+    if (!this.fastify || !redis) {
+      return; // Если Redis не доступен, просто пропускаем
+    }
+
+    try {
+      // Декодировать токен чтобы получить время истечения
+      const decoded = this.fastify.jwt.verify<{
+        id: string;
+        email: string;
+        role: UserRole;
+        iat: number;
+        exp: number;
+      }>(accessToken);
+
+      // Вычислить сколько секунд осталось до истечения токена
+      const expiresIn = Math.max(0, decoded.exp - Math.floor(Date.now() / 1000));
+
+      if (expiresIn > 0) {
+        // Добавить токен в черный список на время его действия
+        await redis.setex(`blacklist:${accessToken}`, expiresIn, '1');
+      }
+
+      // Также удалить refresh token из Redis
+      const refreshTokenKey = `refresh_token:${decoded.id}`;
+      await redis.del(refreshTokenKey);
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Ошибка в декодировании - токен уже невалиден
+    }
   }
 }
 

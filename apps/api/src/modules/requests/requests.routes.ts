@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import requestsController from './requests.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function requestsRoutes(fastify: FastifyInstance) {
   // Публичные роуты
@@ -56,4 +56,5 @@ export default async function requestsRoutes(fastify: FastifyInstance) {
     },
   }, requestsController.assignRequest.bind(requestsController));
 }
+
 

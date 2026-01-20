@@ -11,8 +11,10 @@ import {
   message,
   Select,
   DatePicker,
+  Upload,
+  Image,
 } from 'antd';
-import { Save, ArrowLeft } from 'lucide-react';
+import { Save, ArrowLeft, Upload as UploadIcon } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
 import { Article, ArticleCategory } from '../../lib/types';
 import { TiptapEditor } from '../../components/editor/TiptapEditor';
@@ -39,9 +41,8 @@ export function ArticleEditPage() {
   const { data: categories } = useQuery({
     queryKey: ['articleCategories'],
     queryFn: async () => {
-      // TODO: Добавить отдельный endpoint для категорий статей
-      await apiMethods.articles.list({});
-      return [] as ArticleCategory[];
+      const response = await apiMethods.articles.getCategories();
+      return response.data.data as ArticleCategory[];
     },
   });
 
@@ -78,6 +79,21 @@ export function ArticleEditPage() {
 
   const onFinish = (values: any) => {
     mutation.mutate(values);
+  };
+
+  const handleCoverImageUpload = async (file: File) => {
+    try {
+      const response = await apiMethods.media.upload(file, 'articles');
+      const imageUrl = response.data.data.url;
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${apiUrl}${imageUrl}`;
+      
+      form.setFieldValue('coverImage', fullUrl);
+      message.success('Обложка загружена');
+    } catch (error) {
+      message.error('Ошибка загрузки обложки');
+      console.error('Upload error:', error);
+    }
   };
 
   return (
@@ -125,8 +141,37 @@ export function ArticleEditPage() {
             />
           </Form.Item>
 
-          <Form.Item name="coverImage" label="Обложка (URL)">
-            <Input placeholder="URL изображения обложки" />
+          <Form.Item name="coverImage" label="Обложка">
+            <Space direction="vertical" style={{ width: '100%' }}>
+              {form.getFieldValue('coverImage') && (
+                <Image
+                  src={form.getFieldValue('coverImage')}
+                  alt="Обложка"
+                  width={300}
+                  height={200}
+                  style={{ objectFit: 'cover', borderRadius: 8, marginBottom: 8 }}
+                  preview={true}
+                />
+              )}
+              <Space>
+                <Upload
+                  beforeUpload={(file) => {
+                    handleCoverImageUpload(file);
+                    return false;
+                  }}
+                  showUploadList={false}
+                  accept="image/*"
+                >
+                  <Button icon={<UploadIcon size={16} />}>Загрузить изображение</Button>
+                </Upload>
+                <Input 
+                  placeholder="или введите URL изображения" 
+                  value={form.getFieldValue('coverImage')}
+                  onChange={(e) => form.setFieldValue('coverImage', e.target.value)}
+                  style={{ width: 300 }}
+                />
+              </Space>
+            </Space>
           </Form.Item>
 
           <Form.Item name="categoryId" label="Категория">

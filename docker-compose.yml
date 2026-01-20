@@ -59,7 +59,7 @@ services:
     networks:
       - order_network
 
-  # API сервер (Fastify)
+  # API сервер (Fastify) - теперь с SQLite вместо PostgreSQL
   api:
     build:
       context: ./apps/api
@@ -69,8 +69,8 @@ services:
       NODE_ENV: production
       PORT: 4000
       HOST: 0.0.0.0
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-order_db}
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: file:/app/data/production.db
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-15m}
@@ -82,23 +82,13 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_FROM: ${SMTP_FROM:-}
-      S3_ENDPOINT: http://minio:9000
-      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
-      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
-      S3_BUCKET: ${S3_BUCKET:-media}
-      S3_REGION: ${S3_REGION:-us-east-1}
-      S3_USE_SSL: false
       UPLOAD_DIR: /app/uploads
-      PUBLIC_UPLOAD_URL: /api/v1/media
+      PUBLIC_UPLOAD_URL: /uploads
     volumes:
       - api_uploads:/app/uploads
+      - api_database:/app/data
     ports:
       - "${API_PORT:-4000}:4000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
       interval: 30s
@@ -116,13 +106,14 @@ services:
     container_name: order_web
     environment:
       NODE_ENV: production
-      API_URL: http://api:4000
+      API_URL: http://host.docker.internal:4000
+      NEXT_PUBLIC_API_URL: http://localhost:4000
       PORT: 3000
     ports:
       - "${WEB_PORT:-3000}:3000"
-    depends_on:
-      api:
-        condition: service_healthy
+    # depends_on:
+    #   api:
+    #     condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
       interval: 30s
@@ -137,6 +128,7 @@ services:
     build:
       context: ./apps/admin
       dockerfile: Dockerfile
+      target: runner
     container_name: order_admin
     ports:
       - "${ADMIN_PORT:-3001}:3001"
@@ -157,6 +149,7 @@ volumes:
   redis_data:
   minio_data:
   api_uploads:
+  api_database:
 
 networks:
   order_network:

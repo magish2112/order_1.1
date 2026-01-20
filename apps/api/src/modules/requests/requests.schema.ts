@@ -1,10 +1,18 @@
 import { z } from 'zod';
-import { RequestStatus } from '@prisma/client';
+import { RequestStatus, RequestStatusType } from '../../constants/roles';
+
+const requestStatusValues = Object.values(RequestStatus) as [
+  RequestStatusType,
+  ...RequestStatusType[]
+];
 
 export const createRequestSchema = z.object({
   name: z.string().min(1, 'Имя обязательно'),
   phone: z.string().min(1, 'Телефон обязателен'),
-  email: z.string().email().optional(),
+  email: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string().email().optional()
+  ),
   contactMethod: z.enum(['phone', 'telegram', 'whatsapp']).optional(),
   callbackDate: z.string().datetime().optional(),
   message: z.string().optional(),
@@ -19,7 +27,7 @@ export const createRequestSchema = z.object({
 });
 
 export const updateRequestStatusSchema = z.object({
-  status: z.nativeEnum(RequestStatus),
+  status: z.enum(requestStatusValues),
   notes: z.string().optional(),
 });
 
@@ -28,7 +36,7 @@ export const assignRequestSchema = z.object({
 });
 
 export const getRequestsQuerySchema = z.object({
-  status: z.nativeEnum(RequestStatus).optional(),
+  status: z.enum(requestStatusValues).optional(),
   handledById: z.string().optional(),
   source: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),

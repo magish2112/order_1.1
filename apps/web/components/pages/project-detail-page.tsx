@@ -2,14 +2,14 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
-import { api } from '@/lib/api'
+import { api, ApiResponse } from '@/lib/api'
 import { Project } from '@/lib/types'
 import { Breadcrumbs } from '@/components/ui/breadcrumbs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Square, Calendar, MapPin, DollarSign, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { formatDate } from '@/lib/utils'
+import { formatDate, getImageUrl } from '@/lib/utils'
 
 interface ProjectDetailPageProps {
   slug: string
@@ -18,7 +18,10 @@ interface ProjectDetailPageProps {
 export function ProjectDetailPage({ slug }: ProjectDetailPageProps) {
   const { data: project, isLoading } = useQuery({
     queryKey: ['project', slug],
-    queryFn: () => api.get<Project>(`/projects/${slug}`),
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<Project>>(`/projects/${slug}`)
+      return response.data
+    },
   })
 
   if (isLoading) {
@@ -56,10 +59,10 @@ export function ProjectDetailPage({ slug }: ProjectDetailPageProps) {
       </section>
 
       {/* Hero Image */}
-      {project.coverImage && (
+      {project.coverImage && getImageUrl(project.coverImage) && (
         <section className="relative h-96 w-full overflow-hidden">
           <Image
-            src={project.coverImage}
+            src={getImageUrl(project.coverImage)!}
             alt={project.title}
             fill
             className="object-cover"
@@ -72,7 +75,7 @@ export function ProjectDetailPage({ slug }: ProjectDetailPageProps) {
       <section className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
-            <Button className="bg-amber-600 hover:bg-amber-700 text-white group" asChild>
+            <Button className="bg-accent600 hover:bg-accent700 text-foreground group" asChild>
               <Link href="/portfolio">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Назад к портфолио
@@ -105,26 +108,32 @@ export function ProjectDetailPage({ slug }: ProjectDetailPageProps) {
                     До и После
                   </h2>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {project.beforeImages?.map((img, index) => (
-                      <div key={index} className="relative aspect-video overflow-hidden rounded-lg">
-                        <Image
-                          src={img}
-                          alt={`До ремонта ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
-                    {project.afterImages?.map((img, index) => (
-                      <div key={index} className="relative aspect-video overflow-hidden rounded-lg">
-                        <Image
-                          src={img}
-                          alt={`После ремонта ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
+                    {project.beforeImages?.map((img, index) => {
+                      const imageUrl = getImageUrl(img)
+                      return imageUrl ? (
+                        <div key={index} className="relative aspect-video overflow-hidden rounded-lg">
+                          <Image
+                            src={imageUrl}
+                            alt={`До ремонта ${index + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : null
+                    })}
+                    {project.afterImages?.map((img, index) => {
+                      const imageUrl = getImageUrl(img)
+                      return imageUrl ? (
+                        <div key={index} className="relative aspect-video overflow-hidden rounded-lg">
+                          <Image
+                            src={imageUrl}
+                            alt={`После ремонта ${index + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : null
+                    })}
                   </div>
                 </div>
               )}

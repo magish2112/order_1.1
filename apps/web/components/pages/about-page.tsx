@@ -2,10 +2,11 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
-import { api } from '@/lib/api'
+import { api, ApiResponse } from '@/lib/api'
 import { Employee } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Award, Users, TrendingUp, CheckCircle2, User } from 'lucide-react'
+import { getImageUrl } from '@/lib/utils'
 
 const stats = [
   { label: 'Выполнено проектов', value: '500+', icon: CheckCircle2 },
@@ -17,7 +18,10 @@ const stats = [
 export function AboutPage() {
   const { data: employees } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => api.get<Employee[]>('/employees'),
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<Employee[]>>('/employees')
+      return response.data
+    },
   })
 
   return (
@@ -89,10 +93,10 @@ export function AboutPage() {
                 <Card key={employee.id} className="text-center">
                   <CardContent className="p-6">
                     <div className="mb-4 flex justify-center">
-                      {employee.photo ? (
+                      {employee.photo && getImageUrl(employee.photo) ? (
                         <div className="relative h-32 w-32 overflow-hidden rounded-full">
                           <Image
-                            src={employee.photo}
+                            src={getImageUrl(employee.photo)!}
                             alt={`${employee.firstName} ${employee.lastName}`}
                             fill
                             className="object-cover"

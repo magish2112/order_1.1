@@ -294,6 +294,7 @@ export interface DashboardStats {
     activeEmployees: number;
   };
   requestsByStatus: Record<string, number>;
+  requestsByDay?: Array<{ date: string; count: number }>;
   recentRequests: Request[];
 }
 

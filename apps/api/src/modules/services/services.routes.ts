@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import servicesController from './services.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function servicesRoutes(fastify: FastifyInstance) {
   // ==================== ПУБЛИЧНЫЕ РОУТЫ ====================
@@ -70,6 +70,37 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
   // ==================== АДМИНИСТРАТИВНЫЕ РОУТЫ ====================
 
   // Категории
+  fastify.get('/admin/categories', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
+    schema: {
+      description: 'Получить список категорий (админ)',
+      tags: ['services', 'admin'],
+      security: [{ bearerAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          isActive: { type: 'boolean' },
+        },
+      },
+    },
+  }, servicesController.getCategoriesList.bind(servicesController));
+
+  fastify.get('/admin/categories/:id', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
+    schema: {
+      description: 'Получить категорию по ID (админ)',
+      tags: ['services', 'admin'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' },
+        },
+      },
+    },
+  }, servicesController.getCategoryById.bind(servicesController));
+
   fastify.post('/admin/categories', {
     preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
     schema: {
@@ -98,6 +129,42 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
   }, servicesController.deleteCategory.bind(servicesController));
 
   // Услуги
+  fastify.get('/admin/services', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
+    schema: {
+      description: 'Получить список услуг (админ)',
+      tags: ['services', 'admin'],
+      security: [{ bearerAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          categoryId: { type: 'string' },
+          isActive: { type: 'boolean' },
+          isFeatured: { type: 'boolean' },
+          page: { type: 'integer', minimum: 1, default: 1 },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+          search: { type: 'string' },
+        },
+      },
+    },
+  }, servicesController.getServices.bind(servicesController));
+
+  fastify.get('/admin/services/:id', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
+    schema: {
+      description: 'Получить услугу по ID (админ)',
+      tags: ['services', 'admin'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' },
+        },
+      },
+    },
+  }, servicesController.getServiceById.bind(servicesController));
+
   fastify.post('/admin/services', {
     preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
     schema: {
@@ -125,4 +192,5 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
     },
   }, servicesController.deleteService.bind(servicesController));
 }
+
 

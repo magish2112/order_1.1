@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import settingsController from './settings.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function settingsRoutes(fastify: FastifyInstance) {
   // Публичные роуты
@@ -45,5 +45,16 @@ export default async function settingsRoutes(fastify: FastifyInstance) {
       security: [{ bearerAuth: [] }],
     },
   }, settingsController.updateSettings.bind(settingsController));
+
+  fastify.post('/admin/settings/logo', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN)],
+    schema: {
+      description: 'Загрузить логотип сайта',
+      tags: ['settings', 'admin'],
+      security: [{ bearerAuth: [] }],
+      consumes: ['multipart/form-data'],
+    },
+  }, settingsController.uploadLogo.bind(settingsController));
 }
+
 

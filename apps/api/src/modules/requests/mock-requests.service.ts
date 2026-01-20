@@ -1,4 +1,4 @@
-import { RequestStatus } from '@prisma/client';
+import { RequestStatus, RequestStatusType } from '../../constants/roles';
 import {
   CreateRequestInput,
   UpdateRequestStatusInput,
@@ -171,7 +171,7 @@ export class MockRequestsService {
     const byStatus = filteredRequests.reduce((acc, req) => {
       acc[req.status] = (acc[req.status] || 0) + 1;
       return acc;
-    }, {} as Record<RequestStatus, number>);
+    }, {} as Record<RequestStatusType, number>);
 
     const bySource = filteredRequests.reduce((acc, req) => {
       const source = req.source || 'unknown';

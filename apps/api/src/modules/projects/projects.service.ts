@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import prisma from '../../config/database';
 import redis from '../../config/redis';
 import { createUniqueSlug } from '../../utils/slug';
+import { transformProject, stringifyJsonArray } from '../../utils/json-fields';
 import {
   CreateProjectInput,
   UpdateProjectInput,
@@ -77,17 +78,18 @@ export class ProjectsService {
       ];
     }
 
-    const orderBy: Prisma.ProjectOrderByWithRelationInput = {};
+    const orderBy: Prisma.ProjectOrderByWithRelationInput[] = [{ order: 'asc' }];
+    const sortField: Prisma.ProjectOrderByWithRelationInput = {};
     if (sortBy === 'viewsCount') {
-      orderBy.viewsCount = sortOrder;
+      sortField.viewsCount = sortOrder;
     } else if (sortBy === 'price') {
-      orderBy.price = sortOrder;
+      sortField.price = sortOrder;
     } else if (sortBy === 'completedAt') {
-      orderBy.completedAt = sortOrder;
+      sortField.completedAt = sortOrder;
     } else {
-      orderBy.createdAt = sortOrder;
+      sortField.createdAt = sortOrder;
     }
-    orderBy.order = 'asc';
+    orderBy.push(sortField);
 
     const [items, total] = await Promise.all([
       prisma.project.findMany({
@@ -122,8 +124,11 @@ export class ProjectsService {
       prisma.project.count({ where }),
     ]);
 
+    // Преобразуем JSON поля для SQLite
+    const transformedItems = items.map(item => transformProject(item));
+
     return {
-      items,
+      items: transformedItems,
       pagination: {
         page,
         limit,
@@ -220,6 +225,9 @@ export class ProjectsService {
       return null;
     }
 
+    // Преобразуем JSON поля для SQLite
+    const transformedProject = transformProject(project);
+
     // Увеличиваем счетчик просмотров
     if (incrementViews) {
       await prisma.project.update({
@@ -233,17 +241,50 @@ export class ProjectsService {
         await redis.del(cacheKey);
       }
     } else if (redis) {
-      await redis.setex(cacheKey, 300, JSON.stringify(project));
+      await redis.setex(cacheKey, 300, JSON.stringify(transformedProject));
     }
 
-    return project;
+    return transformedProject;
+  }
+
+  /**
+   * Получить проект по ID (админ)
+   */
+  async getProjectById(id: string) {
+    const project = await prisma.project.findUnique({
+      where: { id },
+      include: {
+        category: true,
+        services: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        tags: true,
+        createdBy: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    if (!project) {
+      return null;
+    }
+
+    return transformProject(project);
   }
 
   /**
    * Создать проект
    */
   async createProject(input: CreateProjectInput, userId?: string) {
-    const { tagNames, serviceIds, ...data } = input;
+    const { tagNames, serviceIds, beforeImages, afterImages, designImages, ...data } = input;
 
     const slug = data.slug || (await createUniqueSlug(
       data.title,
@@ -276,12 +317,29 @@ export class ProjectsService {
       serviceConnections.push(...serviceIds.map((id) => ({ id })));
     }
 
+    // Преобразуем массивы в JSON строки для SQLite
+    const projectData: any = {
+      ...data,
+      slug,
+      serviceIds: stringifyJsonArray(serviceIds || []),
+      beforeImages: stringifyJsonArray(beforeImages || []),
+      afterImages: stringifyJsonArray(afterImages || []),
+      designImages: stringifyJsonArray(designImages || []),
+    };
+
+    if (userId) {
+      const existingUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true },
+      });
+      if (existingUser) {
+        projectData.createdById = existingUser.id;
+      }
+    }
+
     const project = await prisma.project.create({
       data: {
-        ...data,
-        slug,
-        serviceIds: serviceIds || [],
-        createdById: userId,
+        ...projectData,
         tags: {
           connect: tagConnections,
         },
@@ -298,14 +356,16 @@ export class ProjectsService {
 
     await this.invalidateProjectsCache();
 
-    return project;
+    return transformProject(project);
   }
 
   /**
    * Обновить проект
    */
   async updateProject(input: UpdateProjectInput) {
-    const { id, tagNames, serviceIds, ...data } = input;
+    const { id, tagNames, serviceIds, beforeImages, afterImages, designImages, ...inputData } = input;
+
+    const data: any = { ...inputData };
 
     if (data.title && !data.slug) {
       data.slug = await createUniqueSlug(
@@ -317,6 +377,17 @@ export class ProjectsService {
           return !!exists;
         }
       );
+    }
+
+    // Преобразуем массивы в JSON строки для SQLite
+    if (beforeImages !== undefined) {
+      data.beforeImages = stringifyJsonArray(beforeImages);
+    }
+    if (afterImages !== undefined) {
+      data.afterImages = stringifyJsonArray(afterImages);
+    }
+    if (designImages !== undefined) {
+      data.designImages = stringifyJsonArray(designImages);
     }
 
     // Обновление тегов
@@ -368,7 +439,7 @@ export class ProjectsService {
             disconnect: currentProject?.services.map((s) => ({ id: s.id })) || [],
             connect: serviceConnections,
           },
-          serviceIds: serviceIds,
+          serviceIds: stringifyJsonArray(serviceIds),
         },
       });
     }
@@ -385,7 +456,7 @@ export class ProjectsService {
 
     await this.invalidateProjectsCache();
 
-    return project;
+    return transformProject(project);
   }
 
   /**

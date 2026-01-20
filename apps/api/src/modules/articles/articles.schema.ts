@@ -32,7 +32,21 @@ export const getArticlesQuerySchema = z.object({
   search: z.string().optional(),
 });
 
+// ✅ Schemas для категорий статей
+export const createArticleCategorySchema = z.object({
+  name: z.string().min(3, 'Минимум 3 символа'),
+  slug: z.string().min(3, 'Минимум 3 символа').optional(),
+  description: z.string().optional(),
+  order: z.number().int().default(0),
+});
+
+export const updateArticleCategorySchema = createArticleCategorySchema.partial().extend({
+  id: z.string(),
+});
+
 export type CreateArticleInput = z.infer<typeof createArticleSchema>;
 export type UpdateArticleInput = z.infer<typeof updateArticleSchema>;
 export type GetArticlesQuery = z.infer<typeof getArticlesQuerySchema>;
+export type CreateArticleCategoryInput = z.infer<typeof createArticleCategorySchema>;
+export type UpdateArticleCategoryInput = z.infer<typeof updateArticleCategorySchema>;
 

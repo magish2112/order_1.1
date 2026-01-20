@@ -1,5 +1,7 @@
-import { Prisma, RequestStatus } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import prisma from '../../config/database';
+import emailService from '../../services/email.service';
+import { RequestStatus, RequestStatusType } from '../../constants/roles';
 import {
   CreateRequestInput,
   UpdateRequestStatusInput,
@@ -33,8 +35,13 @@ export class RequestsService {
       },
     });
 
-    // TODO: Отправить email уведомление
-    // await this.sendNotification(request);
+    // ✅ Отправить email уведомление администратору
+    await emailService.sendRequestNotification(request);
+
+    // ✅ Отправить подтверждение клиенту (если есть email)
+    if (request.email) {
+      await emailService.sendRequestConfirmation(request.email, request.name);
+    }
 
     return request;
   }
@@ -228,7 +235,7 @@ export class RequestsService {
       byStatus: byStatus.reduce((acc, item) => {
         acc[item.status] = item._count;
         return acc;
-      }, {} as Record<RequestStatus, number>),
+      }, {} as Record<RequestStatusType, number>),
       bySource: bySource.reduce((acc, item) => {
         acc[item.source || 'unknown'] = item._count;
         return acc;

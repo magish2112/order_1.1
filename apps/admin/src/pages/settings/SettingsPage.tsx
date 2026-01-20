@@ -1,15 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Form, Input, Button, Card, Space, message, Tabs, InputNumber } from 'antd';
-import { Save } from 'lucide-react';
+import { Form, Input, Button, Card, Space, message, Tabs, InputNumber, Upload, Image } from 'antd';
+import { SaveOutlined, UploadOutlined } from '@ant-design/icons';
 import { apiMethods } from '../../lib/api';
 import { Setting } from '../../lib/types';
+import type { UploadProps } from 'antd';
 
 const { TextArea } = Input;
 
 export function SettingsPage() {
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ['settings', 'admin'],
@@ -36,6 +39,11 @@ export function SettingsPage() {
         } else {
           formValues[setting.key] = setting.value;
         }
+        
+        // Устанавливаем текущий логотип
+        if (setting.key === 'logo') {
+          setCurrentLogoUrl(setting.value || null);
+        }
       });
       form.setFieldsValue(formValues);
     }
@@ -57,12 +65,25 @@ export function SettingsPage() {
           stringValue = value || '';
         }
 
-        return {
+        const setting: {
+          key: string;
+          value: string;
+          type: string;
+          group?: string | null;
+        } = {
           key,
           value: stringValue,
           type: existingSetting?.type || 'string',
-          group: existingSetting?.group,
         };
+
+        // Добавляем group только если он существует, иначе не включаем в объект
+        if (existingSetting?.group !== undefined && existingSetting?.group !== null) {
+          setting.group = existingSetting.group;
+        } else {
+          setting.group = null;
+        }
+
+        return setting;
       });
 
       await apiMethods.settings.update(settingsArray);
@@ -78,6 +99,45 @@ export function SettingsPage() {
 
   const onFinish = (values: Record<string, any>) => {
     mutation.mutate(values);
+  };
+
+  const logoUploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      return await apiMethods.settings.uploadLogo(file, (progress) => {
+        console.log(`Upload progress: ${progress}%`);
+      });
+    },
+    onSuccess: (response) => {
+      message.success('Логотип успешно загружен');
+      setCurrentLogoUrl(response.data.data.logoUrl);
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+    },
+    onError: (error: any) => {
+      message.error(error?.response?.data?.message || 'Ошибка загрузки логотипа');
+    },
+    onSettled: () => {
+      setLogoUploading(false);
+    },
+  });
+
+  const handleLogoUpload: UploadProps['beforeUpload'] = (file) => {
+    // Проверка типа файла
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) {
+      message.error('Можно загружать только изображения!');
+      return false;
+    }
+
+    // Проверка размера файла (5MB)
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      message.error('Изображение должно быть меньше 5MB!');
+      return false;
+    }
+
+    setLogoUploading(true);
+    logoUploadMutation.mutate(file);
+    return false; // Отменяем автоматическую загрузку
   };
 
   const tabItems = [
@@ -158,6 +218,47 @@ export function SettingsPage() {
         </Space>
       ),
     },
+    {
+      key: 'design',
+      label: 'Дизайн',
+      children: (
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Form.Item label="Логотип сайта">
+            <Space direction="vertical" style={{ width: '100%' }}>
+              {currentLogoUrl && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ marginBottom: 8, fontWeight: 500 }}>Текущий логотип:</div>
+                  <Image
+                    src={currentLogoUrl}
+                    alt="Логотип"
+                    width={200}
+                    height={200}
+                    style={{ objectFit: 'contain', border: '1px solid #f0f0f0', borderRadius: 8, padding: 8 }}
+                    preview={true}
+                  />
+                </div>
+              )}
+              <Upload
+                beforeUpload={handleLogoUpload}
+                showUploadList={false}
+                accept="image/*"
+              >
+                <Button 
+                  icon={<UploadOutlined />} 
+                  loading={logoUploading}
+                  disabled={logoUploading}
+                >
+                  {logoUploading ? 'Загрузка...' : currentLogoUrl ? 'Загрузить новый логотип' : 'Загрузить логотип'}
+                </Button>
+              </Upload>
+              <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
+                Рекомендуемый формат: SVG, PNG или JPG. Максимальный размер: 5MB.
+              </div>
+            </Space>
+          </Form.Item>
+        </Space>
+      ),
+    },
   ];
 
   return (
@@ -169,7 +270,7 @@ export function SettingsPage() {
           <Tabs items={tabItems} />
           
           <Form.Item style={{ marginTop: 24 }}>
-            <Button type="primary" htmlType="submit" icon={<Save />} loading={mutation.isPending} size="large">
+            <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={mutation.isPending} size="large">
               Сохранить настройки
             </Button>
           </Form.Item>

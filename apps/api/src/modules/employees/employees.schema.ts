@@ -4,9 +4,9 @@ export const createEmployeeSchema = z.object({
   firstName: z.string().min(1, 'Имя обязательно'),
   lastName: z.string().min(1, 'Фамилия обязательна'),
   position: z.string().min(1, 'Должность обязательна'),
-  department: z.string().optional(),
-  photo: z.string().optional(),
-  bio: z.string().optional(),
+  department: z.string().nullish(),
+  photo: z.string().nullish(),
+  bio: z.string().nullish(),
   order: z.number().int().default(0),
   isActive: z.boolean().default(true),
 });

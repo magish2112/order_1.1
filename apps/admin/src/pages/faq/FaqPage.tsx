@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Table, Button, Space, Tag, Popconfirm, message, Input } from 'antd';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { apiMethods } from '../../lib/api';
 import { Faq } from '../../lib/types';
@@ -82,7 +82,7 @@ export function FaqPage() {
         <Space>
           <Button
             type="link"
-            icon={<Edit />}
+            icon={<EditOutlined />}
             onClick={() => navigate(`/faq/${record.id}`)}
           >
             Редактировать
@@ -94,7 +94,7 @@ export function FaqPage() {
             okText="Да"
             cancelText="Нет"
           >
-            <Button type="link" danger icon={<Trash2 />}>
+            <Button type="link" danger icon={<DeleteOutlined />}>
               Удалить
             </Button>
           </Popconfirm>
@@ -110,14 +110,14 @@ export function FaqPage() {
         <Space>
           <Input
             placeholder="Поиск..."
-            prefix={<Search />}
+            prefix={<SearchOutlined />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 250 }}
           />
           <Button
             type="primary"
-            icon={<Plus />}
+            icon={<PlusOutlined />}
             onClick={() => navigate('/faq/new')}
           >
             Добавить вопрос

@@ -45,6 +45,40 @@ export class ServicesController {
     });
   }
 
+  async getCategoriesList(
+    request: FastifyRequest<{ Querystring: { isActive?: boolean } }>,
+    reply: FastifyReply
+  ) {
+    const { isActive } = request.query;
+    const categories = await servicesService.getCategoriesList(isActive);
+
+    return reply.status(200).send({
+      success: true,
+      data: categories,
+    });
+  }
+
+  async getCategoryById(
+    request: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply
+  ) {
+    const { id } = request.params;
+    const category = await servicesService.getCategoryById(id);
+
+    if (!category) {
+      return reply.status(404).send({
+        statusCode: 404,
+        error: 'Not Found',
+        message: 'Категория не найдена',
+      });
+    }
+
+    return reply.status(200).send({
+      success: true,
+      data: category,
+    });
+  }
+
   async createCategory(
     request: FastifyRequest<{ Body: unknown }>,
     reply: FastifyReply
@@ -107,6 +141,27 @@ export class ServicesController {
   ) {
     const { slug } = request.params;
     const service = await servicesService.getServiceBySlug(slug);
+
+    if (!service) {
+      return reply.status(404).send({
+        statusCode: 404,
+        error: 'Not Found',
+        message: 'Услуга не найдена',
+      });
+    }
+
+    return reply.status(200).send({
+      success: true,
+      data: service,
+    });
+  }
+
+  async getServiceById(
+    request: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply
+  ) {
+    const { id } = request.params;
+    const service = await servicesService.getServiceById(id);
 
     if (!service) {
       return reply.status(404).send({

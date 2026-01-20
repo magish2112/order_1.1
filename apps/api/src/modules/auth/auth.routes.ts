@@ -92,5 +92,38 @@ export default async function authRoutes(fastify: FastifyInstance) {
       tags: ['auth', 'admin'],
     },
   }, authController.login.bind(authController));
+
+  fastify.post('/admin/auth/refresh', {
+    schema: {
+      description: 'Обновление access token (админ)',
+      tags: ['auth', 'admin'],
+      body: {
+        type: 'object',
+        required: ['refreshToken'],
+        properties: {
+          refreshToken: { type: 'string' },
+        },
+      },
+    },
+  }, authController.refreshToken.bind(authController));
+
+  fastify.get('/admin/auth/me', {
+    preHandler: [authenticate],
+    schema: {
+      description: 'Получение информации о текущем пользователе (админ)',
+      tags: ['auth', 'admin'],
+      security: [{ bearerAuth: [] }],
+    },
+  }, authController.me.bind(authController));
+
+  fastify.post('/admin/auth/logout', {
+    preHandler: [authenticate],
+    schema: {
+      description: 'Выход из системы (админ)',
+      tags: ['auth', 'admin'],
+      security: [{ bearerAuth: [] }],
+    },
+  }, authController.logout.bind(authController));
 }
+
 

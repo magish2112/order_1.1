@@ -1,0 +1,42 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark green background circle -->
+  <circle cx="60" cy="60" r="58" fill="#17271C"/>
+  
+  <!-- Golden arch shape (horseshoe/arch) - stylized warm golden-brown -->
+  <path d="M20 55 
+           Q20 25 60 25 
+           Q100 25 100 55 
+           L100 75 
+           Q100 95 60 95 
+           Q20 95 20 75 
+           Z" 
+        fill="#e1b869" 
+        fill-opacity="0.95"
+        stroke="#d4a85a" 
+        stroke-width="1.5"
+        stroke-linejoin="round"/>
+  
+  <!-- Inner arch detail for depth and warmth -->
+  <path d="M35 58 
+           Q35 45 60 45 
+           Q85 45 85 58 
+           L85 72 
+           Q85 85 60 85 
+           Q35 85 35 72 
+           Z" 
+        fill="#17271C" 
+        fill-opacity="0.5"/>
+  
+  <!-- Subtle highlight on top of arch for warmth -->
+  <path d="M25 52 
+           Q25 28 60 28 
+           Q95 28 95 52" 
+        stroke="#f5d19a" 
+        stroke-width="1.2" 
+        fill="none" 
+        opacity="0.7"/>
+  
+  <!-- Soft glow effect -->
+  <circle cx="60" cy="60" r="58" fill="none" stroke="#e1b869" stroke-width="0.5" opacity="0.2"/>
+</svg>
+

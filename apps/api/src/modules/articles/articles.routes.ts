@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import articlesController from './articles.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function articlesRoutes(fastify: FastifyInstance) {
   // Публичные роуты
@@ -31,6 +31,21 @@ export default async function articlesRoutes(fastify: FastifyInstance) {
       tags: ['articles'],
     },
   }, articlesController.getArticleCategories.bind(articlesController));
+
+  // ✅ НОВЫЙ: Получить категорию статей по slug с её статьями
+  fastify.get<{ Params: { slug: string } }>('/articles/categories/:slug', {
+    schema: {
+      description: 'Получить категорию статей по slug с публикациями',
+      tags: ['articles'],
+      params: {
+        type: 'object',
+        required: ['slug'],
+        properties: {
+          slug: { type: 'string' },
+        },
+      },
+    },
+  }, articlesController.getArticleCategoryBySlug.bind(articlesController));
 
   fastify.get('/articles/:slug', {
     schema: {
@@ -82,5 +97,35 @@ export default async function articlesRoutes(fastify: FastifyInstance) {
       security: [{ bearerAuth: [] }],
     },
   }, articlesController.publishArticle.bind(articlesController));
+
+  // ✅ НОВЫЕ ENDPOINTS ДЛЯ УПРАВЛЕНИЯ КАТЕГОРИЯМИ
+
+  fastify.post('/admin/articles/categories', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN)],
+    schema: {
+      description: 'Создать категорию статей',
+      tags: ['articles', 'admin'],
+      security: [{ bearerAuth: [] }],
+    },
+  }, articlesController.createArticleCategory.bind(articlesController));
+
+  fastify.put<{ Params: { id: string } }>('/admin/articles/categories/:id', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN)],
+    schema: {
+      description: 'Обновить категорию статей',
+      tags: ['articles', 'admin'],
+      security: [{ bearerAuth: [] }],
+    },
+  }, articlesController.updateArticleCategory.bind(articlesController));
+
+  fastify.delete<{ Params: { id: string } }>('/admin/articles/categories/:id', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN)],
+    schema: {
+      description: 'Удалить категорию статей',
+      tags: ['articles', 'admin'],
+      security: [{ bearerAuth: [] }],
+    },
+  }, articlesController.deleteArticleCategory.bind(articlesController));
 }
+
 

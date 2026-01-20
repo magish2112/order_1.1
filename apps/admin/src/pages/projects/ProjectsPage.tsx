@@ -37,8 +37,8 @@ export function ProjectsPage() {
     },
   });
 
-  const filteredData = projects?.filter((Project) =>
-    Project.title.toLowerCase().includes(searchText.toLowerCase())
+  const filteredData = projects?.filter((project) =>
+    project.title.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const columns: ColumnsType<Project> = [

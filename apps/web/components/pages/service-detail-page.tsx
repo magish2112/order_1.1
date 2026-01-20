@@ -9,7 +9,7 @@ import { Breadcrumbs } from '@/components/ui/breadcrumbs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, CheckCircle2, Clock, DollarSign } from 'lucide-react'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, getImageUrl } from '@/lib/utils'
 import { ServiceSchema, BreadcrumbSchema } from '@/components/seo/structured-data'
 
 interface ServiceDetailPageProps {
@@ -74,9 +74,9 @@ export function ServiceDetailPage({ serviceSlug, categorySlug = 'remont' }: Serv
       </section>
 
       {/* Hero Image */}
-      {service.image && (
+      {service.image && getImageUrl(service.image) && (
         <section className="relative h-96 w-full overflow-hidden">
-          <Image src={service.image} alt={service.name} fill className="object-cover" priority />
+          <Image src={getImageUrl(service.image)!} alt={service.name} fill className="object-cover" priority />
         </section>
       )}
 
@@ -84,7 +84,7 @@ export function ServiceDetailPage({ serviceSlug, categorySlug = 'remont' }: Serv
       <section className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
-            <Button className="bg-amber-600 hover:bg-amber-700 text-white group" asChild>
+            <Button className="bg-accent600 hover:bg-accent700 text-foreground group" asChild>
               <Link href={service.category ? `/${categorySlug}/${service.category.slug}` : `/${categorySlug}`}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Назад
@@ -165,7 +165,7 @@ export function ServiceDetailPage({ serviceSlug, categorySlug = 'remont' }: Serv
                   <Button className="mt-6 w-full" size="lg" asChild>
                     <Link href="/kontakty">Заказать услугу</Link>
                   </Button>
-                  <Button className="mt-3 w-full bg-amber-600 hover:bg-amber-700 text-white group" asChild>
+                  <Button className="mt-3 w-full bg-accent600 hover:bg-accent700 text-foreground group" asChild>
                     <Link href="/kalkulyator">Рассчитать стоимость</Link>
                   </Button>
                 </CardContent>

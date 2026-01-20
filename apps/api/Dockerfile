@@ -56,8 +56,8 @@ COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
 
-# Создаем директорию для загрузок
-RUN mkdir -p /app/uploads && chown -R nodejs:nodejs /app/uploads
+# Создаем директории для загрузок и базы данных
+RUN mkdir -p /app/uploads /app/data && chown -R nodejs:nodejs /app/uploads /app/data
 
 USER nodejs
 

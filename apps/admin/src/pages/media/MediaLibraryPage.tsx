@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Upload, Button, Space, message, Input, Image, Modal, Popconfirm } from 'antd';
-import { Upload as UploadIcon, Search, Trash2, Folder } from 'lucide-react';
+import { UploadOutlined, SearchOutlined, DeleteOutlined, FolderOutlined } from '@ant-design/icons';
 import { apiMethods } from '../../lib/api';
 import { Media } from '../../lib/types';
 
@@ -64,7 +64,7 @@ export function MediaLibraryPage() {
         <Space>
           <Input
             placeholder="Поиск..."
-            prefix={<Search />}
+            prefix={<SearchOutlined />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 250 }}
@@ -77,7 +77,7 @@ export function MediaLibraryPage() {
             showUploadList={false}
             accept="image/*"
           >
-            <Button type="primary" icon={<UploadIcon />}>
+            <Button type="primary" icon={<UploadOutlined />}>
               Загрузить файл
             </Button>
           </Upload>
@@ -138,7 +138,7 @@ export function MediaLibraryPage() {
                     type="text"
                     danger
                     size="small"
-                    icon={<Trash2 />}
+                    icon={<DeleteOutlined />}
                     style={{ width: '100%' }}
                   >
                     Удалить
@@ -167,7 +167,7 @@ export function MediaLibraryPage() {
                 }}
               >
                 <Space>
-                  <Folder />
+                  <FolderOutlined />
                   <div>
                     <div>{item.originalName}</div>
                     <div style={{ fontSize: 12, color: '#999' }}>
@@ -181,7 +181,7 @@ export function MediaLibraryPage() {
                   okText="Да"
                   cancelText="Нет"
                 >
-                  <Button type="text" danger icon={<Trash2 />}>
+                  <Button type="text" danger icon={<DeleteOutlined />}>
                     Удалить
                   </Button>
                 </Popconfirm>

@@ -97,21 +97,28 @@ export function ProjectEditPage() {
     mutation.mutate(values);
   };
 
-  const handleImageUpload = async (file: File, type: 'before' | 'after' | 'design') => {
+  const handleImageUpload = async (file: File, type: 'before' | 'after' | 'design' | 'cover') => {
     try {
-      const response = await apiMethods.media.upload(file);
-      const url = response.data.data.url;
+      const response = await apiMethods.media.upload(file, 'projects');
+      const imageUrl = response.data.data.url;
       
-      if (type === 'before') {
-        setBeforeImages([...beforeImages, url]);
+      // Формируем полный URL для изображения
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${apiUrl}${imageUrl}`;
+      
+      if (type === 'cover') {
+        form.setFieldValue('coverImage', fullUrl);
+      } else if (type === 'before') {
+        setBeforeImages([...beforeImages, fullUrl]);
       } else if (type === 'after') {
-        setAfterImages([...afterImages, url]);
+        setAfterImages([...afterImages, fullUrl]);
       } else {
-        setDesignImages([...designImages, url]);
+        setDesignImages([...designImages, fullUrl]);
       }
       message.success('Изображение загружено');
     } catch (error) {
       message.error('Ошибка загрузки изображения');
+      console.error('Upload error:', error);
     }
   };
 
@@ -224,8 +231,34 @@ export function ProjectEditPage() {
             />
           </Form.Item>
 
-          <Form.Item name="coverImage" label="Обложка (URL)">
-            <Input placeholder="URL изображения обложки" />
+          <Form.Item name="coverImage" label="Обложка проекта">
+            <Space direction="vertical" style={{ width: '100%' }}>
+              {form.getFieldValue('coverImage') && (
+                <img
+                  src={form.getFieldValue('coverImage')}
+                  alt="Обложка"
+                  style={{ width: 300, height: 200, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }}
+                />
+              )}
+              <Space>
+                <Upload
+                  beforeUpload={(file) => {
+                    handleImageUpload(file, 'cover');
+                    return false;
+                  }}
+                  showUploadList={false}
+                  accept="image/*"
+                >
+                  <Button icon={<UploadIcon />}>Загрузить обложку</Button>
+                </Upload>
+                <Input 
+                  placeholder="или введите URL" 
+                  value={form.getFieldValue('coverImage')}
+                  onChange={(e) => form.setFieldValue('coverImage', e.target.value)}
+                  style={{ width: 300 }}
+                />
+              </Space>
+            </Space>
           </Form.Item>
 
           <Card title="Фото до ремонта" style={{ marginBottom: 16 }}>

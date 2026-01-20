@@ -55,6 +55,27 @@ export class ProjectsController {
     });
   }
 
+  async getProjectById(
+    request: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply
+  ) {
+    const { id } = request.params;
+    const project = await projectsService.getProjectById(id);
+
+    if (!project) {
+      return reply.status(404).send({
+        statusCode: 404,
+        error: 'Not Found',
+        message: 'Проект не найден',
+      });
+    }
+
+    return reply.status(200).send({
+      success: true,
+      data: project,
+    });
+  }
+
   async createProject(
     request: FastifyRequest<{ Body: unknown }>,
     reply: FastifyReply

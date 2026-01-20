@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import mediaController from './media.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function mediaRoutes(fastify: FastifyInstance) {
   // Административные роуты (только для админов)
@@ -56,4 +56,5 @@ export default async function mediaRoutes(fastify: FastifyInstance) {
     },
   }, mediaController.deleteMedia.bind(mediaController));
 }
+
 

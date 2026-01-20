@@ -70,7 +70,7 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
     <Modal isOpen={isOpen} onClose={onClose} title="Заказать звонок">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label className="mb-3 block text-sm font-medium text-zinc-300">
+          <label className="mb-3 block text-sm font-medium text-foreground">
             Способ связи
           </label>
           <div className="grid grid-cols-3 gap-3">
@@ -81,8 +81,8 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                 flex items-center justify-center space-x-2 rounded-lg border-2 p-3 transition-all
                 ${
                   contactMethod === 'phone'
-                    ? 'border-amber-600 bg-amber-600/10 text-amber-500'
-                    : 'border-zinc-600 text-zinc-400 hover:border-amber-600/50 hover:bg-zinc-800/50'
+                    ? 'border-accent bg-accent/10 text-accent'
+                    : 'border-border text-muted-foreground hover:border-accent/50 hover:bg-muted'
                 }
               `}
             >
@@ -96,8 +96,8 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                 flex items-center justify-center space-x-2 rounded-lg border-2 p-3 transition-all
                 ${
                   contactMethod === 'telegram'
-                    ? 'border-amber-600 bg-amber-600/10 text-amber-500'
-                    : 'border-zinc-600 text-zinc-400 hover:border-amber-600/50 hover:bg-zinc-800/50'
+                    ? 'border-accent bg-accent/10 text-accent'
+                    : 'border-border text-muted-foreground hover:border-accent/50 hover:bg-muted'
                 }
               `}
             >
@@ -111,8 +111,8 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                 flex items-center justify-center space-x-2 rounded-lg border-2 p-3 transition-all
                 ${
                   contactMethod === 'whatsapp'
-                    ? 'border-amber-600 bg-amber-600/10 text-amber-500'
-                    : 'border-zinc-600 text-zinc-400 hover:border-amber-600/50 hover:bg-zinc-800/50'
+                    ? 'border-accent bg-accent/10 text-accent'
+                    : 'border-border text-muted-foreground hover:border-accent/50 hover:bg-muted'
                 }
               `}
             >
@@ -124,7 +124,7 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-zinc-300">
+          <label className="mb-2 block text-sm font-medium text-foreground">
             Ваше имя *
           </label>
           <Input {...register('name')} disabled={isSubmitting} />
@@ -134,7 +134,7 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-zinc-300">
+          <label className="mb-2 block text-sm font-medium text-foreground">
             Телефон *
           </label>
           <Controller
@@ -164,12 +164,12 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
           )}
         </div>
 
-        <Button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white group" disabled={isSubmitting}>
+        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground group" disabled={isSubmitting}>
           {isSubmitting ? 'Отправка...' : 'Заказать звонок'}
         </Button>
 
         {isSuccess && (
-          <p className="text-center text-sm text-amber-400">
+          <p className="text-center text-sm text-accent">
             Спасибо! Мы свяжемся с вами в ближайшее время.
           </p>
         )}

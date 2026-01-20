@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import employeesController from './employees.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function employeesRoutes(fastify: FastifyInstance) {
   // Публичные роуты
@@ -20,6 +20,22 @@ export default async function employeesRoutes(fastify: FastifyInstance) {
   }, employeesController.getEmployees.bind(employeesController));
 
   // Административные роуты
+  fastify.get('/admin/employees', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
+    schema: {
+      description: 'Получить список сотрудников (админ)',
+      tags: ['employees', 'admin'],
+      security: [{ bearerAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          department: { type: 'string' },
+          isActive: { type: 'boolean' },
+        },
+      },
+    },
+  }, employeesController.getEmployees.bind(employeesController));
+
   fastify.get('/admin/employees/:id', {
     preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
     schema: {
@@ -56,4 +72,5 @@ export default async function employeesRoutes(fastify: FastifyInstance) {
     },
   }, employeesController.deleteEmployee.bind(employeesController));
 }
+
 

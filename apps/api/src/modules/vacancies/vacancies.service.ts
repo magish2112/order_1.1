@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import prisma from '../../config/database';
 import redis from '../../config/redis';
+import { transformVacancy, stringifyJsonArray } from '../../utils/json-fields';
 import {
   CreateVacancyInput,
   UpdateVacancyInput,
@@ -54,8 +55,11 @@ export class VacanciesService {
       prisma.vacancy.count({ where }),
     ]);
 
+    // Преобразуем JSON поля для SQLite
+    const transformedItems = items.map(item => transformVacancy(item));
+
     const result = {
-      items,
+      items: transformedItems,
       pagination: {
         page,
         limit,
@@ -86,20 +90,41 @@ export class VacanciesService {
    * Создать вакансию
    */
   async createVacancy(input: CreateVacancyInput) {
+    // Преобразуем массивы в JSON строки для SQLite
+    const data: any = {
+      ...input,
+      requirements: stringifyJsonArray(input.requirements),
+      responsibilities: stringifyJsonArray(input.responsibilities),
+      conditions: stringifyJsonArray(input.conditions),
+    };
+
     const vacancy = await prisma.vacancy.create({
-      data: input,
+      data,
     });
 
     await this.invalidateVacanciesCache();
 
-    return vacancy;
+    return transformVacancy(vacancy);
   }
 
   /**
    * Обновить вакансию
    */
   async updateVacancy(input: UpdateVacancyInput) {
-    const { id, ...data } = input;
+    const { id, ...inputData } = input;
+
+    // Преобразуем массивы в JSON строки для SQLite
+    const data: any = { ...inputData };
+    
+    if (data.requirements !== undefined) {
+      data.requirements = stringifyJsonArray(data.requirements);
+    }
+    if (data.responsibilities !== undefined) {
+      data.responsibilities = stringifyJsonArray(data.responsibilities);
+    }
+    if (data.conditions !== undefined) {
+      data.conditions = stringifyJsonArray(data.conditions);
+    }
 
     const vacancy = await prisma.vacancy.update({
       where: { id },
@@ -108,7 +133,7 @@ export class VacanciesService {
 
     await this.invalidateVacanciesCache();
 
-    return vacancy;
+    return transformVacancy(vacancy);
   }
 
   /**

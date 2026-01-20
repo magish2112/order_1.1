@@ -6,8 +6,8 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   HOST: z.string().default('0.0.0.0'),
   
-  DATABASE_URL: z.string().url(),
-  REDIS_URL: z.string().url().optional(),
+  DATABASE_URL: z.string(), // PostgreSQL URL или SQLite file: путь
+  REDIS_URL: z.string().optional(), // Redis URL (redis://host:port) - может не быть валидным URL при парсинге, поэтому не применяем .url()
   
   JWT_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
@@ -23,7 +23,7 @@ const envSchema = z.object({
   
   MAX_FILE_SIZE: z.coerce.number().default(10485760), // 10MB
   UPLOAD_DIR: z.string().default('./uploads'),
-  PUBLIC_UPLOAD_URL: z.string().default('/uploads'),
+  PUBLIC_UPLOAD_URL: z.string().default('/uploads'), // Путь для доступа к статическим файлам
   
   S3_ENDPOINT: z.string().url().optional(),
   S3_ACCESS_KEY: z.string().optional(),
@@ -33,6 +33,10 @@ const envSchema = z.object({
   S3_USE_SSL: z.coerce.boolean().default(false),
   
   CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:3001'),
+  
+  // Тестовые credentials (только для development)
+  DEV_ADMIN_EMAIL: z.string().email().optional(),
+  DEV_ADMIN_PASSWORD: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

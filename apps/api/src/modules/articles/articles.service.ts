@@ -6,6 +6,8 @@ import {
   CreateArticleInput,
   UpdateArticleInput,
   GetArticlesQuery,
+  CreateArticleCategoryInput,
+  UpdateArticleCategoryInput,
 } from './articles.schema';
 
 export class ArticlesService {
@@ -386,6 +388,94 @@ export class ArticlesService {
     const keys = await redis.keys('article:*');
     if (keys.length > 0) {
       await redis.del(...keys);
+    }
+  }
+
+  /**
+   * ✅ Получить категорию статей по slug
+   */
+  async getArticleCategoryBySlug(slug: string) {
+    const category = await prisma.articleCategory.findUnique({
+      where: { slug },
+      include: {
+        articles: {
+          where: { isPublished: true, publishedAt: { lte: new Date() } },
+          orderBy: { publishedAt: 'desc' },
+          include: {
+            author: {
+              select: { id: true, firstName: true, lastName: true },
+            },
+            tags: {
+              select: { id: true, name: true, slug: true },
+            },
+          },
+        },
+      },
+    });
+
+    return category;
+  }
+
+  /**
+   * ✅ Создать категорию статей
+   */
+  async createArticleCategory(input: CreateArticleCategoryInput) {
+    const slug = input.slug || (await createUniqueSlug(input.name, 'articleCategory'));
+
+    const category = await prisma.articleCategory.create({
+      data: {
+        name: input.name,
+        slug,
+        description: input.description,
+        order: input.order,
+      },
+    });
+
+    // Инвалидировать кеш категорий
+    if (redis) {
+      await redis.del('article:categories');
+    }
+
+    return category;
+  }
+
+  /**
+   * ✅ Обновить категорию статей
+   */
+  async updateArticleCategory(input: UpdateArticleCategoryInput) {
+    if (!input.id) {
+      throw new Error('ID категории обязателен');
+    }
+
+    const category = await prisma.articleCategory.update({
+      where: { id: input.id },
+      data: {
+        ...(input.name && { name: input.name }),
+        ...(input.slug && { slug: input.slug }),
+        ...(input.description !== undefined && { description: input.description }),
+        ...(input.order !== undefined && { order: input.order }),
+      },
+    });
+
+    // Инвалидировать кеш
+    if (redis) {
+      await redis.del('article:categories');
+    }
+
+    return category;
+  }
+
+  /**
+   * ✅ Удалить категорию статей
+   */
+  async deleteArticleCategory(id: string) {
+    await prisma.articleCategory.delete({
+      where: { id },
+    });
+
+    // Инвалидировать кеш
+    if (redis) {
+      await redis.del('article:categories');
     }
   }
 }

@@ -2,7 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
-import { Button, Space, Divider } from 'antd';
+import { Button, Space, Divider, Upload, message } from 'antd';
 import {
   Bold,
   Italic,
@@ -16,6 +16,7 @@ import {
   Link as LinkIcon,
   Image as ImageIcon,
 } from 'lucide-react';
+import { apiMethods } from '../../lib/api';
 
 interface TiptapEditorProps {
   value?: string;
@@ -54,6 +55,23 @@ export function TiptapEditor({ value, onChange, placeholder: _placeholder }: Tip
     const url = window.prompt('Введите URL изображения:');
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
+    }
+  };
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      const response = await apiMethods.media.upload(file, 'articles');
+      const imageUrl = response.data.data.url;
+      
+      // Формируем полный URL для изображения
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${apiUrl}${imageUrl}`;
+      
+      editor.chain().focus().setImage({ src: fullUrl }).run();
+      message.success('Изображение загружено');
+    } catch (error) {
+      message.error('Ошибка загрузки изображения');
+      console.error('Upload error:', error);
     }
   };
 
@@ -114,11 +132,27 @@ export function TiptapEditor({ value, onChange, placeholder: _placeholder }: Tip
             type="text"
             icon={<LinkIcon size={16} />}
             onClick={addLink}
+            title="Добавить ссылку"
           />
+          <Upload
+            beforeUpload={(file) => {
+              handleImageUpload(file);
+              return false; // Отменяем автоматическую загрузку
+            }}
+            showUploadList={false}
+            accept="image/*"
+          >
+            <Button
+              type="text"
+              icon={<ImageIcon size={16} />}
+              title="Загрузить изображение"
+            />
+          </Upload>
           <Button
             type="text"
             icon={<ImageIcon size={16} />}
             onClick={addImage}
+            title="Вставить изображение по URL"
           />
         </Space>
 

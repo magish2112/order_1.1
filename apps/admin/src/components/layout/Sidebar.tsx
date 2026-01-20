@@ -24,7 +24,7 @@ const menuItems = [
     label: 'Dashboard',
   },
   {
-    key: '/services',
+    key: '/services/list',
     icon: <Wrench size={20} />,
     label: 'Услуги',
     children: [

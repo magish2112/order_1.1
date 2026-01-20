@@ -5,9 +5,9 @@ FROM node:20-alpine AS base
 FROM base AS deps
 WORKDIR /app
 
-# Копируем package.json
-COPY package.json ./
-RUN npm install
+# Копируем package.json и package-lock.json
+COPY package.json package-lock.json* ./
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Сборка приложения
 FROM base AS builder

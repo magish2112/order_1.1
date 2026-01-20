@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import prisma from '../../config/database';
 import redis from '../../config/redis';
 import { createUniqueSlug } from '../../utils/slug';
+import { transformService, stringifyJsonArray, stringifyJsonObject } from '../../utils/json-fields';
 import {
   CreateCategoryInput,
   UpdateCategoryInput,
@@ -118,6 +119,36 @@ export class ServicesService {
     }
 
     return category;
+  }
+
+  /**
+   * Получить список категорий (админ)
+   */
+  async getCategoriesList(isActive?: boolean) {
+    const where: Prisma.ServiceCategoryWhereInput = {};
+    if (isActive !== undefined) {
+      where.isActive = isActive;
+    }
+
+    return prisma.serviceCategory.findMany({
+      where,
+      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+      include: {
+        parent: true,
+      },
+    });
+  }
+
+  /**
+   * Получить категорию по ID (админ)
+   */
+  async getCategoryById(id: string) {
+    return prisma.serviceCategory.findUnique({
+      where: { id },
+      include: {
+        parent: true,
+      },
+    });
   }
 
   /**
@@ -261,8 +292,11 @@ export class ServicesService {
       prisma.service.count({ where }),
     ]);
 
+    // Преобразуем JSON поля для SQLite
+    const transformedItems = items.map(item => transformService(item));
+
     return {
-      items,
+      items: transformedItems,
       pagination: {
         page,
         limit,
@@ -296,11 +330,39 @@ export class ServicesService {
       },
     });
 
-    if (service && redis) {
-      await redis.setex(cacheKey, 300, JSON.stringify(service));
+    if (!service) {
+      return null;
     }
 
-    return service;
+    // Преобразуем JSON поля для SQLite
+    const transformedService = transformService(service);
+
+    if (redis) {
+      await redis.setex(cacheKey, 300, JSON.stringify(transformedService));
+    }
+
+    return transformedService;
+  }
+
+  /**
+   * Получить услугу по ID (админ)
+   */
+  async getServiceById(id: string) {
+    const service = await prisma.service.findUnique({
+      where: { id },
+      include: {
+        category: true,
+        pricingItems: {
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+
+    if (!service) {
+      return null;
+    }
+
+    return transformService(service);
   }
 
   /**
@@ -315,11 +377,22 @@ export class ServicesService {
       }
     ));
 
+    // Преобразуем массивы и объекты в JSON строки для SQLite
+    const data: any = {
+      ...input,
+      slug,
+    };
+    
+    if (input.gallery) {
+      data.gallery = stringifyJsonArray(input.gallery);
+    }
+    
+    if (input.features) {
+      data.features = stringifyJsonObject(input.features);
+    }
+
     const service = await prisma.service.create({
-      data: {
-        ...input,
-        slug,
-      },
+      data,
       include: {
         category: true,
       },
@@ -327,14 +400,16 @@ export class ServicesService {
 
     await this.invalidateServicesCache();
 
-    return service;
+    return transformService(service);
   }
 
   /**
    * Обновить услугу
    */
   async updateService(input: UpdateServiceInput) {
-    const { id, ...data } = input;
+    const { id, ...inputData } = input;
+
+    const data: any = { ...inputData };
 
     if (data.name && !data.slug) {
       data.slug = await createUniqueSlug(
@@ -348,6 +423,15 @@ export class ServicesService {
       );
     }
 
+    // Преобразуем массивы и объекты в JSON строки для SQLite
+    if (data.gallery !== undefined) {
+      data.gallery = stringifyJsonArray(data.gallery);
+    }
+    
+    if (data.features !== undefined) {
+      data.features = stringifyJsonObject(data.features);
+    }
+
     const service = await prisma.service.update({
       where: { id },
       data,
@@ -358,7 +442,7 @@ export class ServicesService {
 
     await this.invalidateServicesCache();
 
-    return service;
+    return transformService(service);
   }
 
   /**

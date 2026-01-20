@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { api } from '@/lib/api'
+import { api, ApiResponse } from '@/lib/api'
 import { Vacancy } from '@/lib/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,10 @@ export function VacanciesPage() {
 
   const { data: vacancies, isLoading } = useQuery({
     queryKey: ['vacancies'],
-    queryFn: () => api.get<Vacancy[]>('/vacancies?isActive=true'),
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<Vacancy[]>>('/vacancies?isActive=true')
+      return response.data
+    },
   })
 
   if (isLoading) {

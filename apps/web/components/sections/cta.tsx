@@ -12,7 +12,7 @@ export function Cta() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.5 }}
-      className="relative bg-zinc-950 py-16 lg:py-20 overflow-hidden"
+      className="relative bg-background py-16 lg:py-20 overflow-hidden"
     >
       {/* Industrial Background */}
       <div className="absolute inset-0 opacity-10">
@@ -20,8 +20,8 @@ export function Cta() {
           className="absolute inset-0"
           style={{
             backgroundImage: `
-              linear-gradient(to right, rgb(251, 191, 36) 1px, transparent 1px),
-              linear-gradient(to bottom, rgb(251, 191, 36) 1px, transparent 1px)
+              linear-gradient(to right, hsl(var(--accent)) 1px, transparent 1px),
+              linear-gradient(to bottom, hsl(var(--accent)) 1px, transparent 1px)
             `,
             backgroundSize: '40px 40px',
           }}
@@ -29,13 +29,13 @@ export function Cta() {
       </div>
 
       {/* Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-600/20 via-orange-600/10 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-accent/10 to-transparent" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-600/10 border border-amber-600/20 backdrop-blur-sm mb-6">
-            <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-            <span className="text-sm text-amber-500 font-medium">Начнем проект</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 backdrop-blur-sm mb-6">
+            <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+            <span className="text-sm text-accent font-medium">Начнем проект</span>
           </div>
 
           <motion.h2
@@ -43,7 +43,7 @@ export function Cta() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-3xl font-bold tracking-tight text-white sm:text-4xl"
+            className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
           >
             Готовы начать свой проект?
           </motion.h2>
@@ -52,7 +52,7 @@ export function Cta() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mt-4 text-xl text-zinc-300 max-w-2xl mx-auto"
+            className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto"
           >
             Свяжитесь с нами сегодня и получите бесплатную консультацию.
             Мы превратим ваши идеи в реальность.
@@ -66,7 +66,7 @@ export function Cta() {
           >
             <Button
               size="lg"
-              className="bg-amber-600 hover:bg-amber-700 text-white transition-all hover:scale-105 shadow-lg hover:shadow-amber-600/25"
+              className="bg-accent hover:bg-accent/90 text-accent-foreground transition-all hover:scale-105 shadow-lg hover:shadow-accent/25"
               asChild
             >
               <Link href="/kontakty">
@@ -76,7 +76,7 @@ export function Cta() {
             </Button>
             <Button
               size="lg"
-              className="bg-amber-600 hover:bg-amber-700 text-white group transition-all hover:scale-105"
+              className="bg-accent hover:bg-accent/90 text-accent-foreground group transition-all hover:scale-105"
               asChild
             >
               <Link href="/kalkulyator">

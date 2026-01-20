@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import faqsController from './faqs.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function faqsRoutes(fastify: FastifyInstance) {
   // Публичные роуты
@@ -55,4 +55,5 @@ export default async function faqsRoutes(fastify: FastifyInstance) {
     },
   }, faqsController.deleteFaq.bind(faqsController));
 }
+
 

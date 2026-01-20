@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import statsController from './stats.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function statsRoutes(fastify: FastifyInstance) {
   // Публичный роут для счетчиков Hero секции
@@ -31,4 +31,5 @@ export default async function statsRoutes(fastify: FastifyInstance) {
     },
   }, statsController.getViewsStats.bind(statsController));
 }
+
 

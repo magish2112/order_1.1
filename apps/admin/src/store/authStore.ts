@@ -14,14 +14,14 @@ interface AuthState {
 
 export const authStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
       setUser: (user) => set({ user, isAuthenticated: true }),
       setTokens: (accessToken, refreshToken) =>
-        set({ accessToken, refreshToken }),
+        set({ accessToken, refreshToken, isAuthenticated: !!accessToken }),
       logout: () =>
         set({
           user: null,
@@ -33,6 +33,12 @@ export const authStore = create<AuthState>()(
     {
       name: 'admin-auth-storage',
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        // Восстанавливаем isAuthenticated при загрузке из localStorage
+        if (state) {
+          state.isAuthenticated = !!state.accessToken;
+        }
+      },
     }
   )
 );

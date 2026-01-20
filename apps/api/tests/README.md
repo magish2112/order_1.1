@@ -38,13 +38,45 @@ npm test -- auth.test.ts
 
 ## Настройка окружения
 
-Для тестов используется отдельная база данных (опционально). Установите переменную окружения:
+**ВАЖНО**: Для работы тестов требуется настроенная база данных PostgreSQL.
+
+### Шаг 1: Создайте файл `.env.test` в `apps/api/`
+
+```bash
+DATABASE_URL=postgresql://user:password@localhost:5432/test_db
+JWT_SECRET=test-jwt-secret-key-minimum-32-characters-long-for-testing
+JWT_REFRESH_SECRET=test-jwt-refresh-secret-key-minimum-32-characters-long-for-testing
+NODE_ENV=test
+```
+
+Или используйте переменную `TEST_DATABASE_URL`:
 
 ```bash
 TEST_DATABASE_URL=postgresql://user:password@localhost:5432/test_db
 ```
 
-Если `TEST_DATABASE_URL` не установлена, будет использована основная `DATABASE_URL`.
+Если `TEST_DATABASE_URL` не установлена, будет использована основная `DATABASE_URL` из `.env`.
+
+### Шаг 2: Создайте тестовую базу данных
+
+```sql
+CREATE DATABASE test_db;
+```
+
+### Шаг 3: Примените миграции
+
+```bash
+cd apps/api
+npx prisma migrate deploy
+```
+
+### Шаг 4: Запустите тесты
+
+```bash
+npm test
+```
+
+**Примечание**: Перед каждым тестом база данных автоматически очищается, поэтому можно использовать реальную тестовую БД.
 
 ## Что тестируется
 

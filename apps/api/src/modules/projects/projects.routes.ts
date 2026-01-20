@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import projectsController from './projects.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function projectsRoutes(fastify: FastifyInstance) {
   // Публичные роуты
@@ -61,6 +61,31 @@ export default async function projectsRoutes(fastify: FastifyInstance) {
   }, projectsController.getProjectBySlug.bind(projectsController));
 
   // Административные роуты
+  fastify.get('/admin/projects', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.EDITOR)],
+    schema: {
+      description: 'Получить список проектов (админ)',
+      tags: ['projects', 'admin'],
+      security: [{ bearerAuth: [] }],
+    },
+  }, projectsController.getProjects.bind(projectsController));
+
+  fastify.get('/admin/projects/:id', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.EDITOR)],
+    schema: {
+      description: 'Получить проект по ID (админ)',
+      tags: ['projects', 'admin'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' },
+        },
+      },
+    },
+  }, projectsController.getProjectById.bind(projectsController));
+
   fastify.post('/admin/projects', {
     preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.EDITOR)],
     schema: {
@@ -88,4 +113,5 @@ export default async function projectsRoutes(fastify: FastifyInstance) {
     },
   }, projectsController.deleteProject.bind(projectsController));
 }
+
 

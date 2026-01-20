@@ -40,14 +40,6 @@ export class EmployeesService {
       ],
     });
 
-    // Группировка по отделам для слайдеров команды (если требуется)
-    if (query.department) {
-      // Уже отфильтровано по department в where
-      return employees;
-    }
-
-    return employees;
-
     if (redis && query.isActive === true) {
       await redis.setex(cacheKey, 600, JSON.stringify(employees)); // 10 минут
     }
@@ -71,7 +63,12 @@ export class EmployeesService {
    */
   async createEmployee(input: CreateEmployeeInput) {
     const employee = await prisma.employee.create({
-      data: input,
+      data: {
+        ...input,
+        department: input.department || null,
+        photo: input.photo || null,
+        bio: input.bio || null,
+      },
     });
 
     await this.invalidateEmployeesCache();
@@ -85,9 +82,21 @@ export class EmployeesService {
   async updateEmployee(input: UpdateEmployeeInput) {
     const { id, ...data } = input;
 
+    // Обрабатываем null значения для опциональных полей
+    const updateData: any = { ...data };
+    if (updateData.department === null || updateData.department === undefined) {
+      updateData.department = null;
+    }
+    if (updateData.photo === null || updateData.photo === undefined) {
+      updateData.photo = null;
+    }
+    if (updateData.bio === null || updateData.bio === undefined) {
+      updateData.bio = null;
+    }
+
     const employee = await prisma.employee.update({
       where: { id },
-      data,
+      data: updateData,
     });
 
     await this.invalidateEmployeesCache();

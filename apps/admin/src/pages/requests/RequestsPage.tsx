@@ -109,9 +109,8 @@ export function RequestsPage() {
       render: (_, record) => {
         if (record.source === 'calculator') {
           const details = [];
-          if (record.propertyType) details.push(`Тип: ${record.propertyType}`);
           if (record.area) details.push(`Площадь: ${record.area}м²`);
-          if (record.repairType) details.push(`Ремонт: ${record.repairType}`);
+          if (record.serviceType) details.push(`Услуга: ${record.serviceType}`);
           return details.length > 0 ? details.join(', ') : '-';
         }
         return record.message || '-';

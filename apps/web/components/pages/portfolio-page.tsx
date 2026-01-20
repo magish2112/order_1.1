@@ -4,13 +4,14 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import Image from 'next/image'
-import { api } from '@/lib/api'
+import { api, ApiResponse } from '@/lib/api'
 import { Project } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Square, Search } from 'lucide-react'
+import { getImageUrl } from '@/lib/utils'
 
 export function PortfolioPage() {
   const [filters, setFilters] = useState({
@@ -25,10 +26,21 @@ export function PortfolioPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['projects', filters, page],
-    queryFn: () =>
-      api.get<{ projects: Project[]; total: number }>(
-        `/projects?page=${page}&limit=${limit}&propertyType=${filters.propertyType}&rooms=${filters.rooms}&style=${filters.style}&repairType=${filters.repairType}&search=${filters.search}`
-      ),
+    queryFn: async () => {
+      const params = new URLSearchParams()
+      params.set('page', String(page))
+      params.set('limit', String(limit))
+      if (filters.propertyType) params.set('propertyType', filters.propertyType)
+      if (filters.rooms) params.set('rooms', filters.rooms)
+      if (filters.style) params.set('style', filters.style)
+      if (filters.repairType) params.set('repairType', filters.repairType)
+      if (filters.search) params.set('search', filters.search)
+      const response = await api.get<ApiResponse<Project[]>>(`/projects?${params.toString()}`)
+      return {
+        projects: response.data,
+        total: response.pagination?.total || 0,
+      }
+    },
   })
 
   const projects = data?.projects || []
@@ -38,7 +50,7 @@ export function PortfolioPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 py-16 text-white">
+      <section className="bg-gradient-to-br from-gray-900 to-gray-800 py-16 text-foreground">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
             Портфолио наших работ
@@ -142,9 +154,9 @@ export function PortfolioPage() {
                   <Link key={project.id} href={`/portfolio/${project.slug}`}>
                     <Card className="group h-full overflow-hidden transition-all hover:shadow-lg">
                       <div className="relative aspect-[4/3] w-full overflow-hidden">
-                        {project.coverImage ? (
+                        {project.coverImage && getImageUrl(project.coverImage) ? (
                           <Image
-                            src={project.coverImage}
+                            src={getImageUrl(project.coverImage)!}
                             alt={project.title}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-110"
@@ -194,7 +206,7 @@ export function PortfolioPage() {
                 <div className="mt-12 flex items-center justify-center space-x-2">
                   <Button
                     variant="outline"
-                    className="bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50 group"
+                    className="bg-accent600 hover:bg-accent700 text-foreground disabled:opacity-50 group"
                     disabled={page === 1}
                     onClick={() => setPage(page - 1)}
                   >
@@ -206,7 +218,7 @@ export function PortfolioPage() {
                   </span>
                   <Button
                     variant="outline"
-                    className="bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50 group"
+                    className="bg-accent600 hover:bg-accent700 text-foreground disabled:opacity-50 group"
                     disabled={page >= totalPages}
                     onClick={() => setPage(page + 1)}
                   >

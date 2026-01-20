@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import reviewsController from './reviews.controller';
 import { authenticate, authorize } from '../../middleware/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../constants/roles';
 
 export default async function reviewsRoutes(fastify: FastifyInstance) {
   // Публичные роуты
@@ -68,4 +68,5 @@ export default async function reviewsRoutes(fastify: FastifyInstance) {
     },
   }, reviewsController.approveReview.bind(reviewsController));
 }
+
 

@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { authStore } from '../store/authStore';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4001/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -151,6 +151,7 @@ export const apiMethods = {
     update: (id: string, data: any) => api.put(`/admin/articles/${id}`, data),
     delete: (id: string) => api.delete(`/admin/articles/${id}`),
     publish: (id: string) => api.patch(`/admin/articles/${id}/publish`),
+    getCategories: () => api.get('/articles/categories'),
   },
 
   // Requests
@@ -219,6 +220,11 @@ export const apiMethods = {
   settings: {
     list: (params?: any) => api.get('/admin/settings', { params }),
     update: (settings: any[]) => api.put('/admin/settings', settings),
+    uploadLogo: (file: File, onProgress?: (progress: number) => void) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return api.upload('/admin/settings/logo', formData, onProgress);
+    },
   },
 
   // Calculator
