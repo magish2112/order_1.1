@@ -97,7 +97,8 @@ export class ServicesController {
     reply: FastifyReply
   ) {
     const { id } = request.params;
-    const validated = updateCategorySchema.parse({ ...request.body, id });
+    const body = request.body as Record<string, unknown>;
+    const validated = updateCategorySchema.parse({ ...body, id });
     const category = await servicesService.updateCategory(validated);
 
     return reply.status(200).send({
@@ -195,7 +196,8 @@ export class ServicesController {
     reply: FastifyReply
   ) {
     const { id } = request.params;
-    const validated = updateServiceSchema.parse({ ...request.body, id });
+    const body = request.body as Record<string, unknown>;
+    const validated = updateServiceSchema.parse({ ...body, id });
     const service = await servicesService.updateService(validated);
 
     return reply.status(200).send({

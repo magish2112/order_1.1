@@ -21,6 +21,20 @@ export class ReviewsController {
     });
   }
 
+  async getReviewsAdmin(
+    request: FastifyRequest<{ Querystring: unknown }>,
+    reply: FastifyReply
+  ) {
+    const query = getReviewsQuerySchema.parse(request.query);
+    const result = await reviewsService.getReviews(query, false); // onlyApproved = false
+
+    return reply.status(200).send({
+      success: true,
+      data: result.items,
+      pagination: result.pagination,
+    });
+  }
+
   async getReviewById(
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
@@ -60,7 +74,8 @@ export class ReviewsController {
     reply: FastifyReply
   ) {
     const { id } = request.params;
-    const validated = updateReviewSchema.parse({ ...request.body, id });
+    const body = request.body as Record<string, unknown>;
+    const validated = updateReviewSchema.parse({ ...body, id });
     const review = await reviewsService.updateReview(validated);
 
     return reply.status(200).send({

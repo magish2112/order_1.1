@@ -76,7 +76,7 @@ export class RequestsController {
   ) {
     const { id } = request.params;
     const validated = updateRequestStatusSchema.parse(request.body);
-    const userId = request.user?.id;
+    const userId = (request.user as { id: string } | undefined)?.id;
     const requestData = await requestsService.updateRequestStatus(id, validated, userId);
 
     return reply.status(200).send({

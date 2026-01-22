@@ -62,6 +62,45 @@ export default async function articlesRoutes(fastify: FastifyInstance) {
   }, articlesController.getArticleBySlug.bind(articlesController));
 
   // Административные роуты
+  fastify.get('/admin/articles', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.EDITOR)],
+    schema: {
+      description: 'Получить список статей (админ)',
+      tags: ['articles', 'admin'],
+      security: [{ bearerAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          categoryId: { type: 'string' },
+          authorId: { type: 'string' },
+          tag: { type: 'string' },
+          page: { type: 'integer', minimum: 1, default: 1 },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+          sortBy: { type: 'string', enum: ['createdAt', 'publishedAt', 'viewsCount'], default: 'publishedAt' },
+          sortOrder: { type: 'string', enum: ['asc', 'desc'], default: 'desc' },
+          search: { type: 'string' },
+          isPublished: { type: 'boolean' },
+        },
+      },
+    },
+  }, articlesController.getArticlesAdmin.bind(articlesController));
+
+  fastify.get('/admin/articles/:id', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.EDITOR)],
+    schema: {
+      description: 'Получить статью по ID (админ)',
+      tags: ['articles', 'admin'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' },
+        },
+      },
+    },
+  }, articlesController.getArticleById.bind(articlesController));
+
   fastify.post('/admin/articles', {
     preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER, UserRole.EDITOR)],
     schema: {

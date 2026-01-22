@@ -30,6 +30,22 @@ export default async function statsRoutes(fastify: FastifyInstance) {
       security: [{ bearerAuth: [] }],
     },
   }, statsController.getViewsStats.bind(statsController));
+
+  fastify.get('/admin/stats/requests', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
+    schema: {
+      description: 'Получить статистику заявок',
+      tags: ['stats', 'admin'],
+      security: [{ bearerAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          dateFrom: { type: 'string', format: 'date' },
+          dateTo: { type: 'string', format: 'date' },
+        },
+      },
+    },
+  }, statsController.getRequestsStats.bind(statsController));
 }
 
 

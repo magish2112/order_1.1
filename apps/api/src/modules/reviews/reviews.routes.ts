@@ -23,6 +23,26 @@ export default async function reviewsRoutes(fastify: FastifyInstance) {
   }, reviewsController.getReviews.bind(reviewsController));
 
   // Административные роуты
+  fastify.get('/admin/reviews', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
+    schema: {
+      description: 'Получить список отзывов (админ)',
+      tags: ['reviews', 'admin'],
+      security: [{ bearerAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          projectId: { type: 'string' },
+          source: { type: 'string' },
+          rating: { type: 'integer', minimum: 1, maximum: 5 },
+          page: { type: 'integer', minimum: 1, default: 1 },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+          isApproved: { type: 'boolean' },
+        },
+      },
+    },
+  }, reviewsController.getReviewsAdmin.bind(reviewsController));
+
   fastify.get('/admin/reviews/:id', {
     preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
     schema: {

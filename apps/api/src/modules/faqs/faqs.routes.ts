@@ -19,6 +19,22 @@ export default async function faqsRoutes(fastify: FastifyInstance) {
   }, faqsController.getFaqs.bind(faqsController));
 
   // Административные роуты
+  fastify.get('/admin/faqs', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
+    schema: {
+      description: 'Получить список FAQ (админ)',
+      tags: ['faqs', 'admin'],
+      security: [{ bearerAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          category: { type: 'string' },
+          isActive: { type: 'boolean' },
+        },
+      },
+    },
+  }, faqsController.getFaqsAdmin.bind(faqsController));
+
   fastify.get('/admin/faqs/:id', {
     preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
     schema: {

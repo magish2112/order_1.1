@@ -153,6 +153,40 @@ export class ArticlesService {
   }
 
   /**
+   * Получить статью по ID
+   */
+  async getArticleById(id: string) {
+    const article = await prisma.article.findUnique({
+      where: { id },
+      include: {
+        author: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        category: true,
+        tags: true,
+      },
+    });
+
+    if (!article) {
+      return null;
+    }
+
+    // Вычисляем время чтения
+    const wordsPerMinute = 200;
+    const wordCount = article.content.split(/\s+/).length;
+    const readingTime = article.readingTime || Math.ceil(wordCount / wordsPerMinute);
+
+    return {
+      ...article,
+      readingTime,
+    };
+  }
+
+  /**
    * Получить статью по slug
    */
   async getArticleBySlug(slug: string, incrementViews = false) {

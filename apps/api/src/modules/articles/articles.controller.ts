@@ -23,6 +23,41 @@ export class ArticlesController {
     });
   }
 
+  async getArticlesAdmin(
+    request: FastifyRequest<{ Querystring: unknown }>,
+    reply: FastifyReply
+  ) {
+    const query = getArticlesQuerySchema.parse(request.query);
+    const result = await articlesService.getArticles(query, true); // includeUnpublished = true
+
+    return reply.status(200).send({
+      success: true,
+      data: result.items,
+      pagination: result.pagination,
+    });
+  }
+
+  async getArticleById(
+    request: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply
+  ) {
+    const { id } = request.params;
+    const article = await articlesService.getArticleById(id);
+
+    if (!article) {
+      return reply.status(404).send({
+        statusCode: 404,
+        error: 'Not Found',
+        message: 'Статья не найдена',
+      });
+    }
+
+    return reply.status(200).send({
+      success: true,
+      data: article,
+    });
+  }
+
   async getArticleCategories(
     request: FastifyRequest,
     reply: FastifyReply
@@ -61,7 +96,7 @@ export class ArticlesController {
     reply: FastifyReply
   ) {
     const validated = createArticleSchema.parse(request.body);
-    const userId = request.user?.id;
+    const userId = (request.user as { id: string } | undefined)?.id;
     const article = await articlesService.createArticle(validated, userId);
 
     return reply.status(201).send({
@@ -75,7 +110,8 @@ export class ArticlesController {
     reply: FastifyReply
   ) {
     const { id } = request.params;
-    const validated = updateArticleSchema.parse({ ...request.body, id });
+    const body = request.body as Record<string, unknown>;
+    const validated = updateArticleSchema.parse({ ...body, id });
     const article = await articlesService.updateArticle(validated);
 
     return reply.status(200).send({
@@ -151,7 +187,8 @@ export class ArticlesController {
     reply: FastifyReply
   ) {
     const { id } = request.params;
-    const validated = updateArticleCategorySchema.parse({ ...request.body, id });
+    const body = request.body as Record<string, unknown>;
+    const validated = updateArticleCategorySchema.parse({ ...body, id });
     const category = await articlesService.updateArticleCategory(validated);
 
     return reply.status(200).send({

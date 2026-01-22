@@ -81,7 +81,7 @@ export class ProjectsController {
     reply: FastifyReply
   ) {
     const validated = createProjectSchema.parse(request.body);
-    const userId = request.user?.id;
+    const userId = (request.user as { id: string } | undefined)?.id;
     const project = await projectsService.createProject(validated, userId);
 
     return reply.status(201).send({
@@ -95,7 +95,8 @@ export class ProjectsController {
     reply: FastifyReply
   ) {
     const { id } = request.params;
-    const validated = updateProjectSchema.parse({ ...request.body, id });
+    const body = request.body as Record<string, unknown>;
+    const validated = updateProjectSchema.parse({ ...body, id });
     const project = await projectsService.updateProject(validated);
 
     return reply.status(200).send({

@@ -20,6 +20,19 @@ export class FaqsController {
     });
   }
 
+  async getFaqsAdmin(
+    request: FastifyRequest<{ Querystring: unknown }>,
+    reply: FastifyReply
+  ) {
+    const query = getFaqsQuerySchema.parse(request.query);
+    const faqs = await faqsService.getFaqs(query, false); // onlyActive = false
+
+    return reply.status(200).send({
+      success: true,
+      data: faqs,
+    });
+  }
+
   async getFaqById(
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
@@ -59,7 +72,8 @@ export class FaqsController {
     reply: FastifyReply
   ) {
     const { id } = request.params;
-    const validated = updateFaqSchema.parse({ ...request.body, id });
+    const body = request.body as Record<string, unknown>;
+    const validated = updateFaqSchema.parse({ ...body, id });
     const faq = await faqsService.updateFaq(validated);
 
     return reply.status(200).send({

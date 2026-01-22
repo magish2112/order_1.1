@@ -110,6 +110,29 @@ export const apiMethods = {
       api.post('/admin/auth/refresh', { refreshToken }),
   },
 
+  // Users
+  users: {
+    list: (params?: any) => api.get('/admin/users', { params }),
+    get: (id: string) => api.get(`/admin/users/${id}`),
+    create: (data: {
+      email: string;
+      password: string;
+      firstName: string;
+      lastName: string;
+      role: 'MANAGER';
+      isActive?: boolean;
+    }) => api.post('/admin/users', data),
+    update: (id: string, data: {
+      email?: string;
+      password?: string;
+      firstName?: string;
+      lastName?: string;
+      role?: 'MANAGER';
+      isActive?: boolean;
+    }) => api.put(`/admin/users/${id}`, data),
+    delete: (id: string) => api.delete(`/admin/users/${id}`),
+  },
+
   // Dashboard
   stats: {
     getDashboard: () => api.get('/admin/stats/dashboard'),

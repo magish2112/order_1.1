@@ -59,7 +59,8 @@ export class EmployeesController {
     reply: FastifyReply
   ) {
     const { id } = request.params;
-    const validated = updateEmployeeSchema.parse({ ...request.body, id });
+    const body = request.body as Record<string, unknown>;
+    const validated = updateEmployeeSchema.parse({ ...body, id });
     const employee = await employeesService.updateEmployee(validated);
 
     return reply.status(200).send({

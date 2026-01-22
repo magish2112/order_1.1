@@ -7,6 +7,7 @@ import {
   FileText,
   MessageSquare,
   Users,
+  UserCog,
   Star,
   Briefcase,
   HelpCircle,
@@ -14,6 +15,7 @@ import {
   Settings,
 } from 'lucide-react';
 import { useSidebar } from '../../contexts/SidebarContext';
+import { useAuth } from '../../hooks/useAuth';
 
 const { Sider } = Layout;
 
@@ -73,6 +75,11 @@ const menuItems = [
     label: 'Медиатека',
   },
   {
+    key: '/users',
+    icon: <UserCog size={20} />,
+    label: 'Пользователи',
+  },
+  {
     key: '/settings',
     icon: <Settings size={20} />,
     label: 'Настройки',
@@ -83,10 +90,23 @@ export function Sidebar() {
   const { collapsed, setCollapsed } = useSidebar();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
   const handleMenuClick = ({ key }: { key: string }) => {
     navigate(key);
   };
+
+  // Проверяем права доступа для управления пользователями
+  const canManageUsers = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
+
+  // Формируем меню с учетом прав доступа
+  const menuItemsWithPermissions = menuItems.filter((item) => {
+    // Скрываем пункт "Пользователи" для тех, у кого нет прав
+    if (item.key === '/users' && !canManageUsers) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <Sider
@@ -120,7 +140,7 @@ export function Sidebar() {
         theme="dark"
         mode="inline"
         selectedKeys={[location.pathname]}
-        items={menuItems}
+        items={menuItemsWithPermissions}
         onClick={handleMenuClick}
       />
     </Sider>

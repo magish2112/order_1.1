@@ -36,6 +36,41 @@ export default async function vacanciesRoutes(fastify: FastifyInstance) {
   }, vacanciesController.getVacancyById.bind(vacanciesController));
 
   // Административные роуты
+  fastify.get('/admin/vacancies', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
+    schema: {
+      description: 'Получить список вакансий (админ)',
+      tags: ['vacancies', 'admin'],
+      security: [{ bearerAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          department: { type: 'string' },
+          page: { type: 'integer', minimum: 1, default: 1 },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+          search: { type: 'string' },
+          isActive: { type: 'boolean' },
+        },
+      },
+    },
+  }, vacanciesController.getVacanciesAdmin.bind(vacanciesController));
+
+  fastify.get('/admin/vacancies/:id', {
+    preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
+    schema: {
+      description: 'Получить вакансию по ID (админ)',
+      tags: ['vacancies', 'admin'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' },
+        },
+      },
+    },
+  }, vacanciesController.getVacancyById.bind(vacanciesController));
+
   fastify.post('/admin/vacancies', {
     preHandler: [authenticate, authorize(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MANAGER)],
     schema: {

@@ -12,6 +12,7 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
     "fix-admin": "node fix-admin.js",
+    "create-admin-eterno": "node create-admin-eterno.js",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "lint": "eslint src --ext .ts",

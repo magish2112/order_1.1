@@ -21,6 +21,20 @@ export class VacanciesController {
     });
   }
 
+  async getVacanciesAdmin(
+    request: FastifyRequest<{ Querystring: unknown }>,
+    reply: FastifyReply
+  ) {
+    const query = getVacanciesQuerySchema.parse(request.query);
+    const result = await vacanciesService.getVacancies(query, false); // onlyActive = false
+
+    return reply.status(200).send({
+      success: true,
+      data: result.items,
+      pagination: result.pagination,
+    });
+  }
+
   async getVacancyById(
     request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
@@ -60,7 +74,8 @@ export class VacanciesController {
     reply: FastifyReply
   ) {
     const { id } = request.params;
-    const validated = updateVacancySchema.parse({ ...request.body, id });
+    const body = request.body as Record<string, unknown>;
+    const validated = updateVacancySchema.parse({ ...body, id });
     const vacancy = await vacanciesService.updateVacancy(validated);
 
     return reply.status(200).send({

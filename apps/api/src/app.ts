@@ -24,6 +24,7 @@ import calculatorRoutes from './modules/calculator/calculator.routes';
 import settingsRoutes from './modules/settings/settings.routes';
 import mediaRoutes from './modules/media/media.routes';
 import statsRoutes from './modules/stats/stats.routes';
+import usersRoutes from './modules/users/users.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 declare module 'fastify' {
@@ -193,6 +194,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(settingsRoutes, { prefix: '/api/v1' });
   await app.register(mediaRoutes, { prefix: '/api/v1' });
   await app.register(statsRoutes, { prefix: '/api/v1' });
+  await app.register(usersRoutes, { prefix: '/api/v1' });
 
   // Обработка ошибок (должен быть последним)
   app.setErrorHandler(errorHandler);
