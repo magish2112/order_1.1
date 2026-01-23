@@ -29,6 +29,7 @@ if (!databaseUrl.startsWith('postgresql://') &&
     !databaseUrl.startsWith('file:')) {
   console.error('❌ DATABASE_URL должен начинаться с postgresql://, postgres:// или file:');
   console.error('Текущее значение:', databaseUrl);
+  console.error('Для продакшена рекомендуется использовать PostgreSQL');
   process.exit(1);
 }
 

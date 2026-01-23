@@ -36,7 +36,7 @@ export class CalculatorService {
       };
     }
 
-    // Преобразуем JSON поля для SQLite
+    // Преобразуем JSON поля (работает для SQLite и PostgreSQL)
     const transformedConfig = transformCalculatorConfig(config);
 
     const result = {
@@ -64,8 +64,16 @@ export class CalculatorService {
 
     let config;
     if (existingConfig) {
-      // Преобразуем coefficients в JSON строку для SQLite
-      const data: any = { ...input };
+      // Преобразуем coefficients в JSON (для SQLite) или оставляем как есть (для PostgreSQL)
+      const data: Partial<{
+        name?: string;
+        basePriceCosmetic?: number;
+        basePriceCapital?: number;
+        basePriceDesign?: number;
+        basePriceElite?: number;
+        coefficients?: unknown;
+        isActive?: boolean;
+      }> = { ...input };
       if (data.coefficients !== undefined) {
         data.coefficients = stringifyJsonObject(data.coefficients);
       }

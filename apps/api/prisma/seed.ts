@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-// Константы для ролей (вместо enum для SQLite)
+// Константы для ролей (используем String вместо enum для совместимости)
 const UserRole = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',

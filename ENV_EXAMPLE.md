@@ -10,8 +10,12 @@ NODE_ENV=production
 PORT=4000
 HOST=0.0.0.0
 
-# Database - SQLite (локальная база данных в файле)
-DATABASE_URL=file:./production.db
+# Database - PostgreSQL (рекомендуется для продакшена)
+# Формат: postgresql://user:password@host:port/database
+DATABASE_URL=postgresql://postgres:your_secure_password@postgres:5432/order_db
+
+# Или для локальной разработки можно использовать SQLite:
+# DATABASE_URL=file:./dev.db
 
 # JWT - ОБЯЗАТЕЛЬНО ПОМЕНЯЙТЕ В ПРОДАКШЕНЕ!
 JWT_SECRET=change-this-to-random-32-characters-or-more
@@ -44,8 +48,11 @@ NODE_ENV=development
 PORT=4000
 HOST=0.0.0.0
 
-# Database - SQLite (локальная база данных в файле)
-DATABASE_URL=file:./dev.db
+# Database - PostgreSQL (рекомендуется) или SQLite для разработки
+# PostgreSQL:
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/order_db
+# Или SQLite для быстрой разработки:
+# DATABASE_URL=file:./dev.db
 
 # JWT
 JWT_SECRET=development-jwt-secret-key-minimum-32-characters-long-for-security
@@ -80,10 +87,12 @@ API_BASE_URL=http://localhost:4000
    - Пример: `https://mysite.ru,https://admin.mysite.ru`
 
 3. **DATABASE_URL**
-   - `file:./production.db` - база будет в папке `apps/api/`
-   - Или полный путь: `file:/var/www/app/production.db`
+   - Для продакшена: `postgresql://user:password@host:5432/database`
+   - Для разработки можно использовать SQLite: `file:./dev.db`
+   - Пример PostgreSQL: `postgresql://postgres:mypassword@localhost:5432/order_db`
 
-4. **Файл базы данных**
-   - Регулярно делайте backup файла `.db`
-   - Храните в безопасном месте
-   - Настройте автоматический backup
+4. **База данных PostgreSQL**
+   - Регулярно делайте backup базы данных
+   - Используйте `pg_dump` для создания резервных копий
+   - Настройте автоматический backup через cron или pgBackRest
+   - Храните бэкапы в безопасном месте

@@ -6,7 +6,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   HOST: z.string().default('0.0.0.0'),
   
-  DATABASE_URL: z.string(), // PostgreSQL URL или SQLite file: путь
+  DATABASE_URL: z.string(), // PostgreSQL URL (рекомендуется для продакшена) или SQLite file: путь (для разработки)
   REDIS_URL: z.string().optional(), // Redis URL (redis://host:port) - может не быть валидным URL при парсинге, поэтому не применяем .url()
   
   JWT_SECRET: z.string().min(32),
@@ -34,6 +34,9 @@ const envSchema = z.object({
   
   CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:3001'),
   
+  // Admin URL для ссылок в email уведомлениях
+  ADMIN_URL: z.string().url().optional().or(z.literal('')),
+  
   // Тестовые credentials (только для development)
   DEV_ADMIN_EMAIL: z.string().email().optional(),
   DEV_ADMIN_PASSWORD: z.string().optional(),
@@ -50,7 +53,7 @@ try {
     // В тестовом окружении не завершаем процесс, а устанавливаем значения по умолчанию
     if (process.env.NODE_ENV === 'test') {
       // Устанавливаем значения по умолчанию для тестов
-      const defaultEnv: any = {
+      const defaultEnv: Record<string, unknown> = {
         NODE_ENV: 'test',
         PORT: 4000,
         HOST: '0.0.0.0',

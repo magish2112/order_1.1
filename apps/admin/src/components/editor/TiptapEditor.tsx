@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -17,6 +18,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
+import { UrlInputModal } from './UrlInputModal';
 
 interface TiptapEditorProps {
   value?: string;
@@ -25,6 +27,9 @@ interface TiptapEditorProps {
 }
 
 export function TiptapEditor({ value, onChange, placeholder: _placeholder }: TiptapEditorProps) {
+  const [imageModalVisible, setImageModalVisible] = useState(false);
+  const [linkModalVisible, setLinkModalVisible] = useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -51,10 +56,35 @@ export function TiptapEditor({ value, onChange, placeholder: _placeholder }: Tip
     return null;
   }
 
-  const addImage = () => {
-    const url = window.prompt('Введите URL изображения:');
-    if (url) {
+  /**
+   * Валидация URL
+   */
+  const isValidUrl = (url: string): boolean => {
+    if (!url || typeof url !== 'string') {
+      return false;
+    }
+
+    // Разрешаем относительные URL
+    if (url.startsWith('/') || url.startsWith('./') || url.startsWith('../')) {
+      return true;
+    }
+
+    // Проверяем абсолютные URL
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+  const handleImageUrlConfirm = (url: string) => {
+    if (isValidUrl(url)) {
       editor.chain().focus().setImage({ src: url }).run();
+      setImageModalVisible(false);
+      message.success('Изображение добавлено');
+    } else {
+      message.error('Некорректный URL');
     }
   };
 
@@ -69,16 +99,19 @@ export function TiptapEditor({ value, onChange, placeholder: _placeholder }: Tip
       
       editor.chain().focus().setImage({ src: fullUrl }).run();
       message.success('Изображение загружено');
-    } catch (error) {
-      message.error('Ошибка загрузки изображения');
-      console.error('Upload error:', error);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+      message.error(`Ошибка загрузки изображения: ${errorMessage}`);
     }
   };
 
-  const addLink = () => {
-    const url = window.prompt('Введите URL:');
-    if (url) {
+  const handleLinkConfirm = (url: string) => {
+    if (isValidUrl(url)) {
       editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+      setLinkModalVisible(false);
+      message.success('Ссылка добавлена');
+    } else {
+      message.error('Некорректный URL');
     }
   };
 
@@ -131,7 +164,7 @@ export function TiptapEditor({ value, onChange, placeholder: _placeholder }: Tip
           <Button
             type="text"
             icon={<LinkIcon size={16} />}
-            onClick={addLink}
+            onClick={() => setLinkModalVisible(true)}
             title="Добавить ссылку"
           />
           <Upload
@@ -151,7 +184,7 @@ export function TiptapEditor({ value, onChange, placeholder: _placeholder }: Tip
           <Button
             type="text"
             icon={<ImageIcon size={16} />}
-            onClick={addImage}
+            onClick={() => setImageModalVisible(true)}
             title="Вставить изображение по URL"
           />
         </Space>
@@ -172,6 +205,22 @@ export function TiptapEditor({ value, onChange, placeholder: _placeholder }: Tip
         </Space>
       </div>
       <EditorContent editor={editor} style={{ minHeight: 300 }} />
+      
+      <UrlInputModal
+        visible={imageModalVisible}
+        title="Добавить изображение по URL"
+        placeholder="Введите URL изображения"
+        onConfirm={handleImageUrlConfirm}
+        onCancel={() => setImageModalVisible(false)}
+      />
+      
+      <UrlInputModal
+        visible={linkModalVisible}
+        title="Добавить ссылку"
+        placeholder="Введите URL"
+        onConfirm={handleLinkConfirm}
+        onCancel={() => setLinkModalVisible(false)}
+      />
     </div>
   );
 }

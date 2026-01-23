@@ -6,7 +6,7 @@ cd /app || exit 1
 
 # Проверяем тип базы данных
 if echo "$DATABASE_URL" | grep -q "file:"; then
-  echo "🗄️ Используется SQLite база данных"
+  echo "🗄️ Используется SQLite база данных (режим разработки)"
   # Создаем директорию для SQLite базы данных, если она не существует
   DB_FULL_PATH=$(echo "$DATABASE_URL" | sed 's|file:||')
   DB_DIR=$(dirname "$DB_FULL_PATH")
@@ -16,9 +16,22 @@ if echo "$DATABASE_URL" | grep -q "file:"; then
   fi
 else
   echo "🔄 Ожидание готовности PostgreSQL..."
-  until pg_isready -h postgres -U ${POSTGRES_USER:-postgres} || exit 1; do
-    sleep 1
+  # Извлекаем хост из DATABASE_URL
+  DB_HOST=$(echo "$DATABASE_URL" | sed -n 's/.*@\([^:]*\):.*/\1/p')
+  DB_USER=$(echo "$DATABASE_URL" | sed -n 's/.*:\/\/\([^:]*\):.*/\1/p')
+  
+  # Используем переменные окружения или значения из DATABASE_URL
+  POSTGRES_HOST=${DB_HOST:-postgres}
+  POSTGRES_USER=${DB_USER:-${POSTGRES_USER:-postgres}}
+  
+  echo "Подключение к PostgreSQL: $POSTGRES_HOST как $POSTGRES_USER"
+  
+  # Ждем готовности PostgreSQL
+  until pg_isready -h "$POSTGRES_HOST" -U "$POSTGRES_USER" > /dev/null 2>&1; do
+    echo "⏳ Ожидание PostgreSQL на $POSTGRES_HOST..."
+    sleep 2
   done
+  echo "✅ PostgreSQL готов!"
 fi
 
 echo "📦 Выполнение миграций Prisma..."

@@ -30,44 +30,44 @@ export class AuthService {
    * Аутентификация пользователя
    */
   async login(input: LoginInput): Promise<{ user: AuthUser; tokens: AuthTokens }> {
-    console.log('🔐 Попытка входа:', { email: input.email });
-    
-    // Временная аутентификация для разработки (только если установлены переменные окружения)
-    const devEmail = env.DEV_ADMIN_EMAIL || (env.NODE_ENV === 'development' ? 'admin@example.com' : null);
-    const devPassword = env.DEV_ADMIN_PASSWORD || (env.NODE_ENV === 'development' ? 'admin123' : null);
-    
-    // Используем dev credentials только если они явно установлены или в development режиме
-    if (env.NODE_ENV === 'development' && devEmail && devPassword) {
-      if (input.email === devEmail && input.password === devPassword) {
-        console.log('✅ Успешная аутентификация администратора (dev mode)');
-        const mockUser = {
-          id: 'admin-id-1',
-          email: devEmail,
-          firstName: 'Администратор',
-          lastName: 'Системы',
-          role: 'SUPER_ADMIN' as UserRole,
-          passwordHash: '$2a$10$Wbe7LvIjd4S.k/7Qx.WQy.YSZ4q0ApZOII4SSUvJKbvBGDzhoRbfK',
-          isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
+    // Временная аутентификация для разработки (ТОЛЬКО если явно установлены переменные окружения)
+    // В production этот код не должен работать
+    if (env.NODE_ENV === 'development' && env.DEV_ADMIN_EMAIL && env.DEV_ADMIN_PASSWORD) {
+      if (input.email === env.DEV_ADMIN_EMAIL && input.password === env.DEV_ADMIN_PASSWORD) {
+        // Создаем или получаем dev пользователя из БД
+        let devUser = await prisma.user.findUnique({
+          where: { email: env.DEV_ADMIN_EMAIL },
+        });
 
-        const tokens = await this.generateTokens(mockUser);
+        if (!devUser) {
+          // Создаем dev пользователя если его нет
+          const passwordHash = await this.hashPassword(env.DEV_ADMIN_PASSWORD);
+          devUser = await prisma.user.create({
+            data: {
+              email: env.DEV_ADMIN_EMAIL,
+              passwordHash,
+              firstName: 'Администратор',
+              lastName: 'Системы',
+              role: 'SUPER_ADMIN' as UserRole,
+              isActive: true,
+            },
+          });
+        }
+
+        const tokens = await this.generateTokens(devUser);
 
         return {
           user: {
-            id: mockUser.id,
-            email: mockUser.email,
-            firstName: mockUser.firstName,
-            lastName: mockUser.lastName,
-            role: mockUser.role,
+            id: devUser.id,
+            email: devUser.email,
+            firstName: devUser.firstName,
+            lastName: devUser.lastName,
+            role: devUser.role,
           },
           tokens,
         };
       }
     }
-
-    console.log('🔍 Попытка аутентификации через базу данных:', { email: input.email });
     // Попытка аутентификации через базу данных (если она доступна)
     try {
       const user = await prisma.user.findUnique({
@@ -75,12 +75,39 @@ export class AuthService {
       });
 
       if (!user || !user.isActive) {
+        // Логируем неудачную попытку входа
+        if (this.fastify) {
+          this.fastify.log.warn({
+            email: input.email,
+            reason: user ? 'inactive_user' : 'user_not_found',
+            ip: 'unknown', // Можно добавить из request если доступен
+          }, 'Failed login attempt');
+        }
         throw new Error('Неверный email или пароль');
       }
 
       const isValidPassword = await bcrypt.compare(input.password, user.passwordHash);
       if (!isValidPassword) {
+        // Логируем неудачную попытку входа (неверный пароль)
+        if (this.fastify) {
+          this.fastify.log.warn({
+            email: input.email,
+            userId: user.id,
+            reason: 'invalid_password',
+            ip: 'unknown',
+          }, 'Failed login attempt - invalid password');
+        }
         throw new Error('Неверный email или пароль');
+      }
+
+      // Логируем успешный вход
+      if (this.fastify) {
+        this.fastify.log.info({
+          userId: user.id,
+          email: user.email,
+          role: user.role,
+          ip: 'unknown',
+        }, 'User logged in successfully');
       }
 
       const tokens = await this.generateTokens(user);
@@ -95,7 +122,16 @@ export class AuthService {
         },
         tokens,
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      // Если это не наша ошибка, логируем её
+      if (error instanceof Error && error.message !== 'Неверный email или пароль') {
+        if (this.fastify) {
+          this.fastify.log.error({
+            email: input.email,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          }, 'Login error');
+        }
+      }
       throw new Error('Неверный email или пароль');
     }
   }
@@ -150,6 +186,9 @@ export class AuthService {
         if (storedToken !== refreshToken) {
           throw new Error('Refresh token недействителен');
         }
+        
+        // Удаляем использованный refresh token (одноразовость)
+        await redis.del(`refresh_token:${decoded.id}`);
       }
 
       // Проверяем существование пользователя
@@ -161,9 +200,9 @@ export class AuthService {
         throw new Error('Пользователь не найден или неактивен');
       }
 
-      // Генерируем новые токены
+      // Генерируем новые токены (включая новый refresh token)
       return this.generateTokens(user);
-    } catch (error) {
+    } catch (error: unknown) {
       throw new Error('Недействительный refresh token');
     }
   }
@@ -211,9 +250,9 @@ export class AuthService {
       // Также удалить refresh token из Redis
       const refreshTokenKey = `refresh_token:${decoded.id}`;
       await redis.del(refreshTokenKey);
-    } catch (error) {
-      console.error('Error during logout:', error);
+    } catch (error: unknown) {
       // Ошибка в декодировании - токен уже невалиден
+      // Не логируем детали ошибки для безопасности
     }
   }
 }

@@ -8,9 +8,13 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-order_db}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      # ВАЖНО: Установите POSTGRES_PASSWORD в .env файле!
+      # Не используйте дефолтный пароль в production!
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Вы должны установить POSTGRES_PASSWORD в .env файле}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # Порты открыты только для разработки
+    # В production уберите строку ports или используйте только для внутренней сети
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     healthcheck:
@@ -28,6 +32,8 @@ services:
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
+    # Порты открыты только для разработки
+    # В production уберите строку ports или используйте только для внутренней сети
     ports:
       - "${REDIS_PORT:-6379}:6379"
     healthcheck:
@@ -44,8 +50,9 @@ services:
     container_name: order_minio
     command: server /data --console-address ":9001"
     environment:
+      # ВАЖНО: Установите MINIO_ROOT_PASSWORD в .env файле!
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD?Вы должны установить MINIO_ROOT_PASSWORD в .env файле}
     volumes:
       - minio_data:/data
     ports:
@@ -59,7 +66,7 @@ services:
     networks:
       - order_network
 
-  # API сервер (Fastify) - теперь с SQLite вместо PostgreSQL
+  # API сервер (Fastify) - использует PostgreSQL для продакшена
   api:
     build:
       context: ./apps/api
@@ -69,8 +76,10 @@ services:
       NODE_ENV: production
       PORT: 4000
       HOST: 0.0.0.0
-      DATABASE_URL: file:/app/data/production.db
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-order_db}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-15m}
@@ -86,9 +95,13 @@ services:
       PUBLIC_UPLOAD_URL: /uploads
     volumes:
       - api_uploads:/app/uploads
-      - api_database:/app/data
     ports:
       - "${API_PORT:-4000}:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
       interval: 30s
@@ -149,7 +162,6 @@ volumes:
   redis_data:
   minio_data:
   api_uploads:
-  api_database:
 
 networks:
   order_network:

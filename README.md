@@ -132,7 +132,7 @@ docker-compose exec postgres psql -U postgres -d order_db
 ### Prisma команды
 
 ```bash
-# Выполнение миграций
+# Выполнение миграций (для продакшена)
 docker-compose exec api npx prisma migrate deploy
 
 # Создание новой миграции (в режиме разработки)
@@ -141,6 +141,18 @@ docker-compose exec api npx prisma migrate dev --name migration_name
 # Prisma Studio (GUI для базы данных)
 docker-compose exec api npx prisma studio
 # Откроется на http://localhost:5555
+```
+
+### Резервное копирование PostgreSQL
+
+```bash
+# Создание бэкапа
+docker-compose exec postgres pg_dump -U postgres order_db > backup_$(date +%Y%m%d_%H%M%S).sql
+
+# Восстановление из бэкапа
+docker-compose exec -T postgres psql -U postgres order_db < backup.sql
+
+# Автоматическое резервное копирование (рекомендуется настроить через cron)
 ```
 
 ## 📦 Структура проекта
@@ -243,6 +255,7 @@ docker-compose logs -f api
 
 - [Техническое задание](./TECHNICAL_SPECIFICATION.md)
 - [Инструкции по деплою](./apps/api/DEPLOY.md)
+- [Миграция на PostgreSQL](./POSTGRESQL_MIGRATION.md)
 
 ## 📄 Лицензия
 

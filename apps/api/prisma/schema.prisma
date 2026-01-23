@@ -1,11 +1,11 @@
-// prisma/schema.prisma - SQLite версия
+// prisma/schema.prisma - PostgreSQL версия для продакшена
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -27,6 +27,10 @@ model User {
   createdArticles   Article[]    @relation("ArticleAuthor")
   handledRequests   Request[]    @relation("HandledBy")
   
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([createdAt])
   @@map("users")
 }
 
@@ -58,6 +62,10 @@ model ServiceCategory {
   services        Service[]
   projects        Project[]
   
+  @@index([slug])
+  @@index([parentId])
+  @@index([isActive])
+  @@index([order])
   @@map("service_categories")
 }
 
@@ -76,13 +84,13 @@ model Service {
   priceTo         Float?
   priceUnit       String?
   
-  // Медиа (gallery храним как JSON строку)
+  // Медиа (в PostgreSQL используем Json для массивов)
   image           String?
-  gallery         String?         // JSON массив URL изображений
+  gallery         Json?           // JSON массив URL изображений
   
-  // Параметры (features храним как JSON строку)
+  // Параметры (в PostgreSQL используем Json для объектов)
   duration        String?
-  features        String?         // JSON объект дополнительных характеристик
+  features        Json?           // JSON объект дополнительных характеристик
   
   categoryId      String
   order           Int             @default(0)
@@ -102,6 +110,11 @@ model Service {
   projects        Project[]
   pricingItems    PricingItem[]
   
+  @@index([slug])
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([createdAt])
   @@map("services")
 }
 
@@ -148,11 +161,11 @@ model Project {
   propertyType    String?
   repairType      String?
   
-  // Медиа (массивы хранятся как JSON строки)
+  // Медиа (в PostgreSQL используем Json для массивов)
   coverImage      String?
-  beforeImages    String?         // JSON массив фото до ремонта
-  afterImages     String?         // JSON массив фото после ремонта
-  designImages    String?         // JSON массив 3D визуализаций
+  beforeImages    Json?           // JSON массив фото до ремонта
+  afterImages     Json?           // JSON массив фото после ремонта
+  designImages    Json?           // JSON массив 3D визуализаций
   videoUrl        String?
   
   // Отзыв клиента
@@ -161,7 +174,7 @@ model Project {
   clientPhoto     String?
   
   categoryId      String?
-  serviceIds      String?         // JSON массив ID услуг
+  serviceIds      Json?           // JSON массив ID услуг
   
   order           Int             @default(0)
   isActive        Boolean         @default(true)
@@ -182,6 +195,12 @@ model Project {
   services        Service[]
   tags            ProjectTag[]
   
+  @@index([slug])
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([createdAt])
+  @@index([viewsCount])
   @@map("projects")
 }
 
@@ -226,6 +245,13 @@ model Article {
   category        ArticleCategory? @relation(fields: [categoryId], references: [id])
   tags            ArticleTag[]
   
+  @@index([slug])
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([isPublished])
+  @@index([publishedAt])
+  @@index([createdAt])
+  @@index([viewsCount])
   @@map("articles")
 }
 
@@ -238,6 +264,8 @@ model ArticleCategory {
   
   articles    Article[]
   
+  @@index([slug])
+  @@index([order])
   @@map("article_categories")
 }
 
@@ -285,6 +313,10 @@ model Review {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   
+  @@index([isApproved])
+  @@index([projectId])
+  @@index([rating])
+  @@index([createdAt])
   @@map("reviews")
 }
 
@@ -327,6 +359,11 @@ model Request {
   // Связи
   handledBy     User?         @relation("HandledBy", fields: [handledById], references: [id])
   
+  @@index([status])
+  @@index([handledById])
+  @@index([createdAt])
+  @@index([phone])
+  @@index([email])
   @@map("requests")
 }
 
@@ -342,8 +379,8 @@ model CalculatorConfig {
   basePriceDesign   Float
   basePriceElite    Float
   
-  // Коэффициенты (храним как JSON строку)
-  coefficients      String   // JSON: {"newBuilding": 0.9, "secondary": 1.0, ...}
+  // Коэффициенты (в PostgreSQL используем Json)
+  coefficients      Json     // JSON: {"newBuilding": 0.9, "secondary": 1.0, ...}
   
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
@@ -359,9 +396,9 @@ model Vacancy {
   title           String
   department      String?
   description     String
-  requirements    String   // JSON массив требований
-  responsibilities String   // JSON массив обязанностей
-  conditions      String   // JSON массив условий работы
+  requirements    Json     // JSON массив требований
+  responsibilities Json    // JSON массив обязанностей
+  conditions      Json     // JSON массив условий работы
   salaryFrom      Float?
   salaryTo        Float?
   experience      String?
@@ -371,6 +408,9 @@ model Vacancy {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
+  @@index([isActive])
+  @@index([department])
+  @@index([createdAt])
   @@map("vacancies")
 }
 
@@ -387,6 +427,9 @@ model Faq {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
+  @@index([isActive])
+  @@index([category])
+  @@index([order])
   @@map("faqs")
 }
 

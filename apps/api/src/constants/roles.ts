@@ -1,4 +1,4 @@
-// Константы для ролей пользователей (вместо enum для SQLite)
+// Константы для ролей пользователей (используем String вместо enum для совместимости)
 export const UserRole = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',

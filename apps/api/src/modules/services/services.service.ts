@@ -61,9 +61,26 @@ export class ServicesService {
   /**
    * Построение дерева категорий
    */
-  private buildCategoryTree(categories: any[]) {
-    const map = new Map();
-    const roots: any[] = [];
+  private buildCategoryTree(categories: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    description?: string | null;
+    shortDescription?: string | null;
+    image?: string | null;
+    icon?: string | null;
+    parentId?: string | null;
+    order: number;
+    isActive: boolean;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    metaKeywords?: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }>) {
+    type CategoryNode = typeof categories[0] & { children: CategoryNode[] };
+    const map = new Map<string, CategoryNode>();
+    const roots: CategoryNode[] = [];
 
     // Создаем карту всех категорий
     categories.forEach((category) => {
@@ -292,7 +309,7 @@ export class ServicesService {
       prisma.service.count({ where }),
     ]);
 
-    // Преобразуем JSON поля для SQLite
+    // Преобразуем JSON поля (работает для SQLite и PostgreSQL)
     const transformedItems = items.map(item => transformService(item));
 
     return {
@@ -334,7 +351,7 @@ export class ServicesService {
       return null;
     }
 
-    // Преобразуем JSON поля для SQLite
+    // Преобразуем JSON поля (работает для SQLite и PostgreSQL)
     const transformedService = transformService(service);
 
     if (redis) {
@@ -377,10 +394,39 @@ export class ServicesService {
       }
     ));
 
-    // Преобразуем массивы и объекты в JSON строки для SQLite
-    const data: any = {
+    // Санитизация HTML контента (защита от XSS)
+    const { sanitizeHtml } = await import('../../utils/html-sanitizer');
+    const sanitizedContent = input.content ? sanitizeHtml(input.content) : undefined;
+    const sanitizedDescription = input.description ? sanitizeHtml(input.description) : undefined;
+    const sanitizedShortDescription = input.shortDescription ? sanitizeHtml(input.shortDescription) : undefined;
+
+    // Преобразуем массивы и объекты в JSON (для SQLite) или оставляем как есть (для PostgreSQL)
+    const data: {
+      name: string;
+      slug: string;
+      description?: string;
+      content?: string;
+      shortDescription?: string;
+      priceFrom?: number;
+      priceTo?: number;
+      priceUnit?: string;
+      image?: string;
+      gallery?: unknown;
+      duration?: string;
+      features?: unknown;
+      categoryId: string;
+      order?: number;
+      isActive?: boolean;
+      isFeatured?: boolean;
+      metaTitle?: string;
+      metaDescription?: string;
+      metaKeywords?: string;
+    } = {
       ...input,
       slug,
+      content: sanitizedContent,
+      description: sanitizedDescription,
+      shortDescription: sanitizedShortDescription,
     };
     
     if (input.gallery) {
@@ -409,7 +455,39 @@ export class ServicesService {
   async updateService(input: UpdateServiceInput) {
     const { id, ...inputData } = input;
 
-    const data: any = { ...inputData };
+    // Санитизация HTML контента если обновляется
+    const { sanitizeHtml } = await import('../../utils/html-sanitizer');
+    if (inputData.content) {
+      inputData.content = sanitizeHtml(inputData.content);
+    }
+    if (inputData.description) {
+      inputData.description = sanitizeHtml(inputData.description);
+    }
+    if (inputData.shortDescription) {
+      inputData.shortDescription = sanitizeHtml(inputData.shortDescription);
+    }
+
+    const data: Partial<{
+      name: string;
+      slug: string;
+      description?: string;
+      content?: string;
+      shortDescription?: string;
+      priceFrom?: number;
+      priceTo?: number;
+      priceUnit?: string;
+      image?: string;
+      gallery?: unknown;
+      duration?: string;
+      features?: unknown;
+      categoryId?: string;
+      order?: number;
+      isActive?: boolean;
+      isFeatured?: boolean;
+      metaTitle?: string;
+      metaDescription?: string;
+      metaKeywords?: string;
+    }> = { ...inputData };
 
     if (data.name && !data.slug) {
       data.slug = await createUniqueSlug(
@@ -423,7 +501,7 @@ export class ServicesService {
       );
     }
 
-    // Преобразуем массивы и объекты в JSON строки для SQLite
+    // Преобразуем массивы и объекты в JSON (для SQLite) или оставляем как есть (для PostgreSQL)
     if (data.gallery !== undefined) {
       data.gallery = stringifyJsonArray(data.gallery);
     }

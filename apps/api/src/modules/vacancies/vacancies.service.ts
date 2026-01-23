@@ -90,8 +90,20 @@ export class VacanciesService {
    * Создать вакансию
    */
   async createVacancy(input: CreateVacancyInput) {
-    // Преобразуем массивы в JSON строки для SQLite
-    const data: any = {
+    // Преобразуем массивы в JSON (для SQLite) или оставляем как есть (для PostgreSQL)
+    const data: {
+      title: string;
+      department?: string | null;
+      description: string;
+      requirements: unknown;
+      responsibilities: unknown;
+      conditions: unknown;
+      salaryFrom?: number | null;
+      salaryTo?: number | null;
+      experience?: string | null;
+      employment?: string | null;
+      isActive?: boolean;
+    } = {
       ...input,
       requirements: stringifyJsonArray(input.requirements),
       responsibilities: stringifyJsonArray(input.responsibilities),
@@ -113,8 +125,20 @@ export class VacanciesService {
   async updateVacancy(input: UpdateVacancyInput) {
     const { id, ...inputData } = input;
 
-    // Преобразуем массивы в JSON строки для SQLite
-    const data: any = { ...inputData };
+    // Преобразуем массивы в JSON (для SQLite) или оставляем как есть (для PostgreSQL)
+    const data: Partial<{
+      title?: string;
+      department?: string | null;
+      description?: string;
+      requirements?: unknown;
+      responsibilities?: unknown;
+      conditions?: unknown;
+      salaryFrom?: number | null;
+      salaryTo?: number | null;
+      experience?: string | null;
+      employment?: string | null;
+      isActive?: boolean;
+    }> = { ...inputData };
     
     if (data.requirements !== undefined) {
       data.requirements = stringifyJsonArray(data.requirements);

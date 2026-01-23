@@ -1,9 +1,10 @@
 import { randomBytes } from 'crypto';
-import { join, extname, resolve } from 'path';
+import { join, extname, resolve, normalize } from 'path';
 import { existsSync, mkdirSync, writeFileSync, unlinkSync } from 'fs';
 import sharp from 'sharp';
 import prisma from '../../config/database';
 import env from '../../config/env';
+import { validateAndNormalizeFolder } from '../../utils/file-validation';
 
 export interface UploadedFile {
   filename: string;
@@ -32,19 +33,40 @@ export class MediaService {
   /**
    * Загрузить файл
    */
-  async uploadFile(file: UploadedFile, folder?: string): Promise<any> {
+  async uploadFile(file: UploadedFile, folder?: string): Promise<{
+    id: string;
+    filename: string;
+    originalName: string;
+    mimeType: string;
+    size: number;
+    url: string;
+    thumbnailUrl: string | null;
+    folder: string | null;
+    createdAt: Date;
+  }> {
     try {
+      // Валидация и нормализация folder (защита от path traversal)
+      let normalizedFolder: string | undefined;
+      if (folder) {
+        normalizedFolder = validateAndNormalizeFolder(folder, this.uploadDir);
+      }
+
       // Генерация уникального имени файла
       const fileExtension = extname(file.originalName);
       const randomName = randomBytes(16).toString('hex');
       const filename = `${randomName}${fileExtension}`;
       
-      const folderPath = folder ? join(this.uploadDir, folder) : this.uploadDir;
+      const folderPath = normalizedFolder ? join(this.uploadDir, normalizedFolder) : this.uploadDir;
       if (!existsSync(folderPath)) {
         mkdirSync(folderPath, { recursive: true });
       }
 
       const filePath = join(folderPath, filename);
+      
+      // Проверка размера buffer перед сохранением
+      if (file.size > env.MAX_FILE_SIZE) {
+        throw new Error(`Файл слишком большой. Максимальный размер: ${Math.round(env.MAX_FILE_SIZE / 1024 / 1024)}MB`);
+      }
       
       // Сохранение файла
       writeFileSync(filePath, file.buffer);
@@ -61,17 +83,18 @@ export class MediaService {
             .jpeg({ quality: 80 })
             .toFile(thumbnailPath);
 
-          thumbnailUrl = folder 
-            ? `${env.PUBLIC_UPLOAD_URL}/${folder}/${thumbnailFilename}`
+          thumbnailUrl = normalizedFolder 
+            ? `${env.PUBLIC_UPLOAD_URL}/${normalizedFolder}/${thumbnailFilename}`
             : `${env.PUBLIC_UPLOAD_URL}/${thumbnailFilename}`;
-        } catch (error) {
-          console.error('Error generating thumbnail:', error);
-          // Продолжаем без thumbnail
+        } catch {
+          // Ошибка генерации thumbnail не критична - продолжаем без него
+          // Не логируем детали ошибки для безопасности
+          thumbnailUrl = null;
         }
       }
 
-      const url = folder 
-        ? `${env.PUBLIC_UPLOAD_URL}/${folder}/${filename}`
+      const url = normalizedFolder 
+        ? `${env.PUBLIC_UPLOAD_URL}/${normalizedFolder}/${filename}`
         : `${env.PUBLIC_UPLOAD_URL}/${filename}`;
 
       // Сохранение в БД
@@ -83,14 +106,14 @@ export class MediaService {
           size: file.size,
           url,
           thumbnailUrl,
-          folder: folder || null,
+          folder: normalizedFolder || null,
         },
       });
 
       return media;
-    } catch (error: any) {
-      console.error('Error in uploadFile:', error);
-      throw new Error(`Ошибка загрузки файла: ${error?.message || 'Неизвестная ошибка'}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+      throw new Error(`Ошибка загрузки файла: ${errorMessage}`);
     }
   }
 
@@ -100,9 +123,15 @@ export class MediaService {
   async getMediaFiles(folder?: string, page = 1, limit = 50) {
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    // Валидация folder если передан
+    let normalizedFolder: string | undefined;
     if (folder) {
-      where.folder = folder;
+      normalizedFolder = validateAndNormalizeFolder(folder, this.uploadDir);
+    }
+
+    const where: { folder?: string } = {};
+    if (normalizedFolder) {
+      where.folder = normalizedFolder;
     }
 
     const [items, total] = await Promise.all([
@@ -150,9 +179,15 @@ export class MediaService {
     }
 
     // Удаление файла с диска
-    const folderPath = media.folder 
-      ? join(this.uploadDir, media.folder) 
-      : this.uploadDir;
+    let folderPath: string;
+    if (media.folder) {
+      // Валидируем folder перед использованием (защита от path traversal)
+      const normalizedFolder = validateAndNormalizeFolder(media.folder, this.uploadDir);
+      folderPath = join(this.uploadDir, normalizedFolder);
+    } else {
+      folderPath = this.uploadDir;
+    }
+    
     const filePath = join(folderPath, media.filename);
     
     if (existsSync(filePath)) {
@@ -164,8 +199,15 @@ export class MediaService {
       const thumbnailFilename = media.thumbnailUrl.split('/').pop();
       if (thumbnailFilename) {
         const thumbnailPath = join(folderPath, thumbnailFilename);
+        // Проверяем существование файла перед удалением
         if (existsSync(thumbnailPath)) {
-          unlinkSync(thumbnailPath);
+          try {
+            unlinkSync(thumbnailPath);
+          } catch (error: unknown) {
+            // Игнорируем ошибки удаления thumbnail (не критично)
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(`Ошибка удаления thumbnail: ${errorMessage}`);
+          }
         }
       }
     }

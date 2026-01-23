@@ -1,6 +1,7 @@
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
+import env from '../config/env';
 
 export function errorHandler(
   error: FastifyError,
@@ -65,7 +66,7 @@ export function errorHandler(
   // Остальные ошибки
   const statusCode = error.statusCode || 500;
   const message =
-    process.env.NODE_ENV === 'production'
+    env.NODE_ENV === 'production'
       ? 'Внутренняя ошибка сервера'
       : error.message;
 
@@ -73,7 +74,7 @@ export function errorHandler(
     statusCode,
     error: error.name || 'Internal Server Error',
     message,
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
+    ...(env.NODE_ENV === 'development' && { stack: error.stack }),
   });
 }
 

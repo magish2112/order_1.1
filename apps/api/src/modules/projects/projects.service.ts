@@ -124,7 +124,7 @@ export class ProjectsService {
       prisma.project.count({ where }),
     ]);
 
-    // Преобразуем JSON поля для SQLite
+    // Преобразуем JSON поля (работает для SQLite и PostgreSQL)
     const transformedItems = items.map(item => transformProject(item));
 
     return {
@@ -317,7 +317,7 @@ export class ProjectsService {
       serviceConnections.push(...serviceIds.map((id) => ({ id })));
     }
 
-    // Преобразуем массивы в JSON строки для SQLite
+    // Преобразуем массивы в JSON (для SQLite) или оставляем как есть (для PostgreSQL)
     const projectData: any = {
       ...data,
       slug,
@@ -379,7 +379,7 @@ export class ProjectsService {
       );
     }
 
-    // Преобразуем массивы в JSON строки для SQLite
+    // Преобразуем массивы в JSON (для SQLite) или оставляем как есть (для PostgreSQL)
     if (beforeImages !== undefined) {
       data.beforeImages = stringifyJsonArray(beforeImages);
     }

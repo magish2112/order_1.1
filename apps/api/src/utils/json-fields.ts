@@ -1,6 +1,6 @@
 /**
- * Утилиты для работы с JSON полями в SQLite
- * В SQLite массивы и JSON объекты хранятся как строки
+ * Утилиты для работы с JSON полями
+ * Поддерживает как SQLite (строки), так и PostgreSQL (нативный Json тип)
  */
 
 /**
@@ -38,19 +38,30 @@ export function parseJsonObject<T = any>(value: string | null | undefined): T {
 }
 
 /**
- * Сериализует массив в JSON строку для SQLite
+ * Сериализует массив в JSON строку (для SQLite) или возвращает как есть (для PostgreSQL)
  */
-export function stringifyJsonArray<T = any>(value: T[] | null | undefined): string {
-  if (!value || !Array.isArray(value)) return JSON.stringify([]);
-  return JSON.stringify(value);
+export function stringifyJsonArray<T = any>(value: T[] | null | undefined): string | T[] {
+  if (!value || !Array.isArray(value)) {
+    // Проверяем, используется ли PostgreSQL (по DATABASE_URL)
+    const isPostgres = process.env.DATABASE_URL?.startsWith('postgres');
+    return isPostgres ? [] : JSON.stringify([]);
+  }
+  // Для PostgreSQL возвращаем массив как есть, для SQLite - строку
+  const isPostgres = process.env.DATABASE_URL?.startsWith('postgres');
+  return isPostgres ? value : JSON.stringify(value);
 }
 
 /**
- * Сериализует объект в JSON строку для SQLite
+ * Сериализует объект в JSON строку (для SQLite) или возвращает как есть (для PostgreSQL)
  */
-export function stringifyJsonObject<T = any>(value: T | null | undefined): string {
-  if (!value || typeof value !== 'object') return JSON.stringify({});
-  return JSON.stringify(value);
+export function stringifyJsonObject<T = any>(value: T | null | undefined): string | T {
+  if (!value || typeof value !== 'object') {
+    const isPostgres = process.env.DATABASE_URL?.startsWith('postgres');
+    return isPostgres ? ({} as T) : JSON.stringify({});
+  }
+  // Для PostgreSQL возвращаем объект как есть, для SQLite - строку
+  const isPostgres = process.env.DATABASE_URL?.startsWith('postgres');
+  return isPostgres ? value : JSON.stringify(value);
 }
 
 /**

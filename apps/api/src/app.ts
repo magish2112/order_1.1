@@ -56,6 +56,23 @@ export async function buildApp(): Promise<FastifyInstance> {
   app.decorate('prisma', prisma);
   app.decorate('redis', redis);
 
+  // Security Headers
+  app.addHook('onSend', async (request, reply) => {
+    reply.header('X-Content-Type-Options', 'nosniff');
+    reply.header('X-Frame-Options', 'DENY');
+    reply.header('X-XSS-Protection', '1; mode=block');
+    reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+    reply.header('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+    
+    // Content Security Policy
+    if (env.NODE_ENV === 'production') {
+      reply.header(
+        'Content-Security-Policy',
+        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
+      );
+    }
+  });
+
   // CORS
   await app.register(cors, {
     origin: env.CORS_ORIGIN.split(','),
@@ -74,10 +91,17 @@ export async function buildApp(): Promise<FastifyInstance> {
     },
   });
 
-  // Rate limiting
+  // Rate limiting - разные лимиты для разных типов запросов
   await app.register(rateLimit, {
     max: 100,
     timeWindow: '1 minute',
+    skipOnError: false,
+    // Более строгие лимиты для auth endpoints
+    addHeadersOnExceeding: {
+      'x-ratelimit-limit': true,
+      'x-ratelimit-remaining': true,
+      'x-ratelimit-reset': true,
+    },
   });
 
   // Swagger документация
@@ -135,7 +159,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     let databaseStatus = 'unknown';
     let redisStatus = 'disabled';
 
-    // Проверка подключения к базе данных (SQLite или PostgreSQL)
+    // Проверка подключения к базе данных (PostgreSQL для продакшена, SQLite для разработки)
     try {
       // Для SQLite и PostgreSQL используется простой запрос
       await prisma.$queryRawUnsafe('SELECT 1');

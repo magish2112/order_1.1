@@ -275,14 +275,21 @@ export class ArticlesService {
       }
     }
 
+    // Санитизация HTML контента (защита от XSS)
+    const { sanitizeHtml } = await import('../../utils/html-sanitizer');
+    const sanitizedContent = sanitizeHtml(data.content);
+    const sanitizedExcerpt = data.excerpt ? sanitizeHtml(data.excerpt) : undefined;
+
     // Вычисляем время чтения
     const wordsPerMinute = 200;
-    const wordCount = data.content.split(/\s+/).length;
+    const wordCount = sanitizedContent.split(/\s+/).length;
     const readingTime = Math.ceil(wordCount / wordsPerMinute);
 
     const article = await prisma.article.create({
       data: {
         ...data,
+        content: sanitizedContent,
+        excerpt: sanitizedExcerpt,
         slug,
         authorId: userId || data.authorId,
         publishedAt: data.isPublished && publishedAt ? new Date(publishedAt) : (data.isPublished ? new Date() : null),
@@ -321,11 +328,20 @@ export class ArticlesService {
       );
     }
 
-    // Пересчитываем время чтения если изменился контент
+    // Санитизация HTML контента если он обновляется
     if (content) {
+      const { sanitizeHtml } = await import('../../utils/html-sanitizer');
+      data.content = sanitizeHtml(content);
+      
       const wordsPerMinute = 200;
-      const wordCount = content.split(/\s+/).length;
+      const wordCount = data.content.split(/\s+/).length;
       data.readingTime = Math.ceil(wordCount / wordsPerMinute);
+    }
+    
+    // Санитизация excerpt если обновляется
+    if (data.excerpt) {
+      const { sanitizeHtml } = await import('../../utils/html-sanitizer');
+      data.excerpt = sanitizeHtml(data.excerpt);
     }
 
     // Обновление тегов
