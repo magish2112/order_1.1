@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { motion } from 'framer-motion'
 import {
   ArrowRight,
@@ -24,6 +27,16 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { api } from '@/lib/api'
+
+const homepageMessageSchema = z.object({
+  firstName: z.string().min(2, 'Минимум 2 символа'),
+  lastName: z.string().min(2, 'Минимум 2 символа'),
+  phone: z.string().min(10, 'Введите корректный телефон'),
+  email: z.string().email('Некорректный email').optional().or(z.literal('')),
+  message: z.string().min(10, 'Минимум 10 символов'),
+})
+type HomepageMessageForm = z.infer<typeof homepageMessageSchema>
 
 // Animation variants
 const fadeIn = {
@@ -56,6 +69,34 @@ const itemFadeIn = {
 
 export function HomepageLayout() {
   const [scrollY, setScrollY] = useState(0)
+  const [msgSuccess, setMsgSuccess] = useState(false)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<HomepageMessageForm>({
+    resolver: zodResolver(homepageMessageSchema),
+  })
+
+  const onMessageSubmit = async (data: HomepageMessageForm) => {
+    try {
+      await api.post('/requests', {
+        name: `${data.firstName} ${data.lastName}`.trim(),
+        phone: data.phone,
+        email: data.email || undefined,
+        message: data.message,
+        source: 'homepage',
+        pageUrl: typeof window !== 'undefined' ? window.location.href : '',
+      })
+      setMsgSuccess(true)
+      reset()
+      setTimeout(() => setMsgSuccess(false), 5000)
+    } catch (e) {
+      console.error('Ошибка отправки формы:', e)
+    }
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -549,26 +590,36 @@ export function HomepageLayout() {
             <p className="text-sm text-muted-foreground mb-6">
               Заполните форму ниже, и мы свяжемся с вами в ближайшее время.
             </p>
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit(onMessageSubmit)} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label htmlFor="first-name" className="text-sm font-medium leading-none">
                     Имя
                   </label>
-                  <Input id="first-name" placeholder="Введите ваше имя" className="rounded-xl" />
+                  <Input id="first-name" placeholder="Введите ваше имя" className="rounded-xl" {...register('firstName')} disabled={isSubmitting} />
+                  {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="last-name" className="text-sm font-medium leading-none">
                     Фамилия
                   </label>
-                  <Input id="last-name" placeholder="Введите вашу фамилию" className="rounded-xl" />
+                  <Input id="last-name" placeholder="Введите вашу фамилию" className="rounded-xl" {...register('lastName')} disabled={isSubmitting} />
+                  {errors.lastName && <p className="text-sm text-red-500">{errors.lastName.message}</p>}
                 </div>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="phone" className="text-sm font-medium leading-none">
+                  Телефон *
+                </label>
+                <Input id="phone" type="tel" placeholder="+7 (999) 123-45-67" className="rounded-xl" {...register('phone')} disabled={isSubmitting} />
+                {errors.phone && <p className="text-sm text-red-500">{errors.phone.message}</p>}
               </div>
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium leading-none">
                   Email
                 </label>
-                <Input id="email" type="email" placeholder="Введите ваш email" className="rounded-xl" />
+                <Input id="email" type="email" placeholder="Введите ваш email" className="rounded-xl" {...register('email')} disabled={isSubmitting} />
+                {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
               </div>
               <div className="space-y-2">
                 <label htmlFor="message" className="text-sm font-medium leading-none">
@@ -578,11 +629,15 @@ export function HomepageLayout() {
                   id="message"
                   placeholder="Введите ваше сообщение"
                   className="min-h-[120px] rounded-xl"
+                  {...register('message')}
+                  disabled={isSubmitting}
                 />
+                {errors.message && <p className="text-sm text-red-500">{errors.message.message}</p>}
               </div>
+              {msgSuccess && <p className="text-sm text-accent">Спасибо! Мы свяжемся с вами.</p>}
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button type="submit" className="w-full rounded-full bg-accent hover:bg-accent/90">
-                  Отправить сообщение
+                <Button type="submit" className="w-full rounded-full bg-accent hover:bg-accent/90" disabled={isSubmitting}>
+                  {isSubmitting ? 'Отправка...' : 'Отправить сообщение'}
                 </Button>
               </motion.div>
             </form>
