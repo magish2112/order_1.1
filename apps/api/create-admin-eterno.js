@@ -1,6 +1,7 @@
 /**
  * Скрипт для создания администратора с email admineterno@yandex.ru
- * Использование: node create-admin-eterno.js
+ * Использование: node create-admin-eterno.js [пароль]
+ *   Пароль: 1) первый аргумент, 2) ADMIN_INITIAL_PASSWORD, 3) ADMIN_PASSWORD, 4) дефолт (только dev)
  */
 
 const { PrismaClient } = require('@prisma/client');
@@ -8,11 +9,16 @@ const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
-// Сгенерированный сложный пароль
-const PASSWORD = 'Adm!n3t3rn0#2024$Secure';
+const PASSWORD = process.argv[2] || process.env.ADMIN_INITIAL_PASSWORD || process.env.ADMIN_PASSWORD || 'Adm!n3t3rn0#2024$Secure';
 
 async function createAdminEterno() {
   try {
+    const hasPassword = !!process.argv[2] || !!process.env.ADMIN_INITIAL_PASSWORD || !!process.env.ADMIN_PASSWORD;
+    if (process.env.NODE_ENV === 'production' && !hasPassword) {
+      console.error('❌ В production задайте ADMIN_INITIAL_PASSWORD (или ADMIN_PASSWORD) в .env');
+      console.error('   Пример: ADMIN_INITIAL_PASSWORD="ваш_надёжный_пароль" node create-admin-eterno.js\n');
+      process.exit(1);
+    }
     console.log('🔧 Создание администратора...\n');
 
     // Проверяем подключение к базе данных
