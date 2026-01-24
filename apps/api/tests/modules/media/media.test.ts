@@ -60,6 +60,69 @@ describe('Media Module', () => {
 
       expect(response.statusCode).toBe(401);
     });
+
+    it('(security) отклоняет запрещённый MIME-тип', async () => {
+      const body =
+        '--b\r\n' +
+        'Content-Disposition: form-data; name="file"; filename="evil.exe"\r\n' +
+        'Content-Type: application/x-msdownload\r\n\r\n' +
+        'x\r\n' +
+        '--b--\r\n';
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/admin/media/upload',
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+          'content-type': 'multipart/form-data; boundary=b',
+        },
+        payload: Buffer.from(body, 'utf8'),
+      });
+      expect(response.statusCode).toBe(400);
+      const res = JSON.parse(response.body);
+      expect(res.message || '').toMatch(/тип файла|MIME|Недопустимый/i);
+    });
+
+    it('(security) отклоняет запрещённое расширение при разрешённом MIME', async () => {
+      const body =
+        '--b\r\n' +
+        'Content-Disposition: form-data; name="file"; filename="evil.exe"\r\n' +
+        'Content-Type: image/jpeg\r\n\r\n' +
+        'x\r\n' +
+        '--b--\r\n';
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/admin/media/upload',
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+          'content-type': 'multipart/form-data; boundary=b',
+        },
+        payload: Buffer.from(body, 'utf8'),
+      });
+      expect(response.statusCode).toBe(400);
+      const res = JSON.parse(response.body);
+      expect(res.message || '').toMatch(/расширен|Недопустимый/i);
+    });
+
+    it('(security) отклоняет path traversal в folder', async () => {
+      const body =
+        '--b\r\n' +
+        'Content-Disposition: form-data; name="file"; filename="t.jpg"\r\n' +
+        'Content-Type: image/jpeg\r\n\r\n' +
+        'x\r\n' +
+        '--b--\r\n';
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/admin/media/upload?folder=../../../etc',
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+          'content-type': 'multipart/form-data; boundary=b',
+        },
+        payload: Buffer.from(body, 'utf8'),
+      });
+      expect([400, 500]).toContain(response.statusCode);
+      const res = JSON.parse(response.body);
+      expect(res.message || '').toMatch(/путь|Недопустимый|Ошибка загрузки/i);
+    });
   });
 
   describe('GET /api/v1/admin/media', () => {

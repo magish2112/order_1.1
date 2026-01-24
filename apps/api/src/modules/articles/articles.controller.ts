@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import articlesService from './articles.service';
+import { auditLog } from '../../utils/audit-log';
 import {
   createArticleSchema,
   updateArticleSchema,
@@ -59,7 +60,7 @@ export class ArticlesController {
   }
 
   async getArticleCategories(
-    request: FastifyRequest,
+    _request: FastifyRequest,
     reply: FastifyReply
   ) {
     const categories = await articlesService.getArticleCategories();
@@ -113,6 +114,7 @@ export class ArticlesController {
     const body = request.body as Record<string, unknown>;
     const validated = updateArticleSchema.parse({ ...body, id });
     const article = await articlesService.updateArticle(validated);
+    auditLog(request, 'update', 'article', id, { title: article.title });
 
     return reply.status(200).send({
       success: true,
@@ -139,6 +141,7 @@ export class ArticlesController {
   ) {
     const { id } = request.params;
     const article = await articlesService.publishArticle(id);
+    auditLog(request, 'publish', 'article', id);
 
     return reply.status(200).send({
       success: true,

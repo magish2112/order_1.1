@@ -1,16 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { UserRole } from '@prisma/client';
+import { UserRoleType } from '../constants/roles';
 import redis from '../config/redis';
-
-declare module 'fastify' {
-  interface FastifyRequest {
-    user?: {
-      id: string;
-      email: string;
-      role: UserRole;
-    };
-  }
-}
 
 export async function authenticate(
   request: FastifyRequest,
@@ -45,9 +35,10 @@ export async function authenticate(
   }
 }
 
-export function authorize(...roles: UserRole[]) {
+export function authorize(...roles: UserRoleType[]) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
-    if (!request.user) {
+    const user = request.user as { id: string; email: string; role: string } | undefined;
+    if (!user) {
       return reply.status(401).send({
         statusCode: 401,
         error: 'Unauthorized',
@@ -55,7 +46,7 @@ export function authorize(...roles: UserRole[]) {
       });
     }
 
-    if (!roles.includes(request.user.role)) {
+    if (!roles.includes(user.role as UserRoleType)) {
       return reply.status(403).send({
         statusCode: 403,
         error: 'Forbidden',

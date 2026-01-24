@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../config/database';
 import redis from '../../config/redis';
 import { transformCalculatorConfig, stringifyJsonObject } from '../../utils/json-fields';
@@ -80,7 +81,7 @@ export class CalculatorService {
 
       config = await prisma.calculatorConfig.update({
         where: { id: existingConfig.id },
-        data,
+        data: data as Prisma.CalculatorConfigUpdateInput,
       });
     } else {
       config = await prisma.calculatorConfig.create({

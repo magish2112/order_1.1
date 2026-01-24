@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import requestsService from './requests.service';
+import { auditLog } from '../../utils/audit-log';
 import {
   createRequestSchema,
   updateRequestStatusSchema,
@@ -78,6 +79,7 @@ export class RequestsController {
     const validated = updateRequestStatusSchema.parse(request.body);
     const userId = (request.user as { id: string } | undefined)?.id;
     const requestData = await requestsService.updateRequestStatus(id, validated, userId);
+    auditLog(request, 'update', 'request', id, { status: validated.status });
 
     return reply.status(200).send({
       success: true,
@@ -92,6 +94,7 @@ export class RequestsController {
     const { id } = request.params;
     const validated = assignRequestSchema.parse(request.body);
     const requestData = await requestsService.assignRequest(id, validated);
+    auditLog(request, 'assign', 'request', id, { handledById: validated.handledById });
 
     return reply.status(200).send({
       success: true,

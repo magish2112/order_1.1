@@ -15,7 +15,7 @@ export function EmployeesPage() {
   const { data: employees, isLoading } = useQuery({
     queryKey: ['employees', 'admin'],
     queryFn: async () => {
-      const response = await apiMethods.employees.list();
+      const response = await apiMethods.employees.list({ limit: 100 });
       return response.data.data as Employee[];
     },
   });

@@ -12,11 +12,12 @@ export class FaqsController {
     reply: FastifyReply
   ) {
     const query = getFaqsQuerySchema.parse(request.query);
-    const faqs = await faqsService.getFaqs(query, true);
+    const result = await faqsService.getFaqs(query, true);
 
     return reply.status(200).send({
       success: true,
-      data: faqs,
+      data: result.items,
+      pagination: result.pagination,
     });
   }
 
@@ -25,11 +26,12 @@ export class FaqsController {
     reply: FastifyReply
   ) {
     const query = getFaqsQuerySchema.parse(request.query);
-    const faqs = await faqsService.getFaqs(query, false); // onlyActive = false
+    const result = await faqsService.getFaqs(query, false); // onlyActive = false
 
     return reply.status(200).send({
       success: true,
-      data: faqs,
+      data: result.items,
+      pagination: result.pagination,
     });
   }
 

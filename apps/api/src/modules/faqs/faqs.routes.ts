@@ -13,6 +13,8 @@ export default async function faqsRoutes(fastify: FastifyInstance) {
         type: 'object',
         properties: {
           category: { type: 'string' },
+          page: { type: 'integer', minimum: 1, default: 1 },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
         },
       },
     },
@@ -30,6 +32,8 @@ export default async function faqsRoutes(fastify: FastifyInstance) {
         properties: {
           category: { type: 'string' },
           isActive: { type: 'boolean' },
+          page: { type: 'integer', minimum: 1, default: 1 },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
         },
       },
     },

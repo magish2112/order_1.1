@@ -6,7 +6,7 @@ import {
 } from './calculator.schema';
 
 export class CalculatorController {
-  async getConfig(request: FastifyRequest, reply: FastifyReply) {
+  async getConfig(_request: FastifyRequest, reply: FastifyReply) {
     const config = await calculatorService.getConfig();
 
     return reply.status(200).send({

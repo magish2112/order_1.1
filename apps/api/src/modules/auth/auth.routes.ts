@@ -2,12 +2,14 @@ import { FastifyInstance } from 'fastify';
 import authController from './auth.controller';
 import authService from './auth.service';
 import { authenticate } from '../../middleware/auth.middleware';
+import { authRateLimit } from '../../middleware/auth-rate-limit';
 
 export default async function authRoutes(fastify: FastifyInstance) {
   // Устанавливаем экземпляр Fastify в сервис для работы с JWT
   authService.setFastifyInstance(fastify);
-  // Публичные роуты
+  // Публичные роуты (строгий rate limit: 10 попыток/мин на IP)
   fastify.post('/auth/login', {
+    preHandler: [authRateLimit],
     schema: {
       description: 'Аутентификация пользователя',
       tags: ['auth'],
@@ -53,6 +55,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
   }, authController.login.bind(authController));
 
   fastify.post('/auth/refresh', {
+    preHandler: [authRateLimit],
     schema: {
       description: 'Обновление access token',
       tags: ['auth'],
@@ -85,8 +88,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
     },
   }, authController.logout.bind(authController));
 
-  // Административные роуты
+  // Административные роуты (строгий rate limit)
   fastify.post('/admin/auth/login', {
+    preHandler: [authRateLimit],
     schema: {
       description: 'Аутентификация администратора',
       tags: ['auth', 'admin'],
@@ -94,6 +98,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
   }, authController.login.bind(authController));
 
   fastify.post('/admin/auth/refresh', {
+    preHandler: [authRateLimit],
     schema: {
       description: 'Обновление access token (админ)',
       tags: ['auth', 'admin'],

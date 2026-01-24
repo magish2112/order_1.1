@@ -12,16 +12,19 @@ export class FaqsService {
    * Получить список FAQ
    */
   async getFaqs(query: GetFaqsQuery, onlyActive = true) {
+    const { page, limit, ...filters } = query;
+    const skip = (page - 1) * limit;
+
     const where: Prisma.FaqWhereInput = {};
 
-    if (onlyActive || query.isActive === true) {
+    if (onlyActive || filters.isActive === true) {
       where.isActive = true;
-    } else if (query.isActive !== undefined) {
-      where.isActive = query.isActive;
+    } else if (filters.isActive !== undefined) {
+      where.isActive = filters.isActive;
     }
 
-    if (query.category) {
-      where.category = query.category;
+    if (filters.category) {
+      where.category = filters.category;
     }
 
     const cacheKey = `faqs:${JSON.stringify({ ...query, onlyActive })}`;
@@ -33,19 +36,34 @@ export class FaqsService {
       }
     }
 
-    const faqs = await prisma.faq.findMany({
-      where,
-      orderBy: [
-        { order: 'asc' },
-        { createdAt: 'desc' },
-      ],
-    });
+    const [items, total] = await Promise.all([
+      prisma.faq.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [
+          { order: 'asc' },
+          { createdAt: 'desc' },
+        ],
+      }),
+      prisma.faq.count({ where }),
+    ]);
+
+    const result = {
+      items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
 
     if (redis && onlyActive) {
-      await redis.setex(cacheKey, 600, JSON.stringify(faqs)); // 10 минут
+      await redis.setex(cacheKey, 600, JSON.stringify(result)); // 10 минут
     }
 
-    return faqs;
+    return result;
   }
 
   /**

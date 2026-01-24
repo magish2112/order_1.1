@@ -12,39 +12,57 @@ export class EmployeesService {
    * Получить список сотрудников
    */
   async getEmployees(query: GetEmployeesQuery) {
+    const { page, limit, ...filters } = query;
+    const skip = (page - 1) * limit;
+
     const where: Prisma.EmployeeWhereInput = {};
 
-    if (query.department) {
-      where.department = query.department;
+    if (filters.department) {
+      where.department = filters.department;
     }
 
-    if (query.isActive !== undefined) {
-      where.isActive = query.isActive;
+    if (filters.isActive !== undefined) {
+      where.isActive = filters.isActive;
     }
 
     const cacheKey = `employees:${JSON.stringify(query)}`;
 
-    if (redis && query.isActive === true) {
+    if (redis && filters.isActive === true) {
       const cached = await redis.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
     }
 
-    const employees = await prisma.employee.findMany({
-      where,
-      orderBy: [
-        { order: 'asc' },
-        { lastName: 'asc' },
-        { firstName: 'asc' },
-      ],
-    });
+    const [items, total] = await Promise.all([
+      prisma.employee.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [
+          { order: 'asc' },
+          { lastName: 'asc' },
+          { firstName: 'asc' },
+        ],
+      }),
+      prisma.employee.count({ where }),
+    ]);
 
-    if (redis && query.isActive === true) {
-      await redis.setex(cacheKey, 600, JSON.stringify(employees)); // 10 минут
+    const result = {
+      items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+
+    if (redis && filters.isActive === true) {
+      await redis.setex(cacheKey, 600, JSON.stringify(result)); // 10 минут
     }
 
-    return employees;
+    return result;
   }
 
   /**
@@ -82,17 +100,12 @@ export class EmployeesService {
   async updateEmployee(input: UpdateEmployeeInput) {
     const { id, ...data } = input;
 
-    // Обрабатываем null значения для опциональных полей
-    const updateData: any = { ...data };
-    if (updateData.department === null || updateData.department === undefined) {
-      updateData.department = null;
-    }
-    if (updateData.photo === null || updateData.photo === undefined) {
-      updateData.photo = null;
-    }
-    if (updateData.bio === null || updateData.bio === undefined) {
-      updateData.bio = null;
-    }
+    const updateData: Prisma.EmployeeUpdateInput = {
+      ...data,
+      department: data.department ?? null,
+      photo: data.photo ?? null,
+      bio: data.bio ?? null,
+    };
 
     const employee = await prisma.employee.update({
       where: { id },

@@ -14,6 +14,8 @@ export default async function employeesRoutes(fastify: FastifyInstance) {
         properties: {
           department: { type: 'string' },
           isActive: { type: 'boolean' },
+          page: { type: 'integer', minimum: 1, default: 1 },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
         },
       },
     },
@@ -31,6 +33,8 @@ export default async function employeesRoutes(fastify: FastifyInstance) {
         properties: {
           department: { type: 'string' },
           isActive: { type: 'boolean' },
+          page: { type: 'integer', minimum: 1, default: 1 },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
         },
       },
     },

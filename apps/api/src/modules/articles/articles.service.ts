@@ -329,19 +329,17 @@ export class ArticlesService {
     }
 
     // Санитизация HTML контента если он обновляется
+    const updateData = data as Prisma.ArticleUpdateInput;
     if (content) {
       const { sanitizeHtml } = await import('../../utils/html-sanitizer');
-      data.content = sanitizeHtml(content);
-      
+      updateData.content = sanitizeHtml(content);
       const wordsPerMinute = 200;
-      const wordCount = data.content.split(/\s+/).length;
-      data.readingTime = Math.ceil(wordCount / wordsPerMinute);
+      const wordCount = updateData.content.split(/\s+/).length;
+      updateData.readingTime = Math.ceil(wordCount / wordsPerMinute);
     }
-    
-    // Санитизация excerpt если обновляется
     if (data.excerpt) {
       const { sanitizeHtml } = await import('../../utils/html-sanitizer');
-      data.excerpt = sanitizeHtml(data.excerpt);
+      updateData.excerpt = sanitizeHtml(data.excerpt);
     }
 
     // Обновление тегов
@@ -378,18 +376,17 @@ export class ArticlesService {
 
     // Обновление даты публикации
     if (publishedAt !== undefined) {
-      data.publishedAt = publishedAt ? new Date(publishedAt) : null;
+      updateData.publishedAt = publishedAt ? new Date(publishedAt) : null;
     } else if (data.isPublished === true) {
-      // Если статья публикуется впервые, устанавливаем текущую дату
       const currentArticle = await prisma.article.findUnique({ where: { id } });
       if (currentArticle && !currentArticle.publishedAt) {
-        data.publishedAt = new Date();
+        updateData.publishedAt = new Date();
       }
     }
 
     const article = await prisma.article.update({
       where: { id },
-      data,
+      data: updateData,
       include: {
         author: true,
         category: true,
@@ -470,7 +467,7 @@ export class ArticlesService {
    * ✅ Создать категорию статей
    */
   async createArticleCategory(input: CreateArticleCategoryInput) {
-    const slug = input.slug || (await createUniqueSlug(input.name, 'articleCategory'));
+    const slug = input.slug || (await createUniqueSlug(input.name, async (s) => !!(await prisma.articleCategory.findFirst({ where: { slug: s } }))));
 
     const category = await prisma.articleCategory.create({
       data: {

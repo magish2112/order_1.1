@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
-import { User, UserRole } from '@prisma/client';
+import { User } from '@prisma/client';
+import { UserRoleType } from '../../constants/roles';
 import { FastifyInstance } from 'fastify';
 import prisma from '../../config/database';
 import env from '../../config/env';
@@ -16,7 +17,7 @@ export interface AuthUser {
   email: string;
   firstName: string;
   lastName: string;
-  role: UserRole;
+  role: UserRoleType;
 }
 
 export class AuthService {
@@ -48,7 +49,7 @@ export class AuthService {
               passwordHash,
               firstName: 'Администратор',
               lastName: 'Системы',
-              role: 'SUPER_ADMIN' as UserRole,
+              role: 'SUPER_ADMIN' as UserRoleType,
               isActive: true,
             },
           });
@@ -62,7 +63,7 @@ export class AuthService {
             email: devUser.email,
             firstName: devUser.firstName,
             lastName: devUser.lastName,
-            role: devUser.role,
+            role: devUser.role as UserRoleType,
           },
           tokens,
         };
@@ -118,7 +119,7 @@ export class AuthService {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          role: user.role,
+          role: user.role as UserRoleType,
         },
         tokens,
       };
@@ -178,7 +179,7 @@ export class AuthService {
     }
 
     try {
-      const decoded = this.fastify.jwt.verify<{ id: string; email: string; role: UserRole }>(refreshToken);
+      const decoded = this.fastify.jwt.verify<{ id: string; email: string; role: UserRoleType }>(refreshToken);
 
       // Проверяем наличие токена в Redis (если используется)
       if (redis) {
@@ -234,7 +235,7 @@ export class AuthService {
       const decoded = this.fastify.jwt.verify<{
         id: string;
         email: string;
-        role: UserRole;
+        role: UserRoleType;
         iat: number;
         exp: number;
       }>(accessToken);

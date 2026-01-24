@@ -16,7 +16,7 @@ export function FaqSection() {
   const { data: faqs, isLoading } = useQuery({
     queryKey: ['faqs'],
     queryFn: async () => {
-      const response = await api.get<ApiResponse<Faq[]>>('/faqs')
+      const response = await api.get<ApiResponse<Faq[]>>('/faqs?limit=100')
       return response.data
     },
   })

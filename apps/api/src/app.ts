@@ -57,7 +57,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   app.decorate('redis', redis);
 
   // Security Headers
-  app.addHook('onSend', async (request, reply) => {
+  app.addHook('onSend', async (_request, reply) => {
     reply.header('X-Content-Type-Options', 'nosniff');
     reply.header('X-Frame-Options', 'DENY');
     reply.header('X-XSS-Protection', '1; mode=block');

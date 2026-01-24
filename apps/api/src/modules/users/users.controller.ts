@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import usersService from './users.service';
+import { auditLog } from '../../utils/audit-log';
 import {
   createUserSchema,
   updateUserSchema,
@@ -48,6 +49,7 @@ export class UsersController {
   ) {
     const validated = createUserSchema.parse(request.body);
     const user = await usersService.createUser(validated);
+    auditLog(request, 'create', 'user', user.id, { email: user.email });
 
     return reply.status(201).send({
       success: true,
@@ -64,6 +66,7 @@ export class UsersController {
     const body = request.body as Record<string, unknown>;
     const validated = updateUserSchema.parse({ ...body, id });
     const user = await usersService.updateUser(validated);
+    auditLog(request, 'update', 'user', id, { email: user.email });
 
     return reply.status(200).send({
       success: true,
@@ -89,6 +92,7 @@ export class UsersController {
     }
 
     await usersService.deleteUser(id);
+    auditLog(request, 'delete', 'user', id);
 
     return reply.status(200).send({
       success: true,

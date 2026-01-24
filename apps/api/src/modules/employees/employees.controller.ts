@@ -12,11 +12,12 @@ export class EmployeesController {
     reply: FastifyReply
   ) {
     const query = getEmployeesQuerySchema.parse(request.query);
-    const employees = await employeesService.getEmployees(query);
+    const result = await employeesService.getEmployees(query);
 
     return reply.status(200).send({
       success: true,
-      data: employees,
+      data: result.items,
+      pagination: result.pagination,
     });
   }
 

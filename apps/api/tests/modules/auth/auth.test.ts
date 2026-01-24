@@ -108,6 +108,28 @@ describe('Auth Module', () => {
 
       expect(response.statusCode).toBe(400);
     });
+
+    it('(security) возвращает 429 при превышении лимита попыток входа', async () => {
+      await createTestUser({
+        email: 'ratelimit@test.com',
+        password: 'password123',
+      });
+      const ip = '192.168.99.1';
+      const headers = { 'x-forwarded-for': ip };
+
+      // 11 неудачных попыток (неверный пароль)
+      let lastStatus = 0;
+      for (let i = 0; i < 11; i++) {
+        const r = await app.inject({
+          method: 'POST',
+          url: '/api/v1/auth/login',
+          headers,
+          payload: { email: 'ratelimit@test.com', password: 'wrong' },
+        });
+        lastStatus = r.statusCode;
+      }
+      expect(lastStatus).toBe(429);
+    });
   });
 
   describe('POST /api/v1/auth/refresh', () => {

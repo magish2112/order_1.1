@@ -19,7 +19,7 @@ export function AboutPage() {
   const { data: employees } = useQuery({
     queryKey: ['employees'],
     queryFn: async () => {
-      const response = await api.get<ApiResponse<Employee[]>>('/employees')
+      const response = await api.get<ApiResponse<Employee[]>>('/employees?limit=100')
       return response.data
     },
   })

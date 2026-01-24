@@ -15,7 +15,7 @@ export function FaqPage() {
   const { data: faqs, isLoading } = useQuery({
     queryKey: ['faqs', 'admin'],
     queryFn: async () => {
-      const response = await apiMethods.faqs.list();
+      const response = await apiMethods.faqs.list({ limit: 100 });
       return response.data.data as Faq[];
     },
   });

@@ -17,7 +17,7 @@ export function errorHandler(
       statusCode: 400,
       error: 'Validation Error',
       message: 'Ошибка валидации данных',
-      details: error.validation || error.errors,
+      details: (error as { validation?: unknown }).validation ?? (error instanceof ZodError ? error.errors : undefined),
     });
   }
 

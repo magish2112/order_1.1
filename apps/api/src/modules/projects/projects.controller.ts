@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import projectsService from './projects.service';
+import { auditLog } from '../../utils/audit-log';
 import {
   createProjectSchema,
   updateProjectSchema,
@@ -83,6 +84,7 @@ export class ProjectsController {
     const validated = createProjectSchema.parse(request.body);
     const userId = (request.user as { id: string } | undefined)?.id;
     const project = await projectsService.createProject(validated, userId);
+    auditLog(request, 'create', 'project', project.id, { title: project.title });
 
     return reply.status(201).send({
       success: true,
@@ -98,6 +100,7 @@ export class ProjectsController {
     const body = request.body as Record<string, unknown>;
     const validated = updateProjectSchema.parse({ ...body, id });
     const project = await projectsService.updateProject(validated);
+    auditLog(request, 'update', 'project', id, { title: project.title });
 
     return reply.status(200).send({
       success: true,
@@ -111,6 +114,7 @@ export class ProjectsController {
   ) {
     const { id } = request.params;
     await projectsService.deleteProject(id);
+    auditLog(request, 'delete', 'project', id);
 
     return reply.status(200).send({
       success: true,
