@@ -55,6 +55,7 @@ COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nodejs:nodejs /app/create-admin-eterno.js ./
 
 # Создаем директории для загрузок и базы данных
 RUN mkdir -p /app/uploads /app/data && chown -R nodejs:nodejs /app/uploads /app/data
