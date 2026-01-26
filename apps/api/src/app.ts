@@ -113,8 +113,8 @@ export async function buildApp(): Promise<FastifyInstance> {
           description: 'API документация',
           version: '1.0.0',
         },
-        host: `localhost:${env.PORT}`,
-        schemes: ['http', 'https'],
+        host: process.env.SWAGGER_HOST || `${env.HOST}:${env.PORT}`,
+        schemes: env.NODE_ENV === 'production' ? ['https', 'http'] : ['http', 'https'],
         consumes: ['application/json'],
         produces: ['application/json'],
         tags: [

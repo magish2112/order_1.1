@@ -32,7 +32,7 @@ const envSchema = z.object({
   S3_REGION: z.string().optional(),
   S3_USE_SSL: z.coerce.boolean().default(false),
   
-  CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:3001'),
+  CORS_ORIGIN: z.string().default('*'), // В production должен быть указан конкретный домен
   
   // Admin URL для ссылок в email уведомлениях
   ADMIN_URL: z.string().url().optional().or(z.literal('')),

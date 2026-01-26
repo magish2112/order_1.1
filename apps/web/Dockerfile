@@ -20,6 +20,10 @@ COPY . .
 # Отключаем telemetry Next.js
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# NEXT_PUBLIC_API_URL встраивается в клиентский код при сборке (build-time)
+ARG NEXT_PUBLIC_API_URL=http://localhost:4000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 # Собираем приложение
 RUN npm run build
 

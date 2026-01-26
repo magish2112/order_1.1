@@ -107,7 +107,7 @@ class EmailService {
               </table>
               
               <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #0066cc; text-align: center;">
-                <a href="${env.ADMIN_URL || 'http://localhost:3001'}/requests" 
+                <a href="${env.ADMIN_URL || process.env.ADMIN_URL || '#'}/requests" 
                    style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
                   Просмотреть заявку
                 </a>

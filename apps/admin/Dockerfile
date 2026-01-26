@@ -17,6 +17,13 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# URL API для браузера (встраивается в сборку; для production: http://IP:4000/api/v1)
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
+# Увеличиваем лимит памяти Node.js для сборки Vite (rendering chunks требует много RAM)
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # Собираем приложение
 RUN npm run build
 

@@ -49,7 +49,14 @@ export function getImageUrl(imageUrl: string | null | undefined): string | null 
   }
 
   // Если URL относительный, добавляем базовый URL API
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:4000'
+  const apiUrl = typeof window !== 'undefined'
+    ? process.env.NEXT_PUBLIC_API_URL // Client-side
+    : (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL) // Server-side
+  
+  if (!apiUrl) {
+    console.warn('⚠️  API URL not configured. Set NEXT_PUBLIC_API_URL in .env')
+    return imageUrl // Возвращаем как есть, без базового URL
+  }
   
   // Убираем начальный слеш если он есть, чтобы избежать двойных слешей
   const cleanUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`

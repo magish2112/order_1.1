@@ -24,8 +24,8 @@ export function OrganizationSchema() {
       type="Organization"
       data={{
         name: 'РемСтрой',
-        url: 'https://example.com',
-        logo: 'https://example.com/logo.png',
+        url: process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru',
+        logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru'}/logo.svg`,
         contactPoint: {
           '@type': 'ContactPoint',
           telephone: '+7-999-123-45-67',
@@ -48,9 +48,9 @@ export function LocalBusinessSchema() {
       type="LocalBusiness"
       data={{
         name: 'РемСтрой',
-        image: 'https://example.com/logo.png',
-        '@id': 'https://example.com',
-        url: 'https://example.com',
+        image: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru'}/logo.svg`,
+        '@id': process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru',
+        url: process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru',
         telephone: '+7-999-123-45-67',
         priceRange: '$$',
         address: {
@@ -152,7 +152,7 @@ export function ArticleSchema({
           name: 'РемСтрой',
           logo: {
             '@type': 'ImageObject',
-            url: 'https://example.com/logo.png',
+            url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru'}/logo.svg`,
           },
         },
       }}

@@ -67,13 +67,13 @@ npx prisma migrate deploy
 
 ```bash
 # Запуск всех сервисов
-docker-compose up -d --build
+docker compose up -d --build
 
 # Проверка статуса
-docker-compose ps
+docker compose ps
 
 # Просмотр логов
-docker-compose logs -f api
+docker compose logs -f api
 ```
 
 ## 🔄 Миграция данных из SQLite в PostgreSQL
@@ -168,13 +168,13 @@ PostgreSQL превосходит SQLite по:
 
 ```bash
 # Проверьте, что PostgreSQL запущен
-docker-compose ps postgres
+docker compose ps postgres
 
 # Проверьте логи
-docker-compose logs postgres
+docker compose logs postgres
 
 # Проверьте подключение вручную
-docker-compose exec postgres psql -U postgres -d order_db
+docker compose exec postgres psql -U postgres -d order_db
 ```
 
 ### Ошибка миграций
@@ -212,10 +212,10 @@ npx prisma migrate deploy
 3. **Резервное копирование:**
    ```bash
    # Создание бэкапа
-   docker-compose exec postgres pg_dump -U postgres order_db > backup.sql
+   docker compose exec postgres pg_dump -U postgres order_db > backup.sql
    
    # Восстановление
-   docker-compose exec -T postgres psql -U postgres order_db < backup.sql
+   docker compose exec -T postgres psql -U postgres order_db < backup.sql
    ```
 
 ## 📝 Чеклист для деплоя

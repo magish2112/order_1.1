@@ -49,7 +49,7 @@ export function ServiceDetailPage({ serviceSlug, categorySlug = 'remont' }: Serv
     { label: service.name },
   ]
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://example.com'
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru')
 
   return (
     <div className="min-h-screen bg-white">

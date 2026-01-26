@@ -25,25 +25,25 @@ npm run prisma:migrate
 
 ### 4. Создайте администратора
 
-```bash
-npm run create-admin-eterno
-```
-
-Или напрямую:
+В **production** обязательно задайте свой пароль:
 
 ```bash
-node create-admin-eterno.js
+ADMIN_INITIAL_PASSWORD="ваш_надёжный_пароль" npm run create-admin-eterno
 ```
+
+Или: `export ADMIN_INITIAL_PASSWORD="..."`, затем `node create-admin-eterno.js`.
+
+В development можно без переменной (скрипт использует дефолтный пароль).
 
 ### Данные для входа
 
-После успешного выполнения скрипта используйте следующие данные:
+После успешного выполнения скрипта:
 
 - **Email:** `admineterno@yandex.ru`
-- **Пароль:** `Adm!n3t3rn0#2024$Secure`
+- **Пароль:** тот, что задали в `ADMIN_INITIAL_PASSWORD`, или (только в dev) дефолтный из вывода скрипта
 - **Роль:** `SUPER_ADMIN`
 
-⚠️ **ВАЖНО:** Сохраните эти данные в безопасном месте!
+⚠️ **ВАЖНО:** В production сразу смените пароль после первого входа. Сохраните учётные данные в безопасном месте.
 
 ### Проверка
 

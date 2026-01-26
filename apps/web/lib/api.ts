@@ -1,4 +1,15 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:4000'
+// Получаем API URL из переменных окружения
+// В production NEXT_PUBLIC_API_URL должен быть установлен
+const getApiBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    // Client-side: используем NEXT_PUBLIC_API_URL
+    return process.env.NEXT_PUBLIC_API_URL || '/api-fallback-not-configured'
+  }
+  // Server-side: можем использовать internal URL
+  return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://api:4000'
+}
+
+const API_URL = getApiBaseUrl()
 
 export const apiConfig = {
   baseUrl: API_URL,

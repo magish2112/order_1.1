@@ -31,6 +31,7 @@ export class AuthService {
    * Аутентификация пользователя
    */
   async login(input: LoginInput): Promise<{ user: AuthUser; tokens: AuthTokens }> {
+    input.email = (input.email || '').trim().toLowerCase();
     // Временная аутентификация для разработки (ТОЛЬКО если явно установлены переменные окружения)
     // В production этот код не должен работать
     if (env.NODE_ENV === 'development' && env.DEV_ADMIN_EMAIL && env.DEV_ADMIN_PASSWORD) {

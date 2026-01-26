@@ -44,29 +44,23 @@ services:
     networks:
       - order_network
 
-  # MinIO для хранения медиафайлов
-  minio:
-    image: minio/minio:latest
-    container_name: order_minio
-    command: server /data --console-address ":9001"
-    environment:
-      # ВАЖНО: Установите MINIO_ROOT_PASSWORD в .env файле!
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD?Вы должны установить MINIO_ROOT_PASSWORD в .env файле}
-    volumes:
-      - minio_data:/data
-    ports:
-      - "${MINIO_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-    networks:
-      - order_network
+  # MinIO - ОТКЛЮЧЕН, используем локальное хранилище + Nginx
+  # minio:
+  #   image: minio/minio:latest
+  #   container_name: order_minio
+  #   command: server /data --console-address ":9001"
+  #   environment:
+  #     MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+  #     MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+  #   volumes:
+  #     - minio_data:/data
+  #   ports:
+  #     - "${MINIO_PORT:-9000}:9000"
+  #     - "${MINIO_CONSOLE_PORT:-9001}:9001"
+  #   networks:
+  #     - order_network
 
-  # API сервер (Fastify) - использует PostgreSQL для продакшена
+  # API сервер (Fastify)
   api:
     build:
       context: ./apps/api
@@ -76,34 +70,39 @@ services:
       NODE_ENV: production
       PORT: 4000
       HOST: 0.0.0.0
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-order_db}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-order_db}
+      REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-15m}
       JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost:3001}
+      # CORS: в production указать конкретные домены
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      # SMTP настройки
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-}
       SMTP_SECURE: ${SMTP_SECURE:-false}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_FROM: ${SMTP_FROM:-}
-      UPLOAD_DIR: /app/uploads
+      # Загрузка файлов - теперь в shared volume
+      UPLOAD_DIR: /app/public/uploads
       PUBLIC_UPLOAD_URL: /uploads
+      # URL админки для email уведомлений
+      ADMIN_URL: ${ADMIN_URL:-http://localhost:3001}
     volumes:
-      - api_uploads:/app/uploads
-    ports:
-      - "${API_PORT:-4000}:4000"
+      # Shared volume для статики (доступен Nginx)
+      - uploads_data:/app/public/uploads
+    # Порты закрыты - доступ только через Nginx
+    # ports:
+    #   - "${API_PORT:-4000}:4000"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -116,17 +115,20 @@ services:
     build:
       context: ./apps/web
       dockerfile: Dockerfile
+      args:
+        # ВАЖНО: В production указать публичный URL API (например, https://api.yourdomain.com)
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost}
     container_name: order_web
     environment:
       NODE_ENV: production
-      API_URL: http://host.docker.internal:4000
-      NEXT_PUBLIC_API_URL: http://localhost:4000
+      # Internal API URL (для SSR запросов)
+      API_URL: http://api:4000
+      # Public API URL (для client-side запросов)
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost}
       PORT: 3000
-    ports:
-      - "${WEB_PORT:-3000}:3000"
-    # depends_on:
-    #   api:
-    #     condition: service_healthy
+    # Порты закрыты - доступ только через Nginx
+    # ports:
+    #   - "${WEB_PORT:-3000}:3000"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
       interval: 30s
@@ -142,12 +144,14 @@ services:
       context: ./apps/admin
       dockerfile: Dockerfile
       target: runner
+      args:
+        # ВАЖНО: В production указать публичный URL API
+        VITE_API_URL: ${VITE_API_URL:-http://localhost/api/v1}
     container_name: order_admin
     ports:
       - "${ADMIN_PORT:-3001}:3001"
     depends_on:
-      api:
-        condition: service_healthy
+      - api
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001"]
       interval: 30s
@@ -157,11 +161,36 @@ services:
     networks:
       - order_network
 
+  # Nginx - раздача статики и reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: order_nginx
+    volumes:
+      # Конфигурация Nginx
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Shared volume для статики (только чтение)
+      - uploads_data:/app/public/uploads:ro
+    ports:
+      # Главный порт для всего (web + api + uploads)
+      - "${NGINX_PORT:-80}:80"
+    depends_on:
+      - api
+      - web
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - order_network
+
 volumes:
   postgres_data:
   redis_data:
-  minio_data:
-  api_uploads:
+  # minio_data: # Больше не используется
+  # Shared volume для загруженных файлов (API пишет, Nginx читает)
+  uploads_data:
 
 networks:
   order_network:

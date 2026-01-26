@@ -1,0 +1,125 @@
+# ===========================================
+# Production Docker Compose Configuration
+# ===========================================
+# Использование: docker compose -f docker-compose.yml -f docker-compose.production.yml up -d
+#
+# Изменения для production:
+# - Закрыты порты БД и Redis
+# - Удалены дефолтные пароли
+# - Строгая проверка переменных окружения
+# - Автоматический рестарт всех сервисов
+# - Лимиты ресурсов
+# ===========================================
+
+version: '3.8'
+
+services:
+  # PostgreSQL - закрытые порты
+  postgres:
+    ports: []  # Закрываем внешний доступ
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis - закрытые порты
+  redis:
+    ports: []  # Закрываем внешний доступ
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # API
+  api:
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # Validation: CORS не должен быть *
+      CORS_ORIGIN: ${CORS_ORIGIN?Установите CORS_ORIGIN с конкретными доменами}
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Web
+  web:
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Admin
+  admin:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Nginx
+  nginx:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

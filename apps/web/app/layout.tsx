@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
-    url: 'https://example.com',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru',
     siteName: 'Ремонтно-строительная компания',
     title: 'Ремонтно-строительная компания | Профессиональный ремонт и дизайн',
     description: 'Профессиональный ремонт квартир, домов и офисов. Дизайн интерьеров. Гарантия качества.',

@@ -14,7 +14,7 @@
 
 ### Предварительные требования
 
-- Docker Desktop (или Docker Engine + Docker Compose)
+- Docker Engine и плагин Compose (`docker compose`). На Linux: `sudo apt-get install docker-compose-plugin`. На старых системах с `docker-compose` (V1) используйте `./scripts/compose.sh` — обходит ошибку `ContainerConfig`.
 - Git
 
 ### 1. Клонирование репозитория
@@ -41,14 +41,16 @@ cp .env.example .env
 
 ```bash
 # Сборка и запуск всех сервисов
-docker-compose up -d --build
+docker compose up -d --build
 
 # Просмотр логов
-docker-compose logs -f
+docker compose logs -f
 
 # Остановка всех сервисов
-docker-compose down
+docker compose down
 ```
+
+На системах только с `docker-compose` (V1) вместо `docker compose` используйте `./scripts/compose.sh` (напр. `./scripts/compose.sh up -d --build`), чтобы обойти ошибку `ContainerConfig`.
 
 ### 4. Инициализация базы данных
 
@@ -56,7 +58,7 @@ docker-compose down
 
 ```bash
 # Заполнение базы тестовыми данными (опционально)
-docker-compose exec api npm run prisma:seed
+docker compose exec api npm run prisma:seed
 ```
 
 **Примечание**: Миграции Prisma выполняются автоматически при запуске контейнера API.
@@ -75,25 +77,36 @@ docker-compose exec api npm run prisma:seed
 
 ```bash
 # Просмотр статуса контейнеров
-docker-compose ps
+docker compose ps
 
 # Просмотр логов конкретного сервиса
-docker-compose logs -f api
-docker-compose logs -f web
-docker-compose logs -f admin
+docker compose logs -f api
+docker compose logs -f web
+docker compose logs -f admin
 
 # Перезапуск конкретного сервиса
-docker-compose restart api
+docker compose restart api
 
 # Остановка всех сервисов
-docker-compose down
+docker compose down
 
 # Остановка с удалением volumes (удалит все данные!)
-docker-compose down -v
+docker compose down -v
 
 # Пересборка конкретного сервиса
-docker-compose build api
-docker-compose up -d api
+docker compose build api
+docker compose up -d api
+
+# Пересборка Web (нужна после смены NEXT_PUBLIC_API_URL в .env)
+docker compose build --no-cache web && docker compose up -d web
+
+# Пересборка Admin (нужна после смены VITE_API_URL в .env). Для production — на сервере по SSH:
+#   bash scripts/setup-admin-production.sh 46.17.102.76
+# (добавит VITE_API_URL в .env, пересоберёт API и admin, сгенерирует пароль, выведет данные для входа)
+
+# Если order_web в статусе Exited (137) или сайт не отдаёт ответ — поднять заново:
+./scripts/compose.sh up -d web
+# при повторных падениях: docker compose build --no-cache web && ./scripts/compose.sh up -d web
 ```
 
 ## 🔧 Разработка
@@ -102,10 +115,10 @@ docker-compose up -d api
 
 ```bash
 # Запуск в режиме разработки (с hot-reload)
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 # Или только база данных и Redis
-docker-compose up -d postgres redis minio
+docker compose up -d postgres redis minio
 
 # Затем запускайте приложения локально
 cd apps/api && npm run dev
@@ -119,7 +132,7 @@ cd apps/admin && npm run dev
 
 ```bash
 # Через Docker
-docker-compose exec postgres psql -U postgres -d order_db
+docker compose exec postgres psql -U postgres -d order_db
 
 # Или используя внешний клиент
 # Host: localhost
@@ -133,13 +146,13 @@ docker-compose exec postgres psql -U postgres -d order_db
 
 ```bash
 # Выполнение миграций (для продакшена)
-docker-compose exec api npx prisma migrate deploy
+docker compose exec api npx prisma migrate deploy
 
 # Создание новой миграции (в режиме разработки)
-docker-compose exec api npx prisma migrate dev --name migration_name
+docker compose exec api npx prisma migrate dev --name migration_name
 
 # Prisma Studio (GUI для базы данных)
-docker-compose exec api npx prisma studio
+docker compose exec api npx prisma studio
 # Откроется на http://localhost:5555
 ```
 
@@ -147,10 +160,10 @@ docker-compose exec api npx prisma studio
 
 ```bash
 # Создание бэкапа
-docker-compose exec postgres pg_dump -U postgres order_db > backup_$(date +%Y%m%d_%H%M%S).sql
+docker compose exec postgres pg_dump -U postgres order_db > backup_$(date +%Y%m%d_%H%M%S).sql
 
 # Восстановление из бэкапа
-docker-compose exec -T postgres psql -U postgres order_db < backup.sql
+docker compose exec -T postgres psql -U postgres order_db < backup.sql
 
 # Автоматическое резервное копирование (рекомендуется настроить через cron)
 ```
@@ -162,7 +175,12 @@ order_1.1/
 ├── apps/
 │   ├── api/          # Backend API (Fastify)
 │   ├── web/          # Публичный сайт (Next.js)
-│   └── admin/         # Админ-панель (React + Vite)
+│   └── admin/        # Админ-панель (React + Vite)
+├── scripts/
+│   ├── compose.sh                 # Обёртка: docker compose или docker-compose + workaround ContainerConfig
+│   ├── init-db.sh
+│   ├── setup-admin-production.sh  # На сервере: настройка админки (VITE_API_URL, пароль, пересборка)
+│   └── RUN_ON_SERVER.md           # Пошаговые команды для выполнения на сервере по SSH
 ├── docker-compose.yml
 ├── docker-compose.dev.yml
 ├── .env.example
@@ -181,6 +199,31 @@ order_1.1/
 
 ## 🛠️ Устранение неполадок
 
+### Ошибка `KeyError: 'ContainerConfig'` (docker-compose 1.29.x)
+
+При `up -d` или `up -d web` на старом **docker-compose** (V1) может возникать `KeyError: 'ContainerConfig'`. Это известный баг, в V1 не исправляется.
+
+**Рекомендуемое решение — перейти на Compose V2:**
+
+```bash
+# Ubuntu/Debian
+sudo apt-get update && sudo apt-get install docker-compose-plugin
+
+# Проверка
+docker compose version
+```
+
+После установки используйте `docker compose` вместо `docker-compose` (в документации проекта — уже `docker compose`).
+
+**Временный обход без переустановки:** используйте скрипт-обёртку, который перед `up` удаляет существующие контейнеры и избегает пути «recreate»:
+
+```bash
+./scripts/compose.sh up -d web
+./scripts/compose.sh up -d api
+```
+
+Скрипт сам выбирает `docker compose` (если есть) или `docker-compose` с workaround. На Linux перед первым запуском: `chmod +x scripts/compose.sh`.
+
 ### Проблемы с портами
 
 Если порты заняты, измените их в `.env` файле:
@@ -195,41 +238,41 @@ POSTGRES_PORT=5432
 
 ```bash
 # Остановка и удаление контейнеров
-docker-compose down
+docker compose down
 
 # Удаление volumes (удалит все данные БД!)
-docker-compose down -v
+docker compose down -v
 
 # Пересборка без кеша
-docker-compose build --no-cache
+docker compose build --no-cache
 
 # Запуск заново
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Проблемы с Prisma
 
 ```bash
 # Перегенерация Prisma Client
-docker-compose exec api npx prisma generate
+docker compose exec api npx prisma generate
 
 # Сброс базы данных (ОСТОРОЖНО: удалит все данные!)
-docker-compose exec api npx prisma migrate reset
+docker compose exec api npx prisma migrate reset
 ```
 
 ### Просмотр логов
 
 ```bash
 # Все логи
-docker-compose logs
+docker compose logs
 
 # Логи конкретного сервиса
-docker-compose logs api
-docker-compose logs web
-docker-compose logs postgres
+docker compose logs api
+docker compose logs web
+docker compose logs postgres
 
 # Логи в реальном времени
-docker-compose logs -f api
+docker compose logs -f api
 ```
 
 ## 📝 Переменные окружения
@@ -245,11 +288,18 @@ docker-compose logs -f api
 
 Для продакшн деплоя:
 
-1. Обновите переменные окружения в `.env`
-2. Измените `CORS_ORIGIN` на домены вашего сайта
-3. Настройте SSL сертификаты (через Nginx или другой reverse proxy)
-4. Используйте внешние сервисы для PostgreSQL, Redis и S3 (вместо MinIO)
-5. После деплоя создайте администратора: `npm run create-admin-eterno` (см. [инструкции](./apps/api/DEPLOY.md))
+1. Обновите переменные окружения в `.env` в **корне проекта** (см. [ENV_EXAMPLE.md](./ENV_EXAMPLE.md)):
+   - `CORS_ORIGIN` — origins сайта и админки (напр. `http://46.17.102.76:3000,http://46.17.102.76:3001`)
+   - `NEXT_PUBLIC_API_URL` — URL API для браузера (напр. `http://46.17.102.76:4000`). После смены нужна пересборка:  
+     `docker compose build --no-cache web && ./scripts/compose.sh up -d web`
+2. Настройте SSL (Nginx и т.п.) при использовании домена
+3. **На сервере по SSH** (в каталоге с проектом) настройте админ-панель и пароль администратора:
+   ```bash
+   bash scripts/setup-admin-production.sh 46.17.102.76
+   ```
+   Скрипт добавит `VITE_API_URL` в `.env`, пересоберёт API и admin, сгенерирует пароль и выведет данные для входа (`admineterno@yandex.ru`). Сохраните пароль.  
+   **Пошагово с копируемыми командами:** [scripts/RUN_ON_SERVER.md](./scripts/RUN_ON_SERVER.md).  
+   Вручную: [apps/api/DEPLOY.md](./apps/api/DEPLOY.md), [ENV_EXAMPLE.md](./ENV_EXAMPLE.md) п.5.
 
 ## 📚 Дополнительная документация
 

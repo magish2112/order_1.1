@@ -34,6 +34,10 @@ async function createAdminEterno() {
       process.exit(1);
     }
 
+    if (PASSWORD.length < 12) {
+      console.warn('⚠️  Пароль короче 12 символов — рекомендуется использовать надёжный пароль (буквы, цифры, символы).');
+    }
+
     // Хешируем пароль
     const hashedPassword = await bcrypt.hash(PASSWORD, 10);
 
