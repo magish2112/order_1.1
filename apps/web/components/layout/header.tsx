@@ -23,9 +23,9 @@ import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu'
 
 const navigation = [
   {
-    name: 'Ремонт',
-    href: '/remont',
-    image: '/images/remont.jpg',
+    name: 'Услуги',
+    href: '/uslugi',
+    image: '/images/uslugi.jpg',
     children: [
       {
         name: 'Ремонт квартир',
@@ -35,92 +35,66 @@ const navigation = [
           { name: '1-к квартиры', href: '/remont/kvartiry/1k' },
           { name: '2-к квартиры', href: '/remont/kvartiry/2k' },
           { name: '3-к квартиры', href: '/remont/kvartiry/3k' },
-          { name: '4-к квартиры', href: '/remont/kvartiry/4k' },
-          { name: '5-к квартиры', href: '/remont/kvartiry/5k' },
         ],
       },
       {
-        name: 'Новостройки',
-        href: '/remont/novostroyki',
+        name: 'Ремонт домов',
+        href: '/remont/doma',
         children: [
-          { name: '1-к квартиры', href: '/remont/novostroyki/1k' },
-          { name: '2-к квартиры', href: '/remont/novostroyki/2k' },
-          { name: '3-к квартиры', href: '/remont/novostroyki/3k' },
+          { name: 'Дома и коттеджи', href: '/remont/doma/kottedzhi' },
+          { name: 'Апартаменты', href: '/remont/doma/apartamenty' },
         ],
       },
       {
-        name: 'Вторичные',
-        href: '/remont/vtorichnye',
+        name: 'Коммерческие помещения',
+        href: '/remont/kommercheskiye',
         children: [
-          { name: 'Ремонт хрущёвки', href: '/remont/vtorichnye/hruschevka' },
-          { name: 'Ремонт в сталинке', href: '/remont/vtorichnye/stalinka' },
+          { name: 'Офисы', href: '/remont/kommercheskiye/ofisy' },
+          { name: 'Рестораны и кафе', href: '/remont/kommercheskiye/restorany' },
+          { name: 'Магазины', href: '/remont/kommercheskiye/magaziny' },
         ],
       },
       {
-        name: 'Виды ремонта',
+        name: 'Дизайн интерьера',
+        href: '/dizajn',
+        children: [
+          { name: 'Дизайн-проект', href: '/dizajn/proekt' },
+          { name: '3D визуализация', href: '/dizajn/3d-vizualizaciya' },
+          { name: 'Авторский надзор', href: '/dizajn/avtorskij-nadzor' },
+        ],
+      },
+      {
+        name: 'Виды работ',
         href: '/remont/vidy',
         children: [
-          { name: 'Элитный', href: '/remont/vidy/elitnyj' },
-          { name: 'Дизайнерский', href: '/remont/vidy/dizajnerskij' },
-          { name: 'Капитальный', href: '/remont/vidy/kapitalnyj' },
+          { name: 'Капитальный ремонт', href: '/remont/vidy/kapitalnyj' },
+          { name: 'Косметический ремонт', href: '/remont/vidy/kosmeticheskij' },
           { name: 'Евроремонт', href: '/remont/vidy/evroremont' },
-          { name: 'Комплексный', href: '/remont/vidy/kompleksnyj' },
-        ],
-      },
-      {
-        name: 'Стили ремонта',
-        href: '/remont/stili',
-        children: [
-          { name: 'Современный', href: '/remont/stili/sovremennyj' },
-          { name: 'Минимализм', href: '/remont/stili/minimalizm' },
-          { name: 'Лофт', href: '/remont/stili/loft' },
-          { name: 'Классика', href: '/remont/stili/klassika' },
-          { name: 'Скандинавский', href: '/remont/stili/skandinavskij' },
         ],
       },
     ],
   },
-  {
-    name: 'Дизайн',
-    href: '/dizajn',
-    image: '/images/dizajn.jpg',
+  { 
+    name: 'Портфолио', 
+    href: '/portfolio',
     children: [
-      {
-        name: 'Дизайн-проект интерьера',
-        href: '/dizajn/proekt',
-        children: [
-          { name: 'Студий', href: '/dizajn/proekt/studiya' },
-          { name: '1-к квартир', href: '/dizajn/proekt/1k' },
-          { name: '2-к квартир', href: '/dizajn/proekt/2k' },
-        ],
-      },
-      {
-        name: 'Стили дизайна',
-        href: '/dizajn/stili',
-        children: [
-          { name: 'Современный', href: '/dizajn/stili/sovremennyj' },
-          { name: 'Минимализм', href: '/dizajn/stili/minimalizm' },
-          { name: 'Лофт', href: '/dizajn/stili/loft' },
-        ],
-      },
-    ],
+      { name: 'Все проекты', href: '/portfolio' },
+      { name: 'Квартиры', href: '/portfolio?type=kvartiry' },
+      { name: 'Дома', href: '/portfolio?type=doma' },
+      { name: 'Коммерческие', href: '/portfolio?type=commercial' },
+    ]
   },
-  {
-    name: 'Прочие услуги',
-    href: '/uslugi',
-    image: '/images/uslugi.jpg',
+  { 
+    name: 'О компании', 
+    href: '/o-kompanii',
     children: [
-      { name: 'Дома', href: '/uslugi/doma' },
-      { name: 'Коттеджи', href: '/uslugi/kottedzhi' },
-      { name: 'Апартаменты', href: '/uslugi/apartamenty' },
-      { name: 'Офисы', href: '/uslugi/ofisy' },
-      { name: 'Рестораны', href: '/uslugi/restorany' },
-    ],
+      { name: 'О нас', href: '/o-kompanii' },
+      { name: 'Наши преимущества', href: '/o-kompanii#preimushchestva' },
+      { name: 'Вакансии', href: '/vakansii' },
+      { name: 'Отзывы', href: '/o-kompanii#otzyvy' },
+    ]
   },
-  { name: 'Портфолио', href: '/portfolio' },
   { name: 'Статьи', href: '/stati' },
-  { name: 'О компании', href: '/o-kompanii' },
-  { name: 'Вакансии', href: '/vakansii' },
   { name: 'Контакты', href: '/kontakty' },
 ]
 
@@ -158,16 +132,16 @@ export function Header() {
 
   const getNavIcon = (name: string) => {
     switch (name) {
-      case 'Ремонт':
+      case 'Услуги':
         return Wrench
-      case 'Дизайн':
-        return Ruler
-      case 'Прочие услуги':
-        return Building2
       case 'Портфолио':
         return HardHat
+      case 'О компании':
+        return Building2
       case 'Статьи':
         return Hammer
+      case 'Контакты':
+        return Phone
       default:
         return null
     }

@@ -1,0 +1,78 @@
+# Команды для выполнения на сервере 46.17.102.76
+
+# 1. Проверка системы
+uname -a
+docker --version
+docker-compose --version
+
+# 2. Установка Docker (если нужно)
+sudo apt update
+sudo apt install -y docker.io docker-compose git curl unzip
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker magish
+
+# 3. Создание директории проекта
+mkdir -p ~/eterno
+cd ~/eterno
+
+# 4. Создание .env файла
+cat > .env << 'EOF'
+NODE_ENV=production
+POSTGRES_DB=eterno_production
+POSTGRES_USER=eterno_user
+POSTGRES_PASSWORD=z10bZTLLrvhFRH1AOvDZ9pTtE8KrDTZP
+DATABASE_URL=postgresql://eterno_user:z10bZTLLrvhFRH1AOvDZ9pTtE8KrDTZP@postgres:5432/eterno_production
+REDIS_URL=redis://redis:6379
+JWT_SECRET=qozH/xlNXnc8JXUP7B+HXt1W5WnSjBzX4s3+SpsHtA4=
+JWT_REFRESH_SECRET=bJBF3Iy0wgHGGprJ0QqsLVdOBbUFb3NtoE4GO7a4Cg0=
+JWT_ACCESS_EXPIRY=15m
+JWT_REFRESH_EXPIRY=7d
+CORS_ORIGIN=http://46.17.102.76,http://46.17.102.76:3000,http://46.17.102.76:3001
+NEXT_PUBLIC_API_URL=http://46.17.102.76
+ADMIN_URL=http://46.17.102.76:3001
+NEXT_PUBLIC_SITE_URL=http://46.17.102.76
+SWAGGER_HOST=46.17.102.76
+SWAGGER_SCHEME=http
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=noreply@eterno-stroy.ru
+MAX_FILE_SIZE=10485760
+UPLOAD_DIR=/app/public/uploads
+PUBLIC_UPLOAD_URL=/uploads
+API_PORT=4000
+WEB_PORT=3000
+ADMIN_PORT=3001
+NGINX_PORT=80
+POSTGRES_PORT=5432
+REDIS_PORT=6379
+VITE_API_URL=http://46.17.102.76/api/v1
+DEV_ADMIN_EMAIL=
+DEV_ADMIN_PASSWORD=
+EOF
+
+# 5. Build и запуск
+docker compose down
+docker compose build
+docker compose up -d
+
+# 6. Ожидание запуска (30 секунд)
+sleep 30
+
+# 7. Проверка статуса
+docker compose ps
+
+# 8. Применение миграций
+docker compose exec api npx prisma migrate deploy
+
+# 9. Создание админа
+docker compose exec api node create-admin-eterno.js
+
+# 10. Проверка health
+curl http://localhost/health
+
+# 11. Логи (если нужно)
+docker compose logs -f
