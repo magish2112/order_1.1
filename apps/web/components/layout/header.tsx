@@ -242,11 +242,11 @@ export function Header() {
             {/* CTA Buttons */}
             <div className="hidden lg:flex lg:items-center lg:space-x-3">
               <a
-                href="tel:+79991234567"
+                href={`tel:${(settings.phone as string)?.replace(/[^0-9+]/g, '') || '+79991234567'}`}
                 className="flex items-center space-x-2 text-sm font-medium text-foreground/80 hover:text-accent transition-colors whitespace-nowrap"
               >
                 <Phone className="h-4 w-4 flex-shrink-0 text-accent" />
-                <span className="hidden xl:inline">+7 (999) 123-45-67</span>
+                <span className="hidden xl:inline">{(settings.phone as string) || '+7 (999) 123-45-67'}</span>
                 <span className="xl:hidden">Звонок</span>
               </a>
 
