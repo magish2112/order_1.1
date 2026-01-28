@@ -37,12 +37,6 @@ const navigation = [
     href: '/uslugi',
     children: []
   },
-  {
-    name: 'Ремонт квартир',
-    href: '/remont-kvartir',
-    children: [
-    ],
-  },
   { 
     name: 'Портфолио', 
     href: '/portfolio',
