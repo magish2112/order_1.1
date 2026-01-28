@@ -23,55 +23,24 @@ import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu'
 
 const navigation = [
   {
+    name: 'Ремонт',
+    href: '/remont',
+    children: []
+  },
+  {
+    name: 'Дизайн',
+    href: '/dizajn',
+    children: []
+  },
+  {
     name: 'Услуги',
     href: '/uslugi',
-    image: '/images/uslugi.jpg',
+    children: []
+  },
+  {
+    name: 'Ремонт квартир',
+    href: '/remont-kvartir',
     children: [
-      {
-        name: 'Ремонт квартир',
-        href: '/remont/kvartiry',
-        children: [
-          { name: 'Студии', href: '/remont/kvartiry/studiya' },
-          { name: '1-к квартиры', href: '/remont/kvartiry/1k' },
-          { name: '2-к квартиры', href: '/remont/kvartiry/2k' },
-          { name: '3-к квартиры', href: '/remont/kvartiry/3k' },
-        ],
-      },
-      {
-        name: 'Ремонт домов',
-        href: '/remont/doma',
-        children: [
-          { name: 'Дома и коттеджи', href: '/remont/doma/kottedzhi' },
-          { name: 'Апартаменты', href: '/remont/doma/apartamenty' },
-        ],
-      },
-      {
-        name: 'Коммерческие помещения',
-        href: '/remont/kommercheskiye',
-        children: [
-          { name: 'Офисы', href: '/remont/kommercheskiye/ofisy' },
-          { name: 'Рестораны и кафе', href: '/remont/kommercheskiye/restorany' },
-          { name: 'Магазины', href: '/remont/kommercheskiye/magaziny' },
-        ],
-      },
-      {
-        name: 'Дизайн интерьера',
-        href: '/dizajn',
-        children: [
-          { name: 'Дизайн-проект', href: '/dizajn/proekt' },
-          { name: '3D визуализация', href: '/dizajn/3d-vizualizaciya' },
-          { name: 'Авторский надзор', href: '/dizajn/avtorskij-nadzor' },
-        ],
-      },
-      {
-        name: 'Виды работ',
-        href: '/remont/vidy',
-        children: [
-          { name: 'Капитальный ремонт', href: '/remont/vidy/kapitalnyj' },
-          { name: 'Косметический ремонт', href: '/remont/vidy/kosmeticheskij' },
-          { name: 'Евроремонт', href: '/remont/vidy/evroremont' },
-        ],
-      },
     ],
   },
   { 

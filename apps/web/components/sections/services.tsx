@@ -46,7 +46,9 @@ export function Services() {
     },
   })
 
-  const mainCategories = categories?.filter((cat) => !cat.parentId).slice(0, 3) || []
+  // Показываем только главные разделы сайта
+  const allowedSlugs = ['remont', 'dizajn', 'uslugi']
+  const mainCategories = categories?.filter((cat) => allowedSlugs.includes(cat.slug)).slice(0, 3) || []
 
   if (isLoading) {
     return (
