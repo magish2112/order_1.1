@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { ProjectDetailPage } from '@/components/pages/project-detail-page'
-import { api } from '@/lib/api'
+import { getApiUrl } from '@/lib/api'
 
 export async function generateMetadata({
   params,
@@ -9,7 +9,7 @@ export async function generateMetadata({
   params: { slug: string }
 }): Promise<Metadata> {
   try {
-    const project = await fetch(`${process.env.API_URL || 'http://localhost:4000'}/api/v1/projects/${params.slug}`)
+    const project = await fetch(getApiUrl(`/projects/${params.slug}`))
       .then((res) => res.json())
       .catch(() => null)
     

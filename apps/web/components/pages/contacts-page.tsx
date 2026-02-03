@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { api } from '@/lib/api'
+import { useQuery } from '@tanstack/react-query'
+import { api, ApiResponse } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +23,16 @@ type ContactFormData = z.infer<typeof contactFormSchema>
 export function ContactsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+
+  const { data: settingsData } = useQuery({
+    queryKey: ['settings', 'public'],
+    queryFn: () => api.get<ApiResponse<Record<string, unknown>>>('/settings/public'),
+  })
+  const settings = settingsData?.data || {}
+  const phone = (settings.phone as string) || '+7 (999) 123-45-67'
+  const email = (settings.email as string) || 'info@eternostroy.ru'
+  const address = (settings.address as string) || 'г. Москва, ул. Примерная, д. 1'
+  const workHours = (settings.workHours as string) || 'Ежедневно с 9:00 до 21:00'
 
   const {
     register,
@@ -75,13 +86,13 @@ export function ContactsPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-lg font-semibold text-gray-900">
-                  +7 (999) 123-45-67
+                  {phone}
                 </p>
                 <p className="mt-1 text-sm text-gray-600">
-                  Ежедневно с 9:00 до 21:00
+                  {workHours}
                 </p>
                 <Button className="mt-4" asChild>
-                  <a href="tel:+79991234567">Позвонить</a>
+                  <a href={`tel:${phone.replace(/[^0-9+]/g, '')}`}>Позвонить</a>
                 </Button>
               </CardContent>
             </Card>
@@ -93,13 +104,13 @@ export function ContactsPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-lg font-semibold text-gray-900">
-                  info@remstroy.ru
+                  {email}
                 </p>
                 <p className="mt-1 text-sm text-gray-600">
                   Ответим в течение 24 часов
                 </p>
                 <Button className="mt-4" variant="outline" asChild>
-                  <a href="mailto:info@remstroy.ru">Написать</a>
+                  <a href={`mailto:${email}`}>Написать</a>
                 </Button>
               </CardContent>
             </Card>
@@ -110,11 +121,11 @@ export function ContactsPage() {
                 <CardTitle>Адрес</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-lg font-semibold text-gray-900">
-                  г. Москва
+                <p className="text-lg font-semibold text-gray-900 whitespace-pre-line">
+                  {address}
                 </p>
                 <p className="mt-1 text-sm text-gray-600">
-                  ул. Примерная, д. 1
+                  Адрес офиса
                 </p>
                 <Button className="mt-4" variant="outline" asChild>
                   <a

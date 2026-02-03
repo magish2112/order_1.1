@@ -50,12 +50,16 @@ export async function Footer() {
     // используем fallback
   }
   
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:4000'
-  const resolvedLogoUrl = logoUrl.startsWith('http') ? logoUrl : `${apiBase}${logoUrl}`
+  const siteBase = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || ''
+  const resolvedLogoUrl = logoUrl.startsWith('http')
+    ? logoUrl
+    : siteBase && !siteBase.includes('localhost')
+      ? `${siteBase.replace(/\/$/, '')}${logoUrl.startsWith('/') ? logoUrl : '/' + logoUrl}`
+      : logoUrl.startsWith('/') ? logoUrl : '/' + logoUrl
   
   // Извлекаем настройки с fallback значениями
   const phone = (settings.phone as string) || '+7 (999) 123-45-67'
-  const email = (settings.email as string) || 'info@remstroy.ru'
+  const email = (settings.email as string) || 'info@eternostroy.ru'
   const address = (settings.address as string) || 'г. Москва, ул. Примерная, д. 1'
   const workHours = (settings.workHours as string) || 'Ежедневно 9:00 - 21:00'
   const vk = (settings.vk as string) || '#'

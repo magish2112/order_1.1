@@ -137,7 +137,20 @@ export function Calculator() {
     }
   }, [watchedArea, watchedRepairType, watchedHousingType, watchedAdditionalServices, config])
 
+  const isStepValid = (): boolean => {
+    switch (currentStep) {
+      case 3:
+        return (watchedPropertyType === 'apartment' || watchedPropertyType === 'house') ? (watch('rooms') ?? 1) >= 1 : true
+      case 4:
+        const area = watch('area')
+        return typeof area === 'number' && area >= 10 && area <= 1000
+      default:
+        return true
+    }
+  }
+
   const nextStep = () => {
+    if (!isStepValid()) return
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1)
     }
@@ -771,7 +784,8 @@ export function Calculator() {
                       <Button
                         type="button"
                         onClick={nextStep}
-                        className="bg-accent hover:bg-accent/90 text-foreground"
+                        disabled={!isStepValid()}
+                        className="bg-accent hover:bg-accent/90 text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Далее
                         <ChevronRight className="ml-2 h-5 w-5" />

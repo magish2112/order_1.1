@@ -1,12 +1,13 @@
 // Получаем API URL из переменных окружения
-// В production NEXT_PUBLIC_API_URL должен быть установлен
+// В production NEXT_PUBLIC_API_URL и API_URL должны быть установлены
 const getApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
-    // Client-side: используем NEXT_PUBLIC_API_URL
-    return process.env.NEXT_PUBLIC_API_URL || '/api-fallback-not-configured'
+    const url = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_SITE_URL
+    // Никогда не возвращаем localhost — в браузере он недоступен
+    if (url && !url.includes('localhost')) return url
+    return process.env.NEXT_PUBLIC_SITE_URL || ''
   }
-  // Server-side: можем использовать internal URL
-  return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://api:4000'
+  return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_SITE_URL || ''
 }
 
 const API_URL = getApiBaseUrl()
@@ -29,8 +30,15 @@ export interface ApiResponse<T> {
 }
 
 export function getApiUrl(endpoint: string): string {
-  const base = `${apiConfig.baseUrl}/api/${apiConfig.version}`
-  return endpoint.startsWith('/') ? `${base}${endpoint}` : `${base}/${endpoint}`
+  const base = apiConfig.baseUrl
+  const path = `/api/${apiConfig.version}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`
+  return base ? `${base.replace(/\/$/, '')}${path}` : path
+}
+
+/** Базовый URL API для server-side fetch (не использует localhost) */
+export function getServerApiBase(): string {
+  const url = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_SITE_URL || ''
+  return url.includes('localhost') ? '' : url
 }
 
 export class ApiError extends Error {

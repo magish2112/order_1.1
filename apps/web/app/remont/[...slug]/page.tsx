@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { ServiceCategoryPage } from '@/components/pages/service-category-page'
 import { ServiceDetailPage } from '@/components/pages/service-detail-page'
-import { api } from '@/lib/api'
+import { getApiUrl } from '@/lib/api'
 
 export async function generateMetadata({
   params,
@@ -11,13 +11,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const slug = Array.isArray(params.slug) ? params.slug.join('/') : params.slug
   try {
-    const data = await fetch(`${process.env.API_URL || 'http://localhost:4000'}/api/v1/categories/${slug}`)
+    const data = await fetch(getApiUrl(`/categories/${slug}`))
       .then((res) => res.json())
       .catch(() => null)
     
     if (!data) {
       // Попробуем найти услугу
-      const service = await fetch(`${process.env.API_URL || 'http://localhost:4000'}/api/v1/services/${slug}`)
+      const service = await fetch(getApiUrl(`/services/${slug}`))
         .then((res) => res.json())
         .catch(() => null)
       

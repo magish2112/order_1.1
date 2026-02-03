@@ -35,32 +35,31 @@ export function slugify(text: string): string {
 /**
  * Нормализует URL изображения:
  * - Если URL уже абсолютный (начинается с http/https), возвращает как есть
- * - Если URL относительный (начинается с /), добавляет базовый URL API
- * - Если URL пустой или null, возвращает null
+ * - Если URL относительный, добавляет базовый URL (SITE_URL или API_URL)
+ * - Никогда не использует localhost в production — для пустых настроек возвращает относительный путь
  */
 export function getImageUrl(imageUrl: string | null | undefined): string | null {
   if (!imageUrl) {
     return null
   }
 
-  // Если URL уже абсолютный, возвращаем как есть
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     return imageUrl
   }
 
-  // Если URL относительный, добавляем базовый URL API
-  const apiUrl = typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_API_URL // Client-side
-    : (process.env.API_URL || process.env.NEXT_PUBLIC_API_URL) // Server-side
-  
-  if (!apiUrl) {
-    console.warn('⚠️  API URL not configured. Set NEXT_PUBLIC_API_URL in .env')
-    return imageUrl // Возвращаем как есть, без базового URL
-  }
-  
-  // Убираем начальный слеш если он есть, чтобы избежать двойных слешей
   const cleanUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
-  
-  return `${apiUrl}${cleanUrl}`
+
+  // Базовый URL: приоритет SITE_URL (логотип, статика), затем API (uploads)
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    (typeof window === 'undefined' ? process.env.API_URL : undefined)
+
+  // Никогда не используем localhost в production — возвращаем относительный путь
+  if (!base || base.includes('localhost')) {
+    return cleanUrl // Браузер использует текущий origin
+  }
+
+  return `${base.replace(/\/$/, '')}${cleanUrl}`
 }
 

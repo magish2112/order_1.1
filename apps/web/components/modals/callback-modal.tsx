@@ -58,7 +58,7 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
       setTimeout(() => {
         setIsSuccess(false)
         onClose()
-      }, 2000)
+      }, 1500)
     } catch (error) {
       console.error('Ошибка отправки формы:', error)
     } finally {
@@ -169,9 +169,14 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
         </Button>
 
         {isSuccess && (
-          <p className="text-center text-sm text-accent">
-            Спасибо! Мы свяжемся с вами в ближайшее время.
-          </p>
+          <div className="space-y-3 text-center">
+            <p className="text-sm text-accent font-medium">
+              Спасибо! Мы свяжемся с вами в ближайшее время.
+            </p>
+            <Button type="button" variant="outline" size="sm" onClick={onClose}>
+              Закрыть
+            </Button>
+          </div>
         )}
       </form>
     </Modal>

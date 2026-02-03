@@ -16,9 +16,12 @@ JWT_REFRESH_SECRET=другой_минимум_32_символа
 CORS_ORIGIN=http://localhost:3000,http://localhost:3001
 # Деплой по IP: CORS_ORIGIN=http://46.17.102.76:3000,http://46.17.102.76:3001
 
-# URL API для браузера — встраивается в Web при сборке. При доступе по IP:
-NEXT_PUBLIC_API_URL=http://46.17.102.76:4000
-# С доменом: NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+# URL сайта (для логотипа, изображений, canonical)
+NEXT_PUBLIC_SITE_URL=https://eternostroy.ru
+
+# URL API для браузера — встраивается в Web при сборке. Должен быть доступен из браузера!
+NEXT_PUBLIC_API_URL=https://eternostroy.ru
+# При доступе по IP: NEXT_PUBLIC_API_URL=http://46.17.102.76:4000
 
 # URL API для Админ-панели (Vite, встраивается при сборке). Должен заканчиваться на /api/v1
 VITE_API_URL=http://46.17.102.76:4000/api/v1

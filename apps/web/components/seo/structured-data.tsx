@@ -24,8 +24,8 @@ export function OrganizationSchema() {
       type="Organization"
       data={{
         name: 'РемСтрой',
-        url: process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru',
-        logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru'}/logo.svg`,
+        url: process.env.NEXT_PUBLIC_SITE_URL || 'https://eternostroy.ru',
+        logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://eternostroy.ru'}/logo.svg`,
         contactPoint: {
           '@type': 'ContactPoint',
           telephone: '+7-999-123-45-67',
@@ -48,9 +48,9 @@ export function LocalBusinessSchema() {
       type="LocalBusiness"
       data={{
         name: 'РемСтрой',
-        image: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru'}/logo.svg`,
-        '@id': process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru',
-        url: process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru',
+        image: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://eternostroy.ru'}/logo.svg`,
+        '@id': process.env.NEXT_PUBLIC_SITE_URL || 'https://eternostroy.ru',
+        url: process.env.NEXT_PUBLIC_SITE_URL || 'https://eternostroy.ru',
         telephone: '+7-999-123-45-67',
         priceRange: '$$',
         address: {
@@ -152,7 +152,7 @@ export function ArticleSchema({
           name: 'РемСтрой',
           logo: {
             '@type': 'ImageObject',
-            url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://eterno-stroy.ru'}/logo.svg`,
+            url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://eternostroy.ru'}/logo.svg`,
           },
         },
       }}

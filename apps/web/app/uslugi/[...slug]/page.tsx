@@ -1,13 +1,13 @@
 import { Metadata } from 'next'
 import { ServiceCategoryPage } from '@/components/pages/service-category-page'
+import { getApiUrl } from '@/lib/api'
 
 type Props = { params: { slug: string[] } }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = Array.isArray(params.slug) ? params.slug.join('/') : params.slug
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'http://localhost:4000'
   try {
-    const data = await fetch(`${apiBase}/api/v1/categories/${slug}`)
+    const data = await fetch(getApiUrl(`/categories/${slug}`))
       .then((res) => res.json())
       .catch(() => null)
     if (data?.data) {
