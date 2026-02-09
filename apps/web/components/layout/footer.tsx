@@ -259,17 +259,16 @@ export async function Footer() {
             </p>
             <div className="flex space-x-6">
               {footerLinks.services.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
-                  >
-                    <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
-                    {link.name}
-                  </Link>
-                </li>
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
+                >
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
+                  {link.name}
+                </Link>
               ))}
-            </ul>
+            </div>
           </div>
           <div>
             <h3 className="mb-4 text-lg font-semibold text-foreground flex items-center">
