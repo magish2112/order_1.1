@@ -16,13 +16,21 @@ const stats = [
 ]
 
 export function AboutPage() {
-  const { data: employees } = useQuery({
+  const { data: employees, isLoading, error } = useQuery({
     queryKey: ['employees'],
     queryFn: async () => {
       const response = await api.get<ApiResponse<Employee[]>>('/employees?limit=100')
       return response.data
     },
   })
+
+  // Fallback employees if API fails
+  const fallbackEmployees = [
+    { id: '1', firstName: 'Иван', lastName: 'Иванов', position: 'Главный прораб', bio: 'Опыт работы более 10 лет', photo: null },
+    { id: '2', firstName: 'Мария', lastName: 'Петрова', position: 'Дизайнер интерьеров', bio: 'Специалист по современным решениям', photo: null },
+  ]
+
+  const displayEmployees = employees || (error ? fallbackEmployees : [])
 
   return (
     <div className="min-h-screen bg-white">
