@@ -50,6 +50,33 @@ export function Services() {
   const allowedSlugs = ['remont', 'dizajn', 'uslugi']
   const mainCategories = categories?.filter((cat) => allowedSlugs.includes(cat.slug)).slice(0, 3) || []
 
+  // Если нет данных из API, показываем статические ссылки
+  const staticServices = [
+    {
+      id: 'remont',
+      name: 'Ремонт',
+      description: 'Комплексный ремонт квартир, домов, офисов',
+      slug: 'remont',
+      image: null
+    },
+    {
+      id: 'dizajn',
+      name: 'Дизайн',
+      description: 'Профессиональный дизайн интерьера',
+      slug: 'dizajn',
+      image: null
+    },
+    {
+      id: 'uslugi',
+      name: 'Услуги',
+      description: 'Полный спектр строительных услуг',
+      slug: 'uslugi',
+      image: null
+    }
+  ]
+
+  const displayCategories = mainCategories.length > 0 ? mainCategories : staticServices
+
   if (isLoading) {
     return (
       <section className="py-16 bg-background">
@@ -152,7 +179,7 @@ export function Services() {
                       className="w-full hover:bg-accent hover:text-accent-foreground transition-all group-hover:border-accent"
                       asChild
                     >
-                      <Link href={`/${category.slug}`}>
+                      <Link href={`/uslugi/${category.slug}`}>
                         Подробнее
                         <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                       </Link>

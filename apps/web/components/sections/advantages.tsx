@@ -6,8 +6,8 @@ import { Award, Clock, Shield, Users, TrendingUp, CheckCircle2 } from 'lucide-re
 const advantages = [
   {
     icon: Award,
-    title: '500+ проектов',
-    description: 'Более 500 успешно выполненных проектов различной сложности',
+    title: '5 лет опыта, 50+ проектов, гарантия 3 года',
+    description: 'Более 5 лет успешной работы, 50+ завершенных проектов, гарантия качества 3 года',
   },
   {
     icon: Clock,
@@ -17,7 +17,7 @@ const advantages = [
   {
     icon: Shield,
     title: 'Гарантия качества',
-    description: 'Даем гарантию на все виды выполненных работ до 5 лет',
+    description: 'Даем гарантию на все виды выполненных работ до 3 лет',
   },
   {
     icon: Users,

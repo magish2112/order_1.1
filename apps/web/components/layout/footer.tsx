@@ -11,6 +11,13 @@ const footerLinks = {
     { name: 'Статьи', href: '/stati' },
     { name: 'Вакансии', href: '/vakansii' },
   ],
+  services: [
+    { name: 'Услуги', href: '/uslugi' },
+    { name: 'Ремонт', href: '/uslugi/remont' },
+    { name: 'Дизайн', href: '/uslugi/dizajn' },
+    { name: 'Комплектация', href: '/uslugi/komplektaciya' },
+    { name: 'Мебель', href: '/uslugi/mebel' },
+  ],
   info: [
     { name: 'Калькулятор', href: '/kalkulyator' },
     { name: 'FAQ', href: '/faq' },
@@ -251,14 +258,35 @@ export async function Footer() {
               © {new Date().getFullYear()} ETERNO STROY. Все права защищены.
             </p>
             <div className="flex space-x-6">
+              {footerLinks.services.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
+                  >
+                    <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="mb-4 text-lg font-semibold text-foreground flex items-center">
+              <div className="w-1 h-6 bg-accent mr-3"></div>
+              Информация
+            </h3>
+            <ul className="space-y-2">
               {footerLinks.info.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors"
-                >
-                  {link.name}
-                </Link>
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
+                  >
+                    <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
+                    {link.name}
+                  </Link>
+                </li>
               ))}
             </div>
           </div>

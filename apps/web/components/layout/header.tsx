@@ -23,22 +23,17 @@ import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu'
 
 const navigation = [
   {
-    name: 'Ремонт',
-    href: '/remont',
-    children: []
-  },
-  {
-    name: 'Дизайн',
-    href: '/dizajn',
-    children: []
-  },
-  {
     name: 'Услуги',
     href: '/uslugi',
-    children: []
+    children: [
+      { name: 'Ремонт', href: '/uslugi/remont' },
+      { name: 'Дизайн', href: '/uslugi/dizajn' },
+      { name: 'Комплектация', href: '/uslugi/komplektaciya' },
+      { name: 'Мебель', href: '/uslugi/mebel' },
+    ]
   },
-  { 
-    name: 'Портфолио', 
+  {
+    name: 'Портфолио',
     href: '/portfolio',
     children: [
       { name: 'Все проекты', href: '/portfolio' },
@@ -47,8 +42,8 @@ const navigation = [
       { name: 'Коммерческие', href: '/portfolio?type=commercial' },
     ]
   },
-  { 
-    name: 'О компании', 
+  {
+    name: 'О компании',
     href: '/o-kompanii',
     children: [
       { name: 'О нас', href: '/o-kompanii' },

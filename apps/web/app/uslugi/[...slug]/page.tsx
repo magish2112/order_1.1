@@ -25,5 +25,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default function UslugiSlugPage({ params }: Props) {
   const slug = Array.isArray(params.slug) ? params.slug.join('/') : params.slug
+
+  // Handle different service types
+  if (slug.startsWith('remont')) {
+    return <ServiceCategoryPage categorySlug="remont" slug={slug.replace('remont/', '') || undefined} />
+  }
+  if (slug.startsWith('dizajn')) {
+    return <ServiceCategoryPage categorySlug="dizajn" slug={slug.replace('dizajn/', '') || undefined} />
+  }
+
+  // Default to uslugi category
   return <ServiceCategoryPage categorySlug="uslugi" slug={slug} />
 }
