@@ -29,7 +29,6 @@ const footerLinks = {
 export async function Footer() {
   let logoUrl = '/logo.svg'
   let settings: Record<string, unknown> = {}
-  let categories: any[] = []
   
   try {
     const response = await fetch(getApiUrl('/settings/public'), {
@@ -44,19 +43,6 @@ export async function Footer() {
     // используем fallback настройки
   }
 
-  // Получаем категории для меню
-  try {
-    const response = await fetch(getApiUrl('/categories?isActive=true'), {
-      next: { revalidate: 300 },
-    })
-    if (response.ok) {
-      const payload = (await response.json()) as { success?: boolean; data: any[] }
-      categories = payload.data || []
-    }
-  } catch {
-    // используем fallback
-  }
-  
   const siteBase = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || ''
   const resolvedLogoUrl = logoUrl.startsWith('http')
     ? logoUrl
@@ -176,14 +162,14 @@ export async function Footer() {
               Услуги
             </h3>
             <ul className="space-y-2">
-              {categories.slice(0, 4).map((cat) => (
-                <li key={cat.slug}>
+              {footerLinks.services.map((link) => (
+                <li key={link.name}>
                   <Link
-                    href={`/${cat.slug}`}
+                    href={link.href}
                     className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
                   >
                     <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
-                    {cat.name}
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -198,6 +184,27 @@ export async function Footer() {
             </h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
+                  >
+                    <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Info */}
+          <div>
+            <h3 className="mb-4 text-lg font-semibold text-foreground flex items-center">
+              <div className="w-1 h-6 bg-accent mr-3"></div>
+              Информация
+            </h3>
+            <ul className="space-y-2">
+              {footerLinks.info.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
@@ -252,48 +259,13 @@ export async function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-border pt-8">
-          <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} ETERNO STROY. Все права защищены.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 md:justify-end">
-              {footerLinks.services.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
-                >
-                  <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
-                  {link.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-          <div className="mt-6">
-            <h3 className="mb-4 text-lg font-semibold text-foreground flex items-center">
-              <div className="w-1 h-6 bg-accent mr-3"></div>
-              Информация
-            </h3>
-            <ul className="space-y-2">
-              {footerLinks.info.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
-                  >
-                    <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="mt-4 text-center">
-            <p className="text-xs text-muted-foreground">
-              Создано для профессионалов строительства
-            </p>
-          </div>
+        <div className="mt-12 border-t border-border pt-6 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} ETERNO STROY. Все права защищены.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Создано для профессионалов строительства
+          </p>
         </div>
       </div>
     </footer>
