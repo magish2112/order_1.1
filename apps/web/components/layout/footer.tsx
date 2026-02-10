@@ -96,11 +96,8 @@ export async function Footer() {
               </div>
               <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
             </Link>
-            <p className="mb-4 text-sm text-accent font-medium">
-              Строительная компания №1 в Москве
-            </p>
             <p className="mb-4 text-sm text-muted-foreground">
-              Профессиональное строительство и ремонт. Качество, надежность, соблюдение сроков. Более 15 лет на рынке.
+              Профессиональное строительство и ремонт. Качество, надежность, соблюдение сроков.
             </p>
             <div className="flex space-x-4">
               {vk && vk !== '#' && (
