@@ -257,7 +257,7 @@ export async function Footer() {
             <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} ETERNO STROY. Все права защищены.
             </p>
-            <div className="flex space-x-6">
+            <div className="flex flex-wrap justify-center gap-4 md:justify-end">
               {footerLinks.services.map((link) => (
                 <Link
                   key={link.name}
@@ -270,7 +270,7 @@ export async function Footer() {
               ))}
             </div>
           </div>
-          <div>
+          <div className="mt-6">
             <h3 className="mb-4 text-lg font-semibold text-foreground flex items-center">
               <div className="w-1 h-6 bg-accent mr-3"></div>
               Информация
@@ -287,7 +287,7 @@ export async function Footer() {
                   </Link>
                 </li>
               ))}
-            </div>
+            </ul>
           </div>
           <div className="mt-4 text-center">
             <p className="text-xs text-muted-foreground">
