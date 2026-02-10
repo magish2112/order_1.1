@@ -49,11 +49,13 @@ export async function Footer() {
       ? `${siteBase.replace(/\/$/, '')}${logoUrl.startsWith('/') ? logoUrl : '/' + logoUrl}`
       : logoUrl.startsWith('/') ? logoUrl : '/' + logoUrl
   
-  // Извлекаем настройки с fallback значениями
-  const phone = (settings.phone as string) || '+7 (999) 123-45-67'
-  const email = (settings.email as string) || 'info@eternostroy.ru'
-  const address = (settings.address as string) || 'г. Москва, ул. Примерная, д. 1'
-  const workHours = (settings.workHours as string) || 'Ежедневно 9:00 - 21:00'
+  // Извлекаем настройки с fallback значениями (реальные данные компании)
+  const phone = (settings.phone as string) || '+7 (906) 486-11-11'
+  const email = (settings.email as string) || 'eternostroy@mail.ru'
+  const address = (settings.address as string) || 'г. Магас, ул. Примерная, д. 1'
+  const workHours =
+    (settings.workHours as string) ||
+    'Пн-Пт: 9:00 - 18:00, Сб-Вс: 10:00 - 16:00'
   const vk = (settings.vk as string) || '#'
   const telegram = (settings.telegram as string) || '#'
   const youtube = (settings.youtube as string) || '#'
