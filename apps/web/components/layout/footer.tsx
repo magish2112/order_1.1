@@ -12,7 +12,6 @@ const footerLinks = {
     { name: 'Вакансии', href: '/vakansii' },
   ],
   services: [
-    { name: 'Услуги', href: '/uslugi' },
     { name: 'Ремонт', href: '/uslugi/remont' },
     { name: 'Дизайн', href: '/uslugi/dizajn' },
     { name: 'Комплектация', href: '/uslugi/komplektaciya' },
@@ -262,9 +261,6 @@ export async function Footer() {
         <div className="mt-12 border-t border-border pt-6 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} ETERNO STROY. Все права защищены.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Создано для профессионалов строительства
           </p>
         </div>
       </div>

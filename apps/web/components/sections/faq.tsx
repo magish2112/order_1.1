@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { CallbackModal } from '@/components/modals/callback-modal'
 
 export function FaqSection() {
-  const { data: faqs, isLoading } = useQuery({
+  const { data: faqs, isLoading, error } = useQuery({
     queryKey: ['faqs'],
     queryFn: async () => {
       const response = await api.get<ApiResponse<Faq[]>>('/faqs?limit=100')
@@ -24,7 +24,38 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const [callbackModalOpen, setCallbackModalOpen] = useState(false)
 
-  if (isLoading) {
+  const fallbackFaqs: Faq[] = [
+    {
+      id: 'static-1',
+      question: 'Даем ли мы гарантию на работы?',
+      answer: 'Да, мы предоставляем гарантию до 3 лет на выполненные работы.',
+      isActive: true,
+      order: 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'static-2',
+      question: 'Занимаемся ли мы поставкой материалов?',
+      answer: 'Да, мы полностью берем на себя поставку и логистику материалов.',
+      isActive: true,
+      order: 2,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ]
+
+  const effectiveFaqs: Faq[] =
+    !faqs || faqs.length === 0 || error
+      ? fallbackFaqs
+      : [
+          ...faqs,
+          ...fallbackFaqs.filter(
+            (fallback) => !faqs.some((item) => item.question === fallback.question),
+          ),
+        ]
+
+  if (isLoading && !faqs) {
     return (
       <section className="bg-background py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -34,10 +65,6 @@ export function FaqSection() {
         </div>
       </section>
     )
-  }
-
-  if (!faqs || faqs.length === 0) {
-    return null
   }
 
   return (
@@ -68,7 +95,7 @@ export function FaqSection() {
         <div className="absolute top-0 left-0 w-1/4 h-1/4 bg-gradient-to-br from-accent/10 to-transparent blur-3xl" />
         <div className="absolute bottom-0 right-0 w-1/4 h-1/4 bg-gradient-to-tl from-accent/10 to-transparent blur-3xl" />
         <FAQSchema
-          faqs={faqs.map((faq) => ({
+          faqs={effectiveFaqs.map((faq) => ({
             question: faq.question,
             answer: faq.answer,
           }))}
@@ -88,7 +115,7 @@ export function FaqSection() {
           </div>
 
           <div className="mt-12 space-y-4">
-            {faqs.map((faq, index) => (
+            {effectiveFaqs.map((faq, index) => (
               <motion.div
                 key={faq.id}
                 initial={{ opacity: 0, y: 20 }}

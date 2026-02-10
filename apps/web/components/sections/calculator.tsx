@@ -40,7 +40,7 @@ const steps = [
 ]
 
 const additionalServices = [
-  { id: 'design-project', label: 'Дизайн-проект', percent: 15 },
+  { id: 'design-project', label: 'Дизайн-проект', percent: 10 },
   { id: 'demolition', label: 'Демонтаж', percent: 5 },
   { id: 'electrical', label: 'Электрика', percent: 8 },
   { id: 'plumbing', label: 'Сантехника', percent: 10 },
@@ -110,6 +110,10 @@ export function Calculator() {
 
   useEffect(() => {
     if (config && watchedArea && watchedRepairType) {
+      const area = Number(watchedArea)
+      const coefficient = config.coefficients[watchedHousingType] || 1.0
+
+      // Базовые цены из конфига для типов, где нет жесткого диапазона
       const basePrices = {
         cosmetic: Number(config.basePriceCosmetic),
         capital: Number(config.basePriceCapital),
@@ -117,20 +121,39 @@ export function Calculator() {
         elite: Number(config.basePriceElite),
       }
 
-      const basePrice = basePrices[watchedRepairType]
-      const coefficient = config.coefficients[watchedHousingType] || 1.0
-      let price = basePrice * Number(watchedArea) * coefficient
-
-      // Добавляем процент за дополнительные услуги
+      // Процент за дополнительные услуги
       const additionalPercent = watchedAdditionalServices.reduce((sum, serviceId) => {
         const service = additionalServices.find((s) => s.id === serviceId)
         return sum + (service?.percent || 0)
       }, 0)
+      const additionalMultiplier = 1 + additionalPercent / 100
 
-      price = price * (1 + additionalPercent / 100)
+      let minPrice: number
+      let maxPrice: number
+      let price: number
 
-      const minPrice = price * 0.85
-      const maxPrice = price * 1.15
+      if (watchedRepairType === 'capital') {
+        // Капитальный ремонт: 20–30 тыс. ₽ за м²
+        const minPerM2 = 20000
+        const maxPerM2 = 30000
+        minPrice = minPerM2 * area * coefficient * additionalMultiplier
+        maxPrice = maxPerM2 * area * coefficient * additionalMultiplier
+        price = (minPrice + maxPrice) / 2
+      } else if (watchedRepairType === 'design') {
+        // Дизайнерский ремонт: 25–35 тыс. ₽ за м²
+        const minPerM2 = 25000
+        const maxPerM2 = 35000
+        minPrice = minPerM2 * area * coefficient * additionalMultiplier
+        maxPrice = maxPerM2 * area * coefficient * additionalMultiplier
+        price = (minPrice + maxPrice) / 2
+      } else {
+        // Остальные типы — по конфигу с диапазоном ±15%
+        const basePrice = basePrices[watchedRepairType]
+        const base = basePrice * area * coefficient * additionalMultiplier
+        minPrice = base * 0.85
+        maxPrice = base * 1.15
+        price = base
+      }
 
       setPriceRange({ min: Math.round(minPrice), max: Math.round(maxPrice) })
       setEstimatedPrice(Math.round(price))
@@ -139,11 +162,17 @@ export function Calculator() {
 
   const isStepValid = (): boolean => {
     switch (currentStep) {
-      case 3:
-        return (watchedPropertyType === 'apartment' || watchedPropertyType === 'house') ? (watch('rooms') ?? 1) >= 1 : true
-      case 4:
+      case 3: {
+        return (watchedPropertyType === 'apartment' || watchedPropertyType === 'house')
+          ? (watch('rooms') ?? 1) >= 1
+          : true
+      }
+      case 4: {
         const area = watch('area')
-        return typeof area === 'number' && area >= 10 && area <= 1000
+        if (typeof area !== 'number') return false
+        const maxForType = watchedPropertyType === 'apartment' ? 200 : 1000
+        return area >= 10 && area <= maxForType
+      }
       default:
         return true
     }
@@ -422,6 +451,24 @@ export function Calculator() {
                         Количество комнат
                       </h3>
                       <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+                        {/* Отдельная опция "Студия" для квартир */}
+                        {watchedPropertyType === 'apartment' && (
+                          <button
+                            key="studio"
+                            type="button"
+                            onClick={() => {
+                              setValue('rooms', 1)
+                              setTimeout(nextStep, 300)
+                            }}
+                            className={`rounded-lg border-2 p-4 text-center font-semibold transition-all hover:border-accent/50 ${
+                              watch('rooms') === 1
+                                ? 'border-accent bg-accent/10 text-accent'
+                                : 'border-border text-foreground/80 hover:bg-card/50'
+                            }`}
+                          >
+                            Студия
+                          </button>
+                        )}
                         {[1, 2, 3, 4, '5+'].map((num) => (
                           <button
                             key={num}
@@ -465,7 +512,7 @@ export function Calculator() {
                             valueAsNumber: true,
                           })}
                           min={10}
-                          max={1000}
+                          max={watchedPropertyType === 'apartment' ? 200 : 1000}
                           placeholder="Введите площадь в м²"
                           className="text-lg"
                         />
@@ -478,7 +525,7 @@ export function Calculator() {
                           <input
                             type="range"
                             min="10"
-                            max="500"
+                            max={watchedPropertyType === 'apartment' ? 200 : 500}
                             value={watchedArea || 50}
                             onChange={(e) => setValue('area', Number(e.target.value))}
                             className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider-thumb"
@@ -491,7 +538,9 @@ export function Calculator() {
                             <span className="font-semibold text-accent">
                               {watchedArea || 50} м²
                             </span>
-                            <span>500 м²</span>
+                            <span>
+                              {watchedPropertyType === 'apartment' ? '200 м²' : '500 м²'}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -667,10 +716,12 @@ export function Calculator() {
                               Примерный срок выполнения:
                             </p>
                             <p className="mt-2 text-xl font-semibold text-gray-700">
-                              {watchedRepairType === 'cosmetic' && '1-2 месяца'}
-                              {watchedRepairType === 'capital' && '2-4 месяца'}
-                              {watchedRepairType === 'design' && '3-5 месяцев'}
-                              {watchedRepairType === 'elite' && '4-6 месяцев'}
+                              {(() => {
+                                const area = watchedArea || 0
+                                if (!area || area <= 0) return 'Срок уточняется'
+                                const months = Math.max(1, Math.ceil(area / 10))
+                                return months === 1 ? '1 месяц' : `${months} месяцев`
+                              })()}
                             </p>
                           </div>
 
