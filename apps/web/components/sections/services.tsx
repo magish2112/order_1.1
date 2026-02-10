@@ -206,7 +206,7 @@ export function Services() {
             className="bg-accent hover:bg-accent/90 text-accent-foreground group"
             asChild
           >
-            <Link href="/remont">
+            <Link href="/uslugi">
               Все услуги
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
