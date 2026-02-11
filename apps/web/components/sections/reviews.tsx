@@ -2,7 +2,6 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
-import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Autoplay } from 'swiper/modules'
 import 'swiper/css'
@@ -203,9 +202,9 @@ export function Reviews() {
                               className="mt-4 bg-accent hover:bg-accent/90 text-foreground"
                               asChild
                             >
-                              <Link href={`/portfolio/${project.slug}`}>
+                              <a href={`/portfolio/${project.slug}`}>
                                 Смотреть проект
-                              </Link>
+                              </a>
                             </Button>
                           )}
                         </div>

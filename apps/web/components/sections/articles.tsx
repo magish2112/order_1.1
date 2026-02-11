@@ -1,7 +1,6 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import Link from 'next/link'
 import Image from 'next/image'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Autoplay } from 'swiper/modules'
@@ -84,10 +83,10 @@ export function Articles() {
             className="hidden lg:flex border-border text-foreground/80 hover:bg-accent hover:text-foreground hover:border-accent"
             asChild
           >
-            <Link href="/stati">
+            <a href="/stati">
               Все статьи
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+            </a>
           </Button>
         </div>
 
@@ -115,7 +114,7 @@ export function Articles() {
           >
             {articles.map((article) => (
               <SwiperSlide key={article.id}>
-                <Link href={`/stati/${article.slug}`}>
+                <a href={`/stati/${article.slug}`}>
                   <Card className="group h-full overflow-hidden transition-all hover:shadow-xl">
                     {article.coverImage && getImageUrl(article.coverImage) && (
                       <div className="relative aspect-video w-full overflow-hidden">
@@ -156,7 +155,7 @@ export function Articles() {
                       </div>
                     </CardContent>
                   </Card>
-                </Link>
+                </a>
               </SwiperSlide>
             ))}
           </Swiper>
@@ -177,10 +176,10 @@ export function Articles() {
 
         <div className="mt-8 text-center lg:hidden">
           <Button className="bg-accent hover:bg-accent/90 text-foreground group" asChild>
-            <Link href="/stati">
+            <a href="/stati">
               Все статьи
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+            </a>
           </Button>
         </div>
       </div>

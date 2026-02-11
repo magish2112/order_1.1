@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -115,13 +114,13 @@ export function WorkSteps() {
                     <p className="text-sm leading-relaxed text-muted-foreground mb-4">
                       {service.description}
                     </p>
-                    <Link
+                    <a
                       href={service.href}
                       className="flex items-center gap-2 text-sm font-medium text-accent group-hover:gap-3 transition-all"
                     >
                       Подробнее
                       <ArrowRight className="w-4 h-4" />
-                    </Link>
+                    </a>
                   </CardContent>
                 </Card>
               </motion.div>

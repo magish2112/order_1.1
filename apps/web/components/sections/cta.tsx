@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Phone, MessageCircle, ArrowRight } from 'lucide-react'
-import Link from 'next/link'
 
 export function Cta() {
   return (
@@ -69,21 +68,21 @@ export function Cta() {
               className="bg-accent hover:bg-accent/90 text-accent-foreground transition-all hover:scale-105 shadow-lg hover:shadow-accent/25"
               asChild
             >
-              <Link href="/kontakty">
+              <a href="/kontakty">
                 <Phone className="mr-2 h-5 w-5" />
                 Позвонить нам
-              </Link>
+              </a>
             </Button>
             <Button
               size="lg"
               className="bg-accent hover:bg-accent/90 text-accent-foreground group transition-all hover:scale-105"
               asChild
             >
-              <Link href="/kalkulyator">
+              <a href="/kalkulyator">
                 <MessageCircle className="mr-2 h-5 w-5" />
                 Заказать расчет
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </a>
             </Button>
           </motion.div>
         </div>

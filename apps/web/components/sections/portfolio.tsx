@@ -1,7 +1,6 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import Link from 'next/link'
 import Image from 'next/image'
 import { api, ApiResponse } from '@/lib/api'
 import { Project } from '@/lib/types'
@@ -77,7 +76,7 @@ export function Portfolio() {
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
             >
-              <Link href={`/portfolio/${project.slug}`}>
+              <a href={`/portfolio/${project.slug}`}>
                 <Card className="overflow-hidden border-2 hover:shadow-2xl transition-all duration-300 group cursor-pointer border-accent/50 bg-card">
                   <div className="relative h-64 overflow-hidden">
                     {project.coverImage && getImageUrl(project.coverImage) ? (
@@ -121,7 +120,7 @@ export function Portfolio() {
                     </div>
                   </CardContent>
                 </Card>
-              </Link>
+              </a>
             </motion.div>
           ))}
         </motion.div>
@@ -138,10 +137,10 @@ export function Portfolio() {
             className="bg-accent hover:bg-accent/90 text-accent-foreground group rounded-full"
             asChild
           >
-            <Link href="/portfolio">
+            <a href="/portfolio">
               Все проекты
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </a>
           </Button>
         </motion.div>
       </div>
