@@ -75,12 +75,12 @@ export function MobileMenu({ isOpen, onClose, navigation, isActive }: MobileMenu
               {/* Contact Info */}
               <div className="border-b border-border p-4">
                 <a
-                  href="tel:+79991234567"
+                  href="tel:+79064861111"
                   className="flex items-center space-x-3 rounded-lg bg-card/50 border border-border p-3 text-muted-foreground hover:bg-muted hover:border-accent/30 transition-all duration-200"
                 >
                   <Phone className="h-5 w-5 text-accent" />
                   <div>
-                    <div className="font-medium text-foreground">+7 (999) 123-45-67</div>
+                    <div className="font-medium text-foreground">+7 (906) 486-11-11</div>
                     <div className="text-xs text-muted-foreground">Нажмите для звонка</div>
                   </div>
                 </a>
