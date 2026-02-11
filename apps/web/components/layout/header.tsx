@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
@@ -120,7 +119,7 @@ export function Header() {
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-3 group">
+              <a href="/" className="flex items-center space-x-3 group">
                 <div className="relative">
                   <div className="flex items-center space-x-2">
                     <div className="relative w-12 h-12 flex items-center justify-center">
@@ -137,7 +136,7 @@ export function Header() {
                   </div>
                   <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-accent to-accent/80 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                 </div>
-              </Link>
+              </a>
             </div>
 
             {/* Desktop Navigation */}
@@ -178,7 +177,7 @@ export function Header() {
                             <div className="grid grid-cols-2 gap-4">
                               {subcategories.slice(0, 8).map((subcategory) => (
                                 <NavigationMenuPrimitive.Link key={subcategory.href} asChild>
-                                  <Link
+                                  <a
                                     href={subcategory.href}
                                     className={cn(
                                       'group block select-none space-y-2 rounded-lg p-3 leading-none no-underline outline-none transition-all',
@@ -194,18 +193,18 @@ export function Header() {
                                         {subcategory.description}
                                       </p>
                                     )}
-                                  </Link>
+                                  </a>
                                 </NavigationMenuPrimitive.Link>
                               ))}
                             </div>
                             <div className="mt-4 pt-4 border-t border-border">
-                              <Link
+                              <a
                                 href={item.href}
                                 className="inline-flex items-center gap-2 text-sm text-accent hover:text-accent/80 transition-colors"
                               >
                                 <span>Смотреть все {item.name.toLowerCase()}</span>
                                 <ChevronDown className="h-3 w-3 rotate-[-90deg]" />
-                              </Link>
+                              </a>
                             </div>
                           </div>
                         </NavigationMenuContent>
@@ -216,7 +215,7 @@ export function Header() {
                   return (
                     <NavigationMenuItem key={item.name}>
                       <NavigationMenuPrimitive.Link asChild>
-                        <Link
+                        <a
                           href={item.href}
                           className={cn(
                             'group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
@@ -226,7 +225,7 @@ export function Header() {
                         >
                           {IconComponent && <IconComponent className="h-4 w-4" />}
                           {item.name}
-                        </Link>
+                        </a>
                       </NavigationMenuPrimitive.Link>
                     </NavigationMenuItem>
                   )
@@ -263,11 +262,11 @@ export function Header() {
                   "shadow-sm hover:shadow-accent/10"
                 )}
               >
-                <Link href="/kalkulyator">
+                <a href="/kalkulyator">
                   <Calculator className="mr-2 h-4 w-4 group-hover:text-accent" />
                   <span className="hidden xl:inline">Калькулятор</span>
                   <span className="xl:hidden">Расчет</span>
-                </Link>
+                </a>
               </Button>
             </div>
 
