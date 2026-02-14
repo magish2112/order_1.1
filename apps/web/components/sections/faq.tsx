@@ -31,8 +31,6 @@ export function FaqSection() {
       answer: 'Да, мы предоставляем гарантию до 3 лет на выполненные работы.',
       isActive: true,
       order: 1,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     },
     {
       id: 'static-2',
@@ -40,8 +38,6 @@ export function FaqSection() {
       answer: 'Да, мы полностью берем на себя поставку и логистику материалов.',
       isActive: true,
       order: 2,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     },
   ]
 
