@@ -135,30 +135,33 @@ async function main() {
 
   console.log('✅ Создана услуга:', service.name);
 
-  // Создание проекта
-  const project = await prisma.project.create({
-    data: {
-      slug: 'remont-studii-moskva-siti',
-      title: 'Ремонт студии в Москва Сити',
-      description: 'Современный ремонт студии в центре Москвы',
-      content: 'Полный описание проекта...',
-      area: 45.5,
-      rooms: 1,
-      duration: 45,
-      price: 1200000,
-      location: 'Москва Сити',
-      style: 'современный',
-      propertyType: 'квартира',
-      repairType: 'дизайнерский',
-      completedAt: new Date(),
-      categoryId: repairCategory.id,
-      isActive: true,
-      isFeatured: true,
-      createdById: admin.id,
-    },
+  // Создание/обновление проекта (идемпотентно по slug)
+  const projectData = {
+    slug: 'remont-studii-moskva-siti',
+    title: 'Ремонт студии в Москва Сити',
+    description: 'Современный ремонт студии в центре Москвы',
+    content: 'Полный описание проекта...',
+    area: 45.5,
+    rooms: 1,
+    duration: 45,
+    price: 1200000,
+    location: 'Москва Сити',
+    style: 'современный',
+    propertyType: 'квартира',
+    repairType: 'дизайнерский',
+    completedAt: new Date(),
+    categoryId: repairCategory.id,
+    isActive: true,
+    isFeatured: true,
+    createdById: admin.id,
+  };
+  const project = await prisma.project.upsert({
+    where: { slug: projectData.slug },
+    update: {},
+    create: projectData,
   });
 
-  console.log('✅ Создан проект:', project.title);
+  console.log('✅ Создан/обновлён проект:', project.title);
 
   // FAQ от заказчика (7 вопросов)
   const faqList = [
