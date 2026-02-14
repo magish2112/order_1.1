@@ -62,24 +62,26 @@ export function AboutPage() {
       {/* About */}
       <section className="py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-6 text-3xl font-bold text-gray-900">Наша история</h2>
+          <h2 className="mb-6 text-3xl font-bold text-gray-900">О компании Eterno Stroy</h2>
           <div className="prose prose-lg max-w-none">
-            <p className="text-gray-700">
-              Компания «Этерно Строй» была основана в 2008 году с целью предоставления высококачественных услуг по ремонту
-              и дизайну интерьеров. За годы работы мы зарекомендовали себя как надежный партнёр, который всегда выполняет
-              свои обязательства.
+            <p className="text-gray-700 text-lg leading-relaxed">
+              Клиенты выбирают Eterno Stroy за проверенное качество, скорость и клиентоориентированность в внутренней отделке квартир, домов и офисов, а также за предоставляемые цены ниже рыночных и гарантию на качество работ.
             </p>
-            <p className="text-gray-700">
-              Мы специализируемся на комплексном ремонте квартир, домов, офисов и коммерческих помещений.
-              Наша команда состоит из опытных специалистов, которые постоянно совершенствуют свои навыки и следят за
-              современными тенденциями в строительстве и дизайне.
+            <h3 className="mt-8 text-2xl font-bold text-gray-900">Наша концепция</h3>
+            <p className="text-gray-700 leading-relaxed">
+              Наша концепция — доводить до ума каждый объект, уделяя ему большое внимание. Мы не распыляемся на большое количество объектов в погоне за объемами, а предпочитаем уделять внимание мелочам в каждом из наших проектов.
             </p>
-            <h3 className="mt-8 text-2xl font-bold text-gray-900">Наши ценности</h3>
-            <ul className="text-gray-700">
-              <li>Качество - мы используем только проверенные материалы и технологии</li>
-              <li>Сроки - строго соблюдаем оговоренные сроки выполнения работ</li>
-              <li>Прозрачность - фиксированные цены без скрытых доплат</li>
-              <li>Гарантия - предоставляем гарантию на все виды работ</li>
+            <p className="text-gray-700 mt-4 leading-relaxed font-semibold">
+              Наш главный приоритет — довольство клиента и хорошая репутация!
+            </p>
+            <h3 className="mt-8 text-2xl font-bold text-gray-900">Наши преимущества</h3>
+            <ul className="text-gray-700 space-y-2">
+              <li className="flex items-start"><span className="mr-2 text-primary-600">✓</span> Проверенное качество работ</li>
+              <li className="flex items-start"><span className="mr-2 text-primary-600">✓</span> Скорость выполнения работ</li>
+              <li className="flex items-start"><span className="mr-2 text-primary-600">✓</span> Клиентоориентированность</li>
+              <li className="flex items-start"><span className="mr-2 text-primary-600">✓</span> Цены ниже рыночных</li>
+              <li className="flex items-start"><span className="mr-2 text-primary-600">✓</span> Гарантия на качество работ</li>
+              <li className="flex items-start"><span className="mr-2 text-primary-600">✓</span> Индивидуальный подход к каждому проекту</li>
             </ul>
           </div>
         </div>

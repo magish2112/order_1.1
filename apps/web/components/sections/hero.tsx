@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, HardHat, Building2, Ruler, Shield } from 'lucide-react'
 
@@ -116,10 +117,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                 className="bg-accent hover:bg-accent/90 text-accent-foreground group"
                 asChild
               >
-                <a href="#calculator">
+                <Link href="/kalkulyator">
                   {primaryButtonText}
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </a>
+                </Link>
               </Button>
               <Button
                 size="lg"
@@ -127,7 +128,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                 className="group"
                 asChild
               >
-                <a href="/portfolio">{secondaryButtonText}</a>
+                <Link href="/portfolio">{secondaryButtonText}</Link>
               </Button>
             </div>
 

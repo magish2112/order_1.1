@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Phone, Mail, MapPin, Facebook, Instagram, Youtube, Send } from 'lucide-react'
-import { Boxes } from '@/components/ui/background-boxes'
+import { Phone, Mail, MapPin, Youtube, Send } from 'lucide-react'
 import { getApiUrl } from '@/lib/api'
+import { FooterLogoLink } from './footer-logo-link'
 
 const footerLinks = {
   company: [
@@ -85,19 +85,7 @@ export async function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Company Info */}
           <div>
-            <Link href="/" className="flex items-center space-x-3 mb-4 group">
-              <div className="relative w-12 h-12 flex items-center justify-center">
-                <Image
-                  src={resolvedLogoUrl}
-                  alt="ETERNO STROY"
-                  width={48}
-                  height={48}
-                  className="object-contain transition-transform duration-300 group-hover:scale-105"
-                  unoptimized={resolvedLogoUrl.startsWith('http')}
-                />
-              </div>
-              <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-            </Link>
+            <FooterLogoLink logoUrl={resolvedLogoUrl} />
             <p className="mb-4 text-sm text-muted-foreground">
               Профессиональное строительство и ремонт. Качество, надежность, соблюдение сроков.
             </p>
