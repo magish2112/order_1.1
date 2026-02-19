@@ -18,6 +18,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
+import { getImageUrl } from '../../lib/imageUrl';
 import { UrlInputModal } from './UrlInputModal';
 
 interface TiptapEditorProps {
@@ -92,10 +93,7 @@ export function TiptapEditor({ value, onChange, placeholder: _placeholder }: Tip
     try {
       const response = await apiMethods.media.upload(file, 'articles');
       const imageUrl = response.data.data.url;
-      
-      // Формируем полный URL для изображения
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${apiUrl}${imageUrl}`;
+      const fullUrl = getImageUrl(imageUrl);
       
       editor.chain().focus().setImage({ src: fullUrl }).run();
       message.success('Изображение загружено');

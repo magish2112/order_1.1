@@ -5,7 +5,6 @@ import Image from 'next/image'
 import { api, ApiResponse } from '@/lib/api'
 import { Project } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ArrowRight, Square } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -76,7 +75,7 @@ export function Portfolio() {
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
             >
-              <a href={`/portfolio/${project.slug}`}>
+              <a href={`/portfolio/${project.slug}`} className="block">
                 <Card className="overflow-hidden border-2 hover:shadow-2xl transition-all duration-300 group cursor-pointer border-accent/50 bg-card">
                   <div className="relative h-64 overflow-hidden">
                     {project.coverImage && getImageUrl(project.coverImage) ? (
@@ -132,16 +131,13 @@ export function Portfolio() {
           transition={{ delay: 0.3 }}
           className="mt-12 text-center"
         >
-          <Button
-            size="lg"
-            className="bg-accent hover:bg-accent/90 text-accent-foreground group rounded-full"
-            asChild
+          <a
+            href="/portfolio"
+            className="inline-flex items-center justify-center rounded-full bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 text-base font-medium transition-colors"
           >
-            <a href="/portfolio">
-              Все проекты
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </a>
-          </Button>
+            Все проекты
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </a>
         </motion.div>
       </div>
     </motion.section>

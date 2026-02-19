@@ -14,12 +14,16 @@ class ApiClient {
       },
     });
 
-    // Interceptor для добавления токена
+    // Interceptor для добавления токена и правильной обработки FormData
     this.client.interceptors.request.use(
       (config) => {
         const token = authStore.getState().accessToken;
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+        }
+        // Для FormData удаляем Content-Type - браузер сам установит правильный заголовок с boundary
+        if (config.data instanceof FormData) {
+          delete config.headers['Content-Type'];
         }
         return config;
       },
@@ -50,7 +54,8 @@ class ApiClient {
             }
           } catch (refreshError) {
             authStore.getState().logout();
-            window.location.href = '/login';
+            const basePath = (import.meta.env.BASE_URL || '/').replace(/\/$/, '') || '';
+            window.location.href = `${basePath}/login`;
             return Promise.reject(refreshError);
           }
         }
@@ -83,9 +88,6 @@ class ApiClient {
   // Для загрузки файлов
   upload(url: string, formData: FormData, onProgress?: (progress: number) => void) {
     return this.client.post(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);

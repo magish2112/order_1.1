@@ -17,6 +17,7 @@ import {
 } from 'antd';
 import { Save, ArrowLeft, Upload as UploadIcon } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
+import { getImageUrl } from '../../lib/imageUrl';
 import { Project, ServiceCategory, Service } from '../../lib/types';
 import { TiptapEditor } from '../../components/editor/TiptapEditor';
 
@@ -101,10 +102,7 @@ export function ProjectEditPage() {
     try {
       const response = await apiMethods.media.upload(file, 'projects');
       const imageUrl = response.data.data.url;
-      
-      // Формируем полный URL для изображения
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${apiUrl}${imageUrl}`;
+      const fullUrl = getImageUrl(imageUrl);
       
       if (type === 'cover') {
         form.setFieldValue('coverImage', fullUrl);

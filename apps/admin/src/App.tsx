@@ -40,7 +40,7 @@ function App() {
   return (
     <ConfigProvider locale={ruRU}>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+        <BrowserRouter basename="/panel">
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route

@@ -1,5 +1,3 @@
-import Link from 'next/link'
-import Image from 'next/image'
 import { Phone, Mail, MapPin, Youtube, Send } from 'lucide-react'
 import { getApiUrl } from '@/lib/api'
 import { FooterLogoLink } from './footer-logo-link'
@@ -82,7 +80,7 @@ export async function Footer() {
       <div className="absolute bottom-0 right-0 w-1/3 h-1/3 bg-gradient-to-tl from-accent/10 to-transparent blur-2xl" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 items-start">
           {/* Company Info */}
           <div>
             <FooterLogoLink logoUrl={resolvedLogoUrl} />
@@ -150,13 +148,13 @@ export async function Footer() {
             <ul className="space-y-2">
               {footerLinks.services.map((link) => (
                 <li key={link.name}>
-                  <Link
+                  <a
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
                   >
                     <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
                     {link.name}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -171,13 +169,13 @@ export async function Footer() {
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
-                  <Link
+                  <a
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
                   >
                     <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
                     {link.name}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -192,13 +190,13 @@ export async function Footer() {
             <ul className="space-y-2">
               {footerLinks.info.map((link) => (
                 <li key={link.name}>
-                  <Link
+                  <a
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-accent transition-colors flex items-center group"
                   >
                     <span className="w-0 group-hover:w-2 h-0.5 bg-accent transition-all duration-300 mr-0 group-hover:mr-2"></span>
                     {link.name}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

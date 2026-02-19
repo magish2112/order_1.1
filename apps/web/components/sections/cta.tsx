@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
 import { Phone, MessageCircle, ArrowRight } from 'lucide-react'
 
 export function Cta() {
@@ -63,27 +62,21 @@ export function Cta() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-8 flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
           >
-            <Button
-              size="lg"
-              className="bg-accent hover:bg-accent/90 text-accent-foreground transition-all hover:scale-105 shadow-lg hover:shadow-accent/25"
-              asChild
+            <a
+              href="/kontakty"
+              className="inline-flex items-center justify-center rounded-md bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 text-base font-medium transition-all hover:scale-105 shadow-lg hover:shadow-accent/25"
             >
-              <a href="/kontakty">
-                <Phone className="mr-2 h-5 w-5" />
-                Позвонить нам
-              </a>
-            </Button>
-            <Button
-              size="lg"
-              className="bg-accent hover:bg-accent/90 text-accent-foreground group transition-all hover:scale-105"
-              asChild
+              <Phone className="mr-2 h-5 w-5" />
+              Позвонить нам
+            </a>
+            <a
+              href="/kalkulyator"
+              className="inline-flex items-center justify-center rounded-md bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 text-base font-medium transition-all hover:scale-105"
             >
-              <a href="/kalkulyator">
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Заказать расчет
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </a>
-            </Button>
+              <MessageCircle className="mr-2 h-5 w-5" />
+              Заказать расчет
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </a>
           </motion.div>
         </div>
       </div>

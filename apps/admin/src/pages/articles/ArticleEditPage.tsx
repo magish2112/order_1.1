@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { Save, ArrowLeft, Upload as UploadIcon } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
+import { getImageUrl } from '../../lib/imageUrl';
 import { Article, ArticleCategory } from '../../lib/types';
 import { TiptapEditor } from '../../components/editor/TiptapEditor';
 import dayjs from 'dayjs';
@@ -85,8 +86,7 @@ export function ArticleEditPage() {
     try {
       const response = await apiMethods.media.upload(file, 'articles');
       const imageUrl = response.data.data.url;
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${apiUrl}${imageUrl}`;
+      const fullUrl = getImageUrl(imageUrl);
       
       form.setFieldValue('coverImage', fullUrl);
       message.success('Обложка загружена');

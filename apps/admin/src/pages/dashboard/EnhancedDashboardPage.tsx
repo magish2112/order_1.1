@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Card, Row, Col, Statistic, Table, Tag, Spin, Empty } from 'antd';
 // import { Column, Pie, Line } from '@ant-design/charts';
@@ -26,6 +27,7 @@ import dayjs from 'dayjs';
  * - Тренды и изменения
  */
 export function EnhancedDashboardPage() {
+  const navigate = useNavigate();
   const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ['stats', 'dashboard'],
     queryFn: async () => {
@@ -238,7 +240,7 @@ export function EnhancedDashboardPage() {
       <Card 
         title="Последние заявки"
         extra={
-          <a href="/requests">Посмотреть все →</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); navigate('/requests'); }}>Посмотреть все →</a>
         }
       >
         <Table

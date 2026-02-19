@@ -198,14 +198,12 @@ export function Reviews() {
                             </div>
                           </div>
                           {project && (
-                            <Button
-                              className="mt-4 bg-accent hover:bg-accent/90 text-foreground"
-                              asChild
+                            <a
+                              href={`/portfolio/${project.slug}`}
+                              className="mt-4 inline-flex items-center justify-center rounded-md bg-accent hover:bg-accent/90 text-foreground px-4 py-2 text-sm font-medium transition-colors"
                             >
-                              <a href={`/portfolio/${project.slug}`}>
-                                Смотреть проект
-                              </a>
-                            </Button>
+                              Смотреть проект
+                            </a>
                           )}
                         </div>
                       </div>

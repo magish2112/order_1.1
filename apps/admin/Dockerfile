@@ -17,9 +17,12 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# URL API для браузера (встраивается в сборку; для production: http://IP:4000/api/v1)
+# URL API для браузера (встраивается в сборку; для production: https://eternostroy.ru/api/v1)
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
+# Ссылка «На сайт» в шапке панели
+ARG VITE_SITE_URL
+ENV VITE_SITE_URL=$VITE_SITE_URL
 
 # Увеличиваем лимит памяти Node.js для сборки Vite (rendering chunks требует много RAM)
 ENV NODE_OPTIONS="--max-old-space-size=4096"
@@ -30,8 +33,8 @@ RUN npm run build
 # Production образ с nginx
 FROM nginx:alpine AS runner
 
-# Копируем собранные файлы
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Копируем собранные файлы в /panel для доступа по https://site/panel
+COPY --from=builder /app/dist /usr/share/nginx/html/panel
 
 # Копируем конфигурацию nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf

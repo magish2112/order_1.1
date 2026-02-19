@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Form, Input, Switch, Button, Card, Space, message, Select, InputNumber, Upload } from 'antd';
 import { Save, ArrowLeft, Upload as UploadIcon } from 'lucide-react';
 import { apiMethods } from '../../lib/api';
+import { getImageUrl } from '../../lib/imageUrl';
 import { Employee } from '../../lib/types';
 
 const { TextArea } = Input;
@@ -56,10 +57,7 @@ export function EmployeeEditPage() {
     try {
       const response = await apiMethods.media.upload(file, 'employees');
       const imageUrl = response.data.data.url;
-      
-      // Формируем полный URL для изображения
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${apiUrl}${imageUrl}`;
+      const fullUrl = getImageUrl(imageUrl);
       
       form.setFieldValue('photo', fullUrl);
       message.success('Фото загружено');
