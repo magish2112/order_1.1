@@ -148,7 +148,7 @@ services:
         VITE_SITE_URL: ${VITE_SITE_URL:-https://eternostroy.ru}
     container_name: order_admin
     ports:
-      - "${ADMIN_PORT:-3001}:3001"
+      - "${ADMIN_PORT:-3001}:80"
     depends_on:
       - api
     healthcheck:
