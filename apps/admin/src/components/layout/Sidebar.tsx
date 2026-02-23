@@ -13,6 +13,7 @@ import {
   HelpCircle,
   Image,
   Settings,
+  FileEdit,
 } from 'lucide-react';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { useAuth } from '../../hooks/useAuth';
@@ -43,6 +44,11 @@ const menuItems = [
     key: '/articles',
     icon: <FileText size={20} />,
     label: 'Статьи',
+  },
+  {
+    key: '/service-pages',
+    icon: <FileEdit size={20} />,
+    label: 'Страницы услуг',
   },
   {
     key: '/requests',

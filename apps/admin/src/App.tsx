@@ -24,6 +24,7 @@ import { FaqPage } from './pages/faq/FaqPage';
 import { FaqEditPage } from './pages/faq/FaqEditPage';
 import { MediaLibraryPage } from './pages/media/MediaLibraryPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
+import { ServicePagesPage } from './pages/service-pages/ServicePagesPage';
 import { UsersPage } from './pages/users/UsersPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
@@ -68,6 +69,7 @@ function App() {
                       <Route path="/faq" element={<FaqPage />} />
                       <Route path="/faq/:id" element={<FaqEditPage />} />
                       <Route path="/media" element={<MediaLibraryPage />} />
+                      <Route path="/service-pages" element={<ServicePagesPage />} />
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/users" element={<UsersPage />} />
                       <Route
